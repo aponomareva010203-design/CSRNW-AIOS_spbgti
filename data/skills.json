@@ -1,0 +1,13 @@
+{
+  "items": [
+    {
+      "id": "scimlchem-architect",
+      "name": "AutoSciML-Chem Architect",
+      "domain": "Химия, материалы, химическая технология",
+      "description_ru": "Вход: научная задача исследователя. Выход: архитектура модели и Colab-MVP.",
+      "author": "Максим Беляков",
+      "recommended_model": "ChemLLM-7B",
+      "file_url": "/data/skills/scimlchem-architect.md"
+    }
+  ]
+}

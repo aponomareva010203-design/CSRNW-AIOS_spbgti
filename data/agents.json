@@ -1,0 +1,40 @@
+{
+  "items": [
+    {
+      "id": "chemcrow",
+      "name": "ChemCrow",
+      "provider": "UR Whitelab",
+      "image_url": "https://opengraph.githubassets.com/1/ur-whitelab/chemcrow-public",
+      "description_ru": "Открытый химический агент: языковая модель с инструментами для поиска, расчётов и планирования синтеза.",
+      "tags": ["химия", "LLM", "инструменты"],
+      "access_url": "https://github.com/ur-whitelab/chemcrow-public"
+    },
+    {
+      "id": "openhands",
+      "name": "OpenHands",
+      "provider": "All-Hands-AI",
+      "image_url": "https://opengraph.githubassets.com/1/All-Hands-AI/OpenHands",
+      "description_ru": "Агент-разработчик: пишет и запускает код, работает с файлами и браузером, решает инженерные задачи.",
+      "tags": ["код", "автоматизация"],
+      "access_url": "https://github.com/All-Hands-AI/OpenHands"
+    },
+    {
+      "id": "metagpt",
+      "name": "MetaGPT",
+      "provider": "geekan",
+      "image_url": "https://opengraph.githubassets.com/1/geekan/MetaGPT",
+      "description_ru": "Мультиагентный фреймворк: распределяет роли между агентами и собирает из них рабочие процессы.",
+      "tags": ["мультиагентность", "оркестрация"],
+      "access_url": "https://github.com/geekan/MetaGPT"
+    },
+    {
+      "id": "chatdev",
+      "name": "ChatDev",
+      "provider": "OpenBMB",
+      "image_url": "https://opengraph.githubassets.com/1/OpenBMB/ChatDev",
+      "description_ru": "Виртуальная софтверная компания из агентов: аналитики, программисты и тестировщики работают в связке.",
+      "tags": ["мультиагентность", "код"],
+      "access_url": "https://github.com/OpenBMB/ChatDev"
+    }
+  ]
+}

@@ -1,2 +1,7 @@
 node_modules
-data
+data/*
+!data/agents.json
+!data/models.json
+!data/ontologies.json
+!data/rag_bases.json
+!data/skills.json
