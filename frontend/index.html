@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AIOS Технологического института</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="page">
+
+  <header class="topbar">
+    <a class="wordmark" href="index.html">
+      <span class="sigil"></span>
+      <span>AIOS</span>
+    </a>
+    <nav class="topnav">
+      <a href="pilot.html">Статус пилотного проекта</a>
+      <a href="data.html">Данные и знания</a>
+      <a href="models.html">Модели</a>
+      <a href="agents.html">Агенты</a>
+      <a href="polygons.html">Полигоны</a>
+      <button class="btn-workspace" id="btnNavWorkspace" type="button" hidden>Рабочее пространство</button>
+      <button class="btn-login" id="btnLogin" type="button" aria-haspopup="dialog" aria-controls="loginModal">Войти</button>
+      <div class="user-menu" id="userMenu" hidden>
+        <div class="user-menu-head">
+          <span class="user-menu-name">Харитонов М.</span>
+          <span class="user-menu-role">Администратор</span>
+        </div>
+        <a class="user-menu-item" href="pilot.html">Пилот: режим администратора</a>
+        <button class="user-menu-item user-menu-logout" id="btnLogout" type="button">Выйти</button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Модальное окно входа -->
+  <div class="modal-overlay" id="loginModal" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+      <button class="modal-close" id="modalClose" type="button" aria-label="Закрыть">✕</button>
+      <h2 id="loginTitle">Вход в AIOS</h2>
+      <form class="login-form" id="loginForm">
+        <label>
+          <span>Логин</span>
+          <input type="text" name="login" autocomplete="username" required>
+        </label>
+        <label>
+          <span>Пароль</span>
+          <input type="password" name="password" autocomplete="current-password" required>
+        </label>
+        <p class="login-msg" id="loginMsg" hidden></p>
+        <button class="btn-primary" type="submit">Войти</button>
+      </form>
+      <div class="modal-alt">
+        <span>Нет аккаунта?</span>
+        <a class="btn-register" href="#">Зарегистрироваться</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/auth.js"></script>
+  <section class="hero">
+    <h1>AIOS <span class="accent">Технологического института</span></h1>
+    <p class="subtitle">Единая архитектура данных, моделей и прикладных сервисов</p>
+    <div class="rule"></div>
+  </section>
+
+  <div class="trends-link">
+    <a class="btn-trends" href="trends.html">Тренды развития ИИ в химии<span class="arr">→</span></a>
+  </div>
+
+  <section class="goals">
+    <div class="goal">
+      <div class="num">01</div>
+      <div class="text">Переход к автономным исследованиям и разработкам</div>
+    </div>
+    <div class="goal">
+      <div class="num">02</div>
+      <div class="text">Повышение конкурентоспособности команд</div>
+    </div>
+    <div class="goal">
+      <div class="num">03</div>
+      <div class="text">Снятие барьеров доступа и передачи знаний и компетенций</div>
+    </div>
+  </section>
+
+  <section class="tiles">
+
+    <a class="tile tile--hero" href="pilot.html">
+      <div>
+        <div class="tile-title">Статус пилотного проекта</div>
+        <div class="tile-sub">Проект по разработке AIOS через мастерские с коллективами Технологического института</div>
+      </div>
+      <div class="progress">
+        <div class="progress-track">
+          <div class="progress-seg"></div>
+          <div class="progress-seg"></div>
+          <div class="progress-seg"></div>
+          <div class="progress-seg"></div>
+          <div class="progress-seg"></div>
+          <div class="progress-seg"></div>
+        </div>
+        <div class="progress-labels">
+          <span><span class="n">1</span>Онбординг</span>
+          <span><span class="n">2</span>Данные и знания</span>
+          <span><span class="n">3</span>Модели</span>
+          <span><span class="n">4</span>Агенты</span>
+          <span><span class="n">5</span>Полигоны</span>
+          <span><span class="n">6</span>Социальная сеть</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- Доступна после авторизации; управляется js/workspace.js -->
+    <button class="tile tile--workspace" id="btnWorkspace" type="button" hidden>
+      <span class="tile-title">Рабочее пространство</span>
+      <span class="tile-sub">Чат с агентами, навыками и знаниями AIOS</span>
+    </button>
+
+    <a class="tile tile--std" href="data.html">
+      <div class="tile-title">Данные и знания</div>
+    </a>
+
+    <a class="tile tile--std" href="models.html">
+      <div class="tile-title">Модели</div>
+    </a>
+
+    <a class="tile tile--std" href="agents.html">
+      <div class="tile-title">Агенты</div>
+    </a>
+
+    <a class="tile tile--std" href="polygons.html">
+      <div class="tile-title">Полигоны</div>
+    </a>
+
+    <div class="tile tile--std tile--wip" aria-disabled="true">
+      <div>
+        <div class="tile-title">Социальная сеть</div>
+        <div class="tile-status">в разработке</div>
+      </div>
+    </div>
+
+  </section>
+
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/workspace.js"></script>
+</body>
+</html>

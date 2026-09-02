@@ -1,0 +1,10 @@
+{
+  "name": "interactive-report-en",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Interactive Report — static site, no build step",
+  "scripts": {
+    "dev": "npx --yes serve . -l 5173",
+    "build": "echo \"Static site: nothing to build — ship the folder as-is.\""
+  }
+}

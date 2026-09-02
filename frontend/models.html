@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Модели — AIOS Технологического института</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="page">
+
+  <header class="topbar">
+    <a class="wordmark" href="index.html">
+      <span class="sigil"></span>
+      <span>AIOS</span>
+    </a>
+    <nav class="topnav">
+      <a href="pilot.html">Статус пилотного проекта</a>
+      <a href="data.html">Данные и знания</a>
+      <a href="models.html" class="active">Модели</a>
+      <a href="agents.html">Агенты</a>
+      <a href="polygons.html">Полигоны</a>
+      <button class="btn-workspace" id="btnNavWorkspace" type="button" hidden>Рабочее пространство</button>
+    </nav>
+  </header>
+
+  <section class="section-head">
+    <a class="backlink" href="index.html">← AIOS Технологического института</a>
+    <h1>Модели</h1>
+    <div class="rule"></div>
+  </section>
+
+  <div class="spoiler" id="spoilerConstructor">
+    <button class="spoiler-toggle" type="button" aria-expanded="false" aria-controls="spoilerConstructorBody">
+      <span class="spoiler-title">Конструктор моделей</span>
+      <span class="spoiler-chevron" aria-hidden="true"></span>
+    </button>
+    <div class="spoiler-body" id="spoilerConstructorBody" hidden>
+      <button class="btn-primary spoiler-cta" type="button" disabled>Создать PINN модель (в разработке)</button>
+    </div>
+  </div>
+
+  <div class="spoiler" id="spoilerRepo">
+    <button class="spoiler-toggle" type="button" aria-expanded="false" aria-controls="spoilerRepoBody">
+      <span class="spoiler-title">Репозиторий моделей</span>
+      <span class="spoiler-chevron" aria-hidden="true"></span>
+    </button>
+    <div class="spoiler-body" id="spoilerRepoBody" hidden>
+      <section class="models-section" aria-labelledby="modelsSpbtiTitle">
+        <h2 class="models-title" id="modelsSpbtiTitle">Сделано в Технологическом институте</h2>
+        <div class="models-grid" id="gridSpbti"></div>
+      </section>
+
+      <hr class="models-divider">
+
+      <section class="models-section" aria-labelledby="modelsOpenTitle">
+        <h2 class="models-title" id="modelsOpenTitle">Открытые модели</h2>
+        <div class="models-grid" id="gridOpen"></div>
+      </section>
+    </div>
+  </div>
+
+</div>
+
+<!-- Подробности модели -->
+<div class="modal-overlay" id="modelModal" hidden>
+  <div class="modal modal--model" role="dialog" aria-modal="true" aria-labelledby="modelModalName">
+    <button class="modal-close" id="modelModalClose" type="button" aria-label="Закрыть">✕</button>
+    <div class="mm-media"><img id="modelModalImg" src="assets/model-placeholder.svg" alt=""></div>
+    <h2 id="modelModalName"></h2>
+    <p class="mm-desc" id="modelModalDesc"></p>
+    <div class="mm-tags" id="modelModalTags"></div>
+    <div class="mm-source" id="modelModalSource"></div>
+    <div class="mm-actions" id="modelModalActions"></div>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/models.js"></script>
+<script src="js/workspace.js"></script>
+</body>
+</html>
