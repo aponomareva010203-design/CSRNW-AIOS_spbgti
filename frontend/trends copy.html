@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Тренды развития ИИ в химии — AIOS Технологического института</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="page">
+
+  <header class="topbar">
+    <a class="wordmark" href="index.html">
+      <span class="sigil"></span>
+      <span>AIOS</span>
+    </a>
+    <nav class="topnav">
+      <a href="pilot.html">Статус пилотного проекта</a>
+      <a href="knowledge.html">Данные и знания</a>
+      <a href="models.html">Модели</a>
+      <a href="agents.html">Агенты</a>
+      <a href="polygons.html">Полигоны</a>
+      <button class="btn-workspace" id="btnNavWorkspace" type="button" hidden>Рабочее пространство</button>
+    </nav>
+  </header>
+
+  <section class="section-head section-head--compact">
+    <a class="backlink" href="index.html">← AIOS Технологического института</a>
+    <h1>Тренды развития ИИ в химии</h1>
+  </section>
+
+  <section class="deck" id="deck">
+
+    <div class="slide-viewport" id="slideViewport">
+
+      <!-- Слайд 1: пробитие уровня эксперта -->
+      <div class="slide">
+        <div class="slide-head">
+          <h2>ИИ превзошёл экспертов с PhD в бенчмарках</h2>
+          <p>Бенчмарк GPQA Diamond — 198 вопросов аспирантского уровня по физике, биологии и химии, не решаемых через интернет-поиск</p>
+        </div>
+
+        <div class="slide-body">
+          <div id="benchChart" class="bench-chart"></div>
+          <aside class="stat-col">
+            <div class="stat">
+              <div class="stat-v">69,7%</div>
+              <div class="stat-l">правильных ответов · средний результат экспертов с PhD</div>
+            </div>
+            <div class="stat">
+              <div class="stat-v">77,3%</div>
+              <div class="stat-l">o1, первое пробитие — сентябрь 2024</div>
+            </div>
+            <div class="stat stat--accent">
+              <div class="stat-v">94,3%</div>
+              <div class="stat-l">Gemini 3.1 Pro, февраль 2026 — разрыв 24,6 п.п.</div>
+            </div>
+          </aside>
+        </div>
+
+        <div class="slide-foot">
+          <span class="slide-note">Потолок пока не взят: фронтир задач — органическая химия, ⅓ датасета и 70% самых трудных вопросов</span>
+          <span class="bench-source">По данным epoch.ai</span>
+        </div>
+      </div>
+
+      <!-- Слайд 2: масштаб открытий за пределами человеческого обзора -->
+      <div class="slide">
+        <div class="slide-head">
+          <h2>ИИ вышел за пределы человеческого масштаба производства знаний</h2>
+          <p>Materials Project — главный открытый каталог материалов: на нём учится половина современных моделей, его цитируют 32 000 научных работ</p>
+        </div>
+
+        <div class="slide-body slide-body--media">
+          <div class="stat-col">
+            <div class="stat">
+              <div class="stat-v">2,2 млн</div>
+              <div class="stat-l">новых кристаллов предсказано графовой нейросетью GNoME (DeepMind) за один проект, ноябрь 2023</div>
+            </div>
+            <div class="stat">
+              <div class="stat-v">381 тыс.</div>
+              <div class="stat-l">стабильных — больше, чем база накопила за 12 лет своей истории</div>
+            </div>
+          </div>
+          <div id="gnomeChart" class="gnome-chart"></div>
+        </div>
+
+        <div class="slide-foot">
+          <span class="slide-note">Производство знаний уже автоматизировано — узкое место сместилось в проверку и встраивание: между созданием данных и их принятием прошло два года</span>
+          <span class="bench-source">Materials Project · Merchant et al., Nature (2023) · Berkeley Lab (2026)</span>
+        </div>
+      </div>
+
+      <!-- Слайд 3: автономная лаборатория — измеримый эффект -->
+      <div class="slide">
+        <div class="slide-head">
+          <h2>Автономная лаборатория стала инструментом с измеримым эффектом</h2>
+          <p>GPT-5 × Ginkgo Bioworks: шесть раундов цикла «гипотеза — эксперимент — анализ» снизили себестоимость бесклеточного синтеза белка на два порядка — метод, которым быстро производят антитела, ферменты и компоненты лекарств</p>
+        </div>
+
+        <div class="slide-body slide-body--media">
+          <div class="stat-col">
+            <div class="stat">
+              <div class="stat-v">29 500</div>
+              <div class="stat-l">составов реакции проверено автономно за шесть месяцев</div>
+            </div>
+            <div class="stat">
+              <div class="stat-v">3 раунда</div>
+              <div class="stat-l">от получения моделью инструментов до уровня ниже SOTA</div>
+            </div>
+            <div class="stat stat--accent">
+              <div class="stat-v">−40%</div>
+              <div class="stat-l">к лучшему опубликованному результату: $698 → $422/г, выход белка +27%</div>
+            </div>
+          </div>
+          <div id="autolabChart" class="autolab-chart"></div>
+        </div>
+
+        <div class="slide-foot">
+          <span class="slide-note">Человек поставил цель и загружал реагенты — сам цикл «гипотеза — эксперимент — анализ» замкнулся без него</span>
+          <span class="bench-source">Smith et al., bioRxiv, февраль 2026 · OpenAI × Ginkgo Bioworks</span>
+        </div>
+      </div>
+
+      <!-- Слайд 4: PINN — модель, которая знает уравнения -->
+      <div class="slide">
+        <div class="slide-head">
+          <h2>Физико-информированная модель (PINN) — эксперт, который знает уравнения процесса</h2>
+          <p>Из монолитов «одна модель — одна задача» PINN становятся элементами мультиагентных систем</p>
+        </div>
+
+        <div class="slide-body slide-body--pinn">
+          <div class="dtw-title">Пример AIOS с PINN: цифровой двойник батареи (NTU × NVIDIA)</div>
+          <div id="dtwDiagram" class="dtw-diagram"></div>
+        </div>
+
+        <div class="slide-foot">
+          <span class="slide-note">PINN внутри действующего объекта — готовый компонент парка моделей AIOS</span>
+          <span class="bench-source">Zhu et al., arXiv:2509.02366 (2026) · NTU × NVIDIA</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="deck-nav">
+      <button class="deck-btn" id="deckPrev" type="button" aria-label="Предыдущий слайд">←</button>
+      <span class="deck-counter"><b id="deckCur">1</b> / <span id="deckTotal">2</span></span>
+      <button class="deck-btn" id="deckNext" type="button" aria-label="Следующий слайд">→</button>
+    </div>
+
+  </section>
+
+</div>
+<script src="js/benchmark.js"></script>
+<script src="js/gnome.js"></script>
+<script src="js/autolab.js"></script>
+<script src="js/dtwin.js"></script>
+<script src="js/api.js"></script>
+<script src="js/workspace.js"></script>
+<script>
+(function () {
+  var vp = document.getElementById('slideViewport');
+  var slides = vp.querySelectorAll('.slide');
+  var total = slides.length;
+  var cur = 0;
+  var curEl = document.getElementById('deckCur');
+  var prev = document.getElementById('deckPrev');
+  var next = document.getElementById('deckNext');
+
+  document.getElementById('deckTotal').textContent = total;
+
+  /* переход к конкретному слайду через ?s=N */
+  var qs = new URLSearchParams(location.search).get('s');
+  if (qs) {
+    var n = parseInt(qs, 10) - 1;
+    if (!isNaN(n) && n >= 0 && n < total) cur = n;
+  }
+
+  function apply() {
+    vp.style.transform = 'translateX(-' + cur * 100 + '%)';
+    curEl.textContent = cur + 1;
+    prev.disabled = cur === 0;
+    next.disabled = cur === total - 1;
+  }
+
+  function go(d) {
+    var n = cur + d;
+    if (n < 0 || n >= total) return;
+    cur = n;
+    apply();
+  }
+
+  prev.addEventListener('click', function () { go(-1); });
+  next.addEventListener('click', function () { go(1); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowRight') go(1);
+    if (e.key === 'ArrowLeft') go(-1);
+  });
+
+  apply();
+})();
+</script>
+</body>
+</html>
