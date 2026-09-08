@@ -161,8 +161,8 @@
   }
 
   /** Регистрация: {login, password, name?} → {ok, email}. Письмо — через SMTP. */
-  function register(login, password, name) {
-    return request('POST', '/auth/register', { login: login, password: password, name: name });
+  function register(login, password) {
+    return request('POST', '/auth/register', { login: login, password: password });
   }
 
   /** Повторная отправка письма подтверждения: {login, password} → {ok}. */

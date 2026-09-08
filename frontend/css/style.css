@@ -643,6 +643,8 @@ body.modal-open { overflow: hidden; }
 
 .login-form { display: flex; flex-direction: column; gap: 14px; }
 .login-form label { display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 650; color: var(--ink-soft); }
+/* display:flex выше перебивает [hidden] из UA-стилей — скрываем явно (поле «Повторите пароль» видно только в режиме регистрации) */
+.login-form label[hidden] { display: none; }
 .login-form input {
   padding: 11px 14px;
   border: 1px solid var(--line);

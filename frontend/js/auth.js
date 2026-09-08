@@ -15,7 +15,6 @@
   var form = document.getElementById('loginForm');
   var msg = document.getElementById('loginMsg');
   var title = document.getElementById('loginTitle');
-  var nameField = document.getElementById('nameField');
   var password2Field = document.getElementById('password2Field');
   var submitBtn = document.getElementById('loginSubmit');
   var registerLink = document.querySelector('.btn-register');
@@ -66,7 +65,6 @@
     mode = next;
     var isReg = mode === 'register';
     if (title) title.textContent = isReg ? 'Регистрация в AIOS' : 'Вход в AIOS';
-    if (nameField) nameField.hidden = !isReg;
     if (password2Field) password2Field.hidden = !isReg;
     var pass2 = form && form.elements.password2;
     if (pass2) pass2.required = isReg; /* скрытые поля браузер не валидирует — управляю сам */
@@ -223,19 +221,16 @@
       var password = form.elements.password.value;
 
       if (mode === 'register') {
-        var name = form.elements.name.value.trim();
         var password2 = form.elements.password2.value;
-        if (name && name.length < 2) { showMsg('Имя — минимум 2 символа (или оставьте поле пустым)', 'error'); return; }
         if (password.length < 4) { showMsg('Пароль — минимум 4 символа', 'error'); return; }
         if (password !== password2) { showMsg('Пароли не совпадают', 'error'); return; }
         submitBtn.disabled = true;
-        API.register(login, password, name)
+        API.register(login, password)
           .then(function () {
             /* автовхода нет: сначала подтверждение e-mail по ссылке из письма */
             setMode('login');
             var loginInput = form.elements.login;
             if (loginInput) loginInput.value = login;
-            form.elements.name.value = '';
             form.elements.password2.value = '';
             showMsg('Аккаунт создан. Письмо со ссылкой подтверждения отправлено на ' +
               login + '. Перейдите по ссылке из письма и войдите.', 'note');
@@ -293,8 +288,8 @@
       e.preventDefault();
       setMode('register');
       hideMsg();
-      var nameInput = form && form.elements.name;
-      if (nameInput) nameInput.focus();
+      var emailInput = form && form.elements.login;
+      if (emailInput) emailInput.focus();
     });
   }
   if (loginLink) {
