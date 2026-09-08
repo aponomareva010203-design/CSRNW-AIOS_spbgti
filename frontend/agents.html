@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Агенты и навыки — AIOS Технологического института</title>
+<link rel="stylesheet" href="css/style.css?v=20260908">
+</head>
+<body>
+<div class="page">
+
+  <header class="topbar">
+    <a class="wordmark" href="index.html">
+      <span class="sigil"></span>
+      <span>AIOS</span>
+    </a>
+    <nav class="topnav">
+      <a href="pilot.html">Статус пилотного проекта</a>
+      <a href="knowledge.html">Данные и знания</a>
+      <a href="models.html">Модели</a>
+      <a href="agents.html" class="active">Агенты</a>
+      <a href="polygons.html">Полигоны</a>
+      <button class="btn-workspace" id="btnNavWorkspace" type="button" hidden>Рабочее пространство</button>
+    </nav>
+  </header>
+
+  <section class="section-head">
+    <a class="backlink" href="index.html">← AIOS Технологического института</a>
+    <h1>Агенты и навыки</h1>
+    <div class="rule"></div>
+  </section>
+
+  <div class="spoiler" id="spoilerAgents">
+    <button class="spoiler-toggle" type="button" aria-expanded="false" aria-controls="spoilerAgentsBody">
+      <span class="spoiler-title">Агенты</span>
+      <span class="spoiler-chevron" aria-hidden="true"></span>
+    </button>
+    <div class="spoiler-body" id="spoilerAgentsBody" hidden>
+      <div class="models-grid" id="gridAgents"></div>
+    </div>
+  </div>
+
+  <div class="spoiler" id="spoilerSkills">
+    <button class="spoiler-toggle" type="button" aria-expanded="false" aria-controls="spoilerSkillsBody">
+      <span class="spoiler-title">Навыки</span>
+      <span class="spoiler-chevron" aria-hidden="true"></span>
+    </button>
+    <div class="spoiler-body" id="spoilerSkillsBody" hidden>
+      <div class="skills-grid" id="gridSkills"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Подробности агента -->
+<div class="modal-overlay" id="agentModal" hidden>
+  <div class="modal modal--model" role="dialog" aria-modal="true" aria-labelledby="agentModalName">
+    <button class="modal-close" id="agentModalClose" type="button" aria-label="Закрыть">✕</button>
+    <div class="mm-media"><img id="agentModalImg" src="assets/model-placeholder.svg" alt=""></div>
+    <h2 id="agentModalName"></h2>
+    <p class="mm-desc" id="agentModalDesc"></p>
+    <div class="mm-tags" id="agentModalTags"></div>
+    <div class="mm-source" id="agentModalSource"></div>
+    <div class="mm-actions" id="agentModalActions"></div>
+  </div>
+</div>
+
+<!-- Подробности навыка -->
+<div class="modal-overlay" id="skillModal" hidden>
+  <div class="modal modal--model" role="dialog" aria-modal="true" aria-labelledby="skillModalName">
+    <button class="modal-close" id="skillModalClose" type="button" aria-label="Закрыть">✕</button>
+    <h2 id="skillModalName"></h2>
+    <dl class="skill-meta">
+      <div class="skill-meta-row">
+        <dt>Предметный домен</dt>
+        <dd id="skillModalDomain"></dd>
+      </div>
+      <div class="skill-meta-row">
+        <dt>Описание</dt>
+        <dd id="skillModalDesc"></dd>
+      </div>
+      <div class="skill-meta-row">
+        <dt>Разработчик</dt>
+        <dd id="skillModalAuthor"></dd>
+      </div>
+      <div class="skill-meta-row">
+        <dt>Рекомендуемая модель</dt>
+        <dd id="skillModalModel"></dd>
+      </div>
+    </dl>
+    <div class="mm-actions skill-actions">
+      <a class="btn-primary mm-btn" id="skillModalDownload" href="#" download>Скачать навык .md</a>
+      <button class="btn-primary mm-btn" type="button" disabled>Использовать в чате (в разработке)</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/agents.js?v=20260908"></script>
+<script src="js/api.js?v=20260908"></script>
+<script src="js/workspace.js?v=20260908"></script>
+</body>
+</html>

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AIOS Технологического института</title>
+<link rel="stylesheet" href="css/style.css?v=20260908">
+</head>
+<body>
+<div class="page">
+
+  <header class="topbar">
+    <a class="wordmark" href="index.html">
+      <span class="sigil"></span>
+      <span>AIOS</span>
+    </a>
+    <nav class="topnav">
+      <a href="pilot.html">Статус пилотного проекта</a>
+      <a href="knowledge.html">Данные и знания</a>
+      <a href="models.html">Модели</a>
+      <a href="agents.html">Агенты</a>
+      <a href="polygons.html">Полигоны</a>
+      <button class="btn-workspace" id="btnNavWorkspace" type="button" hidden>Рабочее пространство</button>
+      <button class="btn-login" id="btnLogin" type="button" aria-haspopup="dialog" aria-controls="loginModal">Войти</button>
+      <div class="user-menu" id="userMenu" hidden>
+        <div class="user-menu-head">
+          <span class="user-menu-name">Харитонов М.</span>
+          <span class="user-menu-role">Администратор</span>
+        </div>
+        <a class="user-menu-item" id="menuPilot" href="pilot.html" hidden>Пилот: режим администратора</a>
+        <a class="user-menu-item" id="menuAdmin" href="admin.html" hidden>Админ-панель</a>
+        <button class="user-menu-item" id="btnChangePass" type="button" hidden>Сменить пароль</button>
+        <button class="user-menu-item user-menu-logout" id="btnLogout" type="button">Выйти</button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Модальное окно входа / регистрации (js/auth.js) -->
+  <div class="modal-overlay" id="loginModal" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+      <button class="modal-close" id="modalClose" type="button" aria-label="Закрыть">✕</button>
+      <h2 id="loginTitle">Вход в AIOS</h2>
+      <form class="login-form" id="loginForm">
+        <label id="nameField" hidden>
+          <span>Имя и фамилия</span>
+          <input type="text" name="name" autocomplete="name" maxlength="80">
+        </label>
+        <label>
+          <span>Логин (e-mail)</span>
+          <input type="email" name="login" autocomplete="username" required>
+        </label>
+        <label>
+          <span>Пароль</span>
+          <input type="password" name="password" autocomplete="current-password" required>
+        </label>
+        <p class="login-msg" id="loginMsg" hidden></p>
+        <button class="btn-primary" id="loginSubmit" type="submit">Войти</button>
+      </form>
+      <div class="modal-alt">
+        <span id="altQuestion">Нет аккаунта?</span>
+        <a class="btn-register" href="#">Зарегистрироваться</a>
+        <a class="btn-register btn-login-alt" href="#" hidden>Войти</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Модальное окно смены пароля -->
+  <div class="modal-overlay" id="passModal" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="passTitle">
+      <button class="modal-close" id="passClose" type="button" aria-label="Закрыть">✕</button>
+      <h2 id="passTitle">Смена пароля</h2>
+      <form class="login-form" id="passForm">
+        <label>
+          <span>Текущий пароль</span>
+          <input type="password" name="old_password" autocomplete="current-password" required>
+        </label>
+        <label>
+          <span>Новый пароль (минимум 4 символа)</span>
+          <input type="password" name="new_password" autocomplete="new-password" minlength="4" required>
+        </label>
+        <label>
+          <span>Новый пароль ещё раз</span>
+          <input type="password" name="new_password2" autocomplete="new-password" minlength="4" required>
+        </label>
+        <p class="login-msg" id="passMsg" hidden></p>
+        <button class="btn-primary" id="passSubmit" type="submit">Сохранить пароль</button>
+      </form>
+      <div class="modal-alt">
+        <span>После смены пароля другие сессии будут завершены.</span>
+      </div>
+    </div>
+  </div>
+
+  <section class="hero">
+    <h1>AIOS <span class="accent">Технологического института</span></h1>
+    <p class="subtitle">Единая архитектура данных, моделей и прикладных сервисов</p>
+    <div class="rule"></div>
+  </section>
+
+  <div class="trends-link">
+    <a class="btn-trends" href="trends.html">Тренды развития ИИ в химии<span class="arr">→</span></a>
+  </div>
+
+  <h2 class="goals-title">Цели создания AIOS</h2>
+  <section class="goals">
+    <div class="goal">
+      <div class="num">01</div>
+      <div class="text">Переход к автономным исследованиям и разработкам</div>
+    </div>
+    <div class="goal">
+      <div class="num">02</div>
+      <div class="text">Повышение конкурентоспособности команд</div>
+    </div>
+    <div class="goal">
+      <div class="num">03</div>
+      <div class="text">Снятие барьеров доступа и передачи знаний и компетенций</div>
+    </div>
+  </section>
+
+  <section class="tiles">
+
+    <a class="tile tile--hero" href="pilot.html">
+      <div>
+        <div class="tile-title">Статус пилотного проекта</div>
+        <div class="tile-sub">Проект по разработке AIOS через мастерские с коллективами Технологического института</div>
+      </div>
+      <div class="progress">
+        <div class="progress-track">
+          <div class="progress-seg"></div>
+          <div class="progress-seg"></div>
+          <div class="progress-seg"></div>
+          <div class="progress-seg"></div>
+          <div class="progress-seg"></div>
+          <div class="progress-seg"></div>
+        </div>
+        <div class="progress-labels">
+          <span><span class="n">1</span>Онбординг</span>
+          <span><span class="n">2</span>Данные и знания</span>
+          <span><span class="n">3</span>Модели</span>
+          <span><span class="n">4</span>Агенты</span>
+          <span><span class="n">5</span>Полигоны</span>
+          <span><span class="n">6</span>Социальная сеть агентов</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- Доступна после авторизации; управляется js/workspace.js -->
+    <button class="tile tile--workspace" id="btnWorkspace" type="button" hidden>
+      <span class="tile-title">Рабочее пространство</span>
+      <span class="tile-sub">Чат с агентами, навыками и знаниями AIOS</span>
+    </button>
+
+    <a class="tile tile--std" href="knowledge.html">
+      <div class="tile-title">Данные и знания</div>
+    </a>
+
+    <a class="tile tile--std" href="models.html">
+      <div class="tile-title">Модели</div>
+    </a>
+
+    <a class="tile tile--std" href="agents.html">
+      <div class="tile-title">Агенты</div>
+    </a>
+
+    <div class="tile tile--std tile--wip" aria-disabled="true">
+      <div>
+      <div class="tile-title">Полигоны</div>
+      <div class="tile-status">в разработке</div>
+      </div>
+    </div>
+
+    <div class="tile tile--std tile--wip" aria-disabled="true">
+      <div>
+        <div class="tile-title">Социальная сеть агентов</div>
+        <div class="tile-status">в разработке</div>
+      </div>
+    </div>
+
+  </section>
+
+</div>
+
+<script src="js/api.js?v=20260908"></script>
+<script src="js/auth.js?v=20260908"></script>
+<script src="js/workspace.js?v=20260908"></script>
+</body>
+</html>

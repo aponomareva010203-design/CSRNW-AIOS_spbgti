@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Данные и знания — AIOS Технологического института</title>
+<link rel="stylesheet" href="css/style.css?v=20260908">
+</head>
+<body>
+
+<div class="page">
+
+  <!-- ==================== Шапка (идентична остальным страницам) ==================== -->
+  <header class="topbar">
+    <a href="index.html" class="wordmark">
+      <span class="sigil"></span>
+      AIOS
+    </a>
+    <nav class="topnav">
+      <a href="pilot.html">Статус пилотного проекта</a>
+      <a href="knowledge.html" class="active">Данные и знания</a>
+      <a href="models.html">Модели</a>
+      <a href="agents.html">Агенты</a>
+      <a href="polygons.html">Полигоны</a>
+      <button type="button" class="btn-workspace" hidden>Рабочее пространство</button>
+      <button type="button" class="btn-login">Войти</button>
+    </nav>
+  </header>
+
+  <!-- ==================== Заголовок раздела ==================== -->
+  <section class="section-head">
+    <a href="index.html" class="backlink">← AIOS Технологического института</a>
+    <h1>Данные и знания</h1>
+    <div class="rule"></div>
+  </section>
+
+  <!-- ==================== Спойлер: RAG-базы ==================== -->
+  <section class="spoiler" id="spoilerRag">
+    <button type="button" class="spoiler-toggle" aria-expanded="false">
+      <span class="spoiler-title">RAG-базы</span>
+      <span class="spoiler-chevron"></span>
+    </button>
+    <div class="spoiler-body" hidden>
+      <div class="models-grid" id="gridRag"></div>
+    </div>
+  </section>
+
+  <!-- ==================== Спойлер: Онтологии ==================== -->
+  <section class="spoiler" id="spoilerOnto">
+    <button type="button" class="spoiler-toggle" aria-expanded="false">
+      <span class="spoiler-title">Онтологии</span>
+      <span class="spoiler-chevron"></span>
+    </button>
+    <div class="spoiler-body" hidden>
+      <div class="models-grid" id="gridOnto"></div>
+    </div>
+  </section>
+
+</div>
+
+<!-- ==================== Модалка: карточка RAG-базы ==================== -->
+<div class="modal-overlay" id="ragModal" hidden>
+  <div class="modal modal--model">
+    <button type="button" class="modal-close" id="ragModalClose" aria-label="Закрыть">&times;</button>
+    <div class="mm-media">
+      <img id="ragModalImg" src="" alt="">
+    </div>
+    <h2 id="ragModalName"></h2>
+    <p class="mm-desc" id="ragModalDesc"></p>
+    <div class="mm-tags" id="ragModalChips"></div>
+    <div class="mm-tags" id="ragModalTags"></div>
+    <p class="mm-source" id="ragModalSource"></p>
+    <div class="mm-actions" id="ragModalActions"></div>
+  </div>
+</div>
+
+<!-- ==================== Модалка: карточка онтологии ==================== -->
+<div class="modal-overlay" id="ontoModal" hidden>
+  <div class="modal modal--model">
+    <button type="button" class="modal-close" id="ontoModalClose" aria-label="Закрыть">&times;</button>
+    <div class="mm-media">
+      <img id="ontoModalImg" src="" alt="">
+    </div>
+    <h2 id="ontoModalName"></h2>
+    <p class="mm-desc" id="ontoModalDesc"></p>
+    <div class="mm-tags" id="ontoModalChips"></div>
+    <p class="mm-source" id="ontoModalProjects"></p>
+    <div class="mm-tags" id="ontoModalTags"></div>
+    <div class="mm-actions" id="ontoModalActions"></div>
+  </div>
+</div>
+
+<script src="js/knowledge.js?v=20260908"></script>
+</body>
+</html>

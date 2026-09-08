@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Админ-панель — AIOS Технологического института</title>
+<link rel="stylesheet" href="css/style.css?v=20260908">
+</head>
+<body>
+<div class="page">
+
+  <header class="topbar">
+    <a class="wordmark" href="index.html">
+      <span class="sigil"></span>
+      <span>AIOS</span>
+    </a>
+    <nav class="topnav">
+      <a href="pilot.html">Статус пилотного проекта</a>
+      <a href="knowledge.html">Данные и знания</a>
+      <a href="models.html">Модели</a>
+      <a href="agents.html">Агенты</a>
+      <a href="polygons.html">Полигоны</a>
+    </nav>
+  </header>
+
+  <section class="section-head">
+    <a class="backlink" href="index.html">← AIOS Технологического института</a>
+    <h1>Админ-панель</h1>
+    <p class="subtitle">Все регистрации пользователей AIOS</p>
+    <div class="rule"></div>
+  </section>
+
+  <!-- Сообщение об отказе в доступе / ошибке загрузки -->
+  <section class="admin-denied" id="adminAccess" hidden>
+    <p class="login-msg login-msg--error" id="adminAccessMsg"></p>
+    <p class="admin-denied-hint">Вернуться на <a class="pl-link" href="index.html">главную страницу</a></p>
+  </section>
+
+  <section class="admin-wrap admin-wrap--llm" id="llmWrap" hidden>
+    <div class="admin-toolbar">
+      <h2 class="admin-h2">Настройки внешних API (LLM)</h2>
+      <p class="admin-count" id="llmCurrent">Модель рабочего пространства для всех пользователей</p>
+    </div>
+    <form class="llm-form" id="llmForm">
+      <label>
+        <span>Endpoint (Base URL)</span>
+        <input type="url" name="base_url" placeholder="https://api.proxyapi.ru/v1" required>
+      </label>
+      <label>
+        <span>API-ключ <em id="llmKeyHint"></em></span>
+        <input type="password" name="api_key" placeholder="sk-… (пусто = без изменений)" autocomplete="new-password">
+      </label>
+      <label>
+        <span>Модель</span>
+        <span class="llm-model-row">
+          <input type="text" name="model" list="llmModels" placeholder="введите или выберите из списка" required>
+          <datalist id="llmModels"></datalist>
+          <button class="adm-btn" id="btnLoadModels" type="button">Загрузить модели</button>
+        </span>
+      </label>
+      <p class="login-msg login-msg--note admin-msg" id="llmStatus" hidden></p>
+      <p class="login-msg login-msg--error admin-msg" id="llmMsg" hidden></p>
+      <div class="llm-actions">
+        <button class="adm-btn" id="btnTestLLM" type="button">Проверить соединение</button>
+        <button class="btn-primary llm-save" type="submit">Сохранить</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="admin-wrap" id="adminWrap" hidden>
+    <div class="admin-toolbar">
+      <p class="admin-count">Всего регистраций: <span id="adminCount">…</span></p>
+      <button class="adm-btn" id="btnRefresh" type="button">Обновить список</button>
+    </div>
+    <p class="login-msg login-msg--error admin-msg" id="adminMsg" hidden></p>
+    <div class="admin-table-wrap">
+      <table class="admin-table" id="adminTable">
+        <thead>
+          <tr>
+            <th class="at-num">№</th>
+            <th class="at-name">Имя</th>
+            <th>Логин</th>
+            <th>Роль</th>
+            <th>Регистрация</th>
+            <th>Последний вход</th>
+            <th class="at-actions">Действия</th>
+          </tr>
+        </thead>
+        <tbody id="adminBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+</div>
+<script src="js/api.js?v=20260908"></script>
+<script src="js/admin.js?v=20260908"></script>
+</body>
+</html>

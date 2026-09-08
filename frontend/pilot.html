@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Статус пилотного проекта — AIOS Технологического института</title>
+<link rel="stylesheet" href="css/style.css?v=20260908">
+</head>
+<body>
+<div class="page">
+
+  <header class="topbar">
+    <a class="wordmark" href="index.html">
+      <span class="sigil"></span>
+      <span>AIOS</span>
+    </a>
+    <nav class="topnav">
+      <a href="pilot.html" class="active">Статус пилотного проекта</a>
+      <a href="knowledge.html">Данные и знания</a>
+      <a href="models.html">Модели</a>
+      <a href="agents.html">Агенты</a>
+      <a href="polygons.html">Полигоны</a>
+      <button class="btn-workspace" id="btnNavWorkspace" type="button" hidden>Рабочее пространство</button>
+    </nav>
+  </header>
+
+  <section class="section-head">
+    <a class="backlink" href="index.html">← AIOS Технологического института</a>
+    <h1>Статус пилотного проекта</h1>
+    <div class="rule"></div>
+  </section>
+
+  <section class="pilot-wrap">
+    <div class="pilot-legend">
+      <span class="pl-item"><span class="pl-dot pl-dot--0"></span>не начато</span>
+      <span class="pl-item"><span class="pl-dot pl-dot--1"></span>начато</span>
+      <span class="pl-item"><span class="pl-dot pl-dot--2"></span>в работе</span>
+      <span class="pl-item"><span class="pl-dot pl-dot--3"></span>готово</span>
+      <span class="pl-hint" id="adminHint"></span>
+    </div>
+    <div class="pilot-table-wrap">
+      <table class="pilot-table" id="pilotTable">
+        <thead>
+          <tr>
+            <th class="pt-num">№</th>
+            <th class="pt-topic">Тематика проекта</th>
+            <th class="pt-lead">ФИО руководителя</th>
+            <th>RAG и онтология</th>
+            <th>Модели</th>
+            <th>Агенты</th>
+            <th>Виртуальный полигон</th>
+            <th>Социальная сеть агентов</th>
+          </tr>
+        </thead>
+        <tbody id="pilotBody"></tbody>
+      </table>
+    </div>
+    <div class="pilot-actions">
+      <button class="pt-add" id="btnAddRow" type="button" hidden>+ Добавить проект</button>
+    </div>
+  </section>
+
+</div>
+<script src="js/pilot.js?v=20260908"></script>
+<script src="js/api.js?v=20260908"></script>
+<script src="js/workspace.js?v=20260908"></script>
+</body>
+</html>
