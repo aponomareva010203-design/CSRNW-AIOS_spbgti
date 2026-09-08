@@ -41,22 +41,41 @@ body {
 
 a { color: inherit; text-decoration: none; }
 
-/* ---------- Каркас ---------- */
+/* ---------- Каркас: левое меню-лента + контент ---------- */
+
+.layout {
+  display: flex;
+  align-items: stretch;
+  min-height: 100vh;
+}
+
+.sidebar {
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  height: 100vh;
+  width: 236px;
+  flex: none;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  padding: 26px 16px 20px;
+  border-right: 1px solid var(--line);
+  background: var(--paper);
+}
+
+.sidebar .wordmark { margin: 0 10px 26px; }
 
 .page {
+  flex: 1 1 auto;
+  min-width: 0;
   max-width: 1120px;
   margin: 0 auto;
   padding: 0 32px 96px;
+  box-sizing: border-box;
 }
 
-/* ---------- Шапка ---------- */
-
-.topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 28px 0 0;
-}
+/* ---------- Логотип ---------- */
 
 .wordmark {
   display: inline-flex;
@@ -83,26 +102,59 @@ a { color: inherit; text-decoration: none; }
   border: 2px solid var(--gold-soft);
 }
 
-.topnav {
+/* ---------- Левое меню-лента ---------- */
+
+.side-nav {
   display: flex;
-  gap: 4px;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 2px;
 }
 
-.topnav a {
+.side-link {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 9px 12px;
+  border: none;
+  border-radius: 10px;
+  background: none;
+  font-family: inherit;
   font-size: 13.5px;
+  line-height: 1.35;
   color: var(--ink-soft);
-  padding: 7px 12px;
-  border-radius: 999px;
+  text-align: left;
+  cursor: pointer;
   transition: color .2s ease, background .2s ease;
 }
 
-.topnav a:hover { color: var(--green-deep); background: var(--paper-soft); }
+.side-link:hover { color: var(--green-deep); background: var(--paper-soft); }
 
-.topnav a.active {
+.side-link.active {
   color: var(--green-deep);
   background: var(--paper-soft);
   font-weight: 600;
+}
+
+/* display:block выше перебивает атрибут hidden — «Рабочее
+   пространство» и «Настройки» были бы видны всем */
+.side-link[hidden] { display: none; }
+
+/* ---------- Нижняя часть меню: настройки, админ-панель, вход ---------- */
+
+.sidebar-footer {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.sidebar-footer .btn-login {
+  margin-left: 0;
+  margin-top: 8px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* ---------- Титульный блок ---------- */
@@ -359,11 +411,55 @@ a { color: inherit; text-decoration: none; }
   .tile--std { grid-column: span 6; }
   .tile--hero { padding: 26px; }
   .progress-labels span { font-size: 10.5px; }
-  .topbar { flex-direction: column; align-items: flex-start; gap: 16px; }
+}
+
+/* Сайдбар → горизонтальная верхняя панель на узких экранах */
+@media (max-width: 900px) {
+  .layout { flex-direction: column; }
+  .sidebar {
+    position: static;
+    height: auto;
+    width: auto;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    padding: 14px 20px;
+    border-right: none;
+    border-bottom: 1px solid var(--line);
+  }
+  .sidebar .wordmark { margin: 0 10px 0 0; }
+  .side-nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .side-link {
+    width: auto;
+    padding: 7px 12px;
+    border-radius: 999px;
+  }
+  .sidebar-footer {
+    margin-top: 0;
+    margin-left: auto;
+    padding-top: 0;
+    border-top: none;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+  }
+  .sidebar-footer .btn-login { margin-top: 0; width: auto; }
+  .user-menu {
+    bottom: auto;
+    top: calc(100% + 10px);
+    left: auto;
+    right: 0;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .tile, .tile::after, .topnav a { transition: none; }
+  .tile, .tile::after, .side-link { transition: none; }
 }
 
 /* ---------- Страница «Статус пилотного проекта» ---------- */
@@ -525,13 +621,14 @@ gap: 6px;
 }
 .btn-login--user:hover { background: var(--green-deep); color: #F4F6EF; }
 
-/* Выпадающее меню пользователя */
-.topnav { position: relative; }
+/* Выпадающее меню пользователя: живёт в нижней части сайдбара,
+   раскрывается вверх */
+.sidebar-user { position: relative; }
 
 .user-menu {
   position: absolute;
-  top: calc(100% + 10px);
-  right: 0;
+  bottom: calc(100% + 10px);
+  left: 0;
   z-index: 90;
   min-width: 240px;
   background: var(--card);
@@ -578,6 +675,9 @@ gap: 6px;
   cursor: pointer;
 }
 .user-menu-item:hover { background: var(--paper); }
+/* display:block выше перебивает атрибут hidden — без этого правила
+   «Пилот: режим администратора» и «Сменить пароль» видны всем */
+.user-menu-item[hidden] { display: none; }
 .user-menu-logout { color: #A5483D; font-weight: 650; }
 .user-menu-logout:hover { background: #F7ECEA; }
 
@@ -1060,23 +1160,6 @@ body.modal-open { overflow: hidden; }
 .tile--workspace .tile-sub { margin-top: 6px; font-size: 14px; color: rgba(44, 49, 40, .72); }
 .tile--workspace::after { color: #2C3128; }
 
-/* --- Кнопка в верхнем меню (все страницы, только после входа) --- */
-
-.btn-workspace {
-  font-family: inherit;
-  font-size: 13.5px;
-  font-weight: 700;
-  color: var(--green-deep);
-  background: var(--gold-soft);
-  border: 1px solid var(--gold);
-  padding: 7px 12px;
-  border-radius: 999px;
-  cursor: pointer;
-  transition: background .2s ease, color .2s ease;
-}
-.btn-workspace:hover { background: var(--gold); color: #fff; }
-.btn-workspace[hidden] { display: none; }
-
 /* --- Overlay и панель --- */
 
 .ws-overlay {
@@ -1282,7 +1365,7 @@ body.ws-dragging { user-select: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ws-overlay, .ws-panel, .btn-workspace { transition: none; }
+  .ws-overlay, .ws-panel { transition: none; }
   .ws-typing span { animation: none; }
   .ws-cursor { animation: none; }
 }

@@ -1,15 +1,84 @@
 /* ============================================================
-   Модальное окно входа/регистрации + серверная авторизация.
-
-   Сессия хранится в localStorage (ключ aios-auth-v1 — его же читают
-   pilot.js и workspace.js): {token, login, name, role}. Запросы идут
-   через window.AIOS_API (/api/auth/*). Роль «Администратор» открывает
-   пункты меню «Пилот: режим администратора» и «Админ-панель».
+   Авторизация AIOS Harness: вход, регистрация, подтверждение
+   e-mail, смена пароля, выход. Кнопка «Войти» и меню пользователя
+   живут в левом меню на всех страницах; модальные окна
+   (loginModal/passModal) инъецируются скриптом — в HTML страниц
+   их больше нет. Сессия хранится в localStorage (ключ aios-auth-v1
+   — его же читают pilot.js и workspace.js): {token, login, name,
+   role}. Запросы идут через window.AIOS_API (/api/auth/*).
+   Роль «Администратор» открывает пункт меню «Пилот: режим
+   администратора» и ссылку «Админ-панель» в левом меню.
    ============================================================ */
 (function () {
   var btn = document.getElementById('btnLogin');
+  if (!btn) return; /* кнопка входа есть в левом меню на всех страницах */
+
+  /* ---------- модалки входа и смены пароля: единая разметка ----------
+     В HTML страниц модалок больше нет: если их нет в DOM, auth.js
+     инъецирует их в конец body (тот же приём, что PANEL_HTML в
+     workspace.js). Классы и id совпадают с прежней разметкой. */
+  var MODALS_HTML = [
+    '<div class="modal-overlay" id="loginModal" hidden>',
+    '  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="loginTitle">',
+    '    <button class="modal-close" id="modalClose" type="button" aria-label="Закрыть">✕</button>',
+    '    <h2 id="loginTitle">Вход в AIOS</h2>',
+    '    <form class="login-form" id="loginForm">',
+    '      <label>',
+    '        <span>E-mail</span>',
+    '        <input type="email" name="login" autocomplete="username" required>',
+    '      </label>',
+    '      <label>',
+    '        <span>Пароль</span>',
+    '        <input type="password" name="password" autocomplete="current-password" required>',
+    '      </label>',
+    '      <label id="password2Field" hidden>',
+    '        <span>Повторите пароль</span>',
+    '        <input type="password" name="password2" autocomplete="new-password" minlength="4">',
+    '      </label>',
+    '      <p class="login-msg" id="loginMsg" hidden></p>',
+    '      <a class="resend-link" id="resendLink" href="#" hidden>Отправить письмо подтверждения ещё раз</a>',
+    '      <button class="btn-primary" id="loginSubmit" type="submit">Войти</button>',
+    '    </form>',
+    '    <div class="modal-alt">',
+    '      <span id="altQuestion">Нет аккаунта?</span>',
+    '      <a class="btn-register" href="#">Зарегистрироваться</a>',
+    '      <a class="btn-register btn-login-alt" href="#" hidden>Войти</a>',
+    '    </div>',
+    '  </div>',
+    '</div>',
+    '<div class="modal-overlay" id="passModal" hidden>',
+    '  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="passTitle">',
+    '    <button class="modal-close" id="passClose" type="button" aria-label="Закрыть">✕</button>',
+    '    <h2 id="passTitle">Смена пароля</h2>',
+    '    <form class="login-form" id="passForm">',
+    '      <label>',
+    '        <span>Текущий пароль</span>',
+    '        <input type="password" name="old_password" autocomplete="current-password" required>',
+    '      </label>',
+    '      <label>',
+    '        <span>Новый пароль (минимум 4 символа)</span>',
+    '        <input type="password" name="new_password" autocomplete="new-password" minlength="4" required>',
+    '      </label>',
+    '      <label>',
+    '        <span>Новый пароль ещё раз</span>',
+    '        <input type="password" name="new_password2" autocomplete="new-password" minlength="4" required>',
+    '      </label>',
+    '      <p class="login-msg" id="passMsg" hidden></p>',
+    '      <button class="btn-primary" id="passSubmit" type="submit">Сохранить пароль</button>',
+    '    </form>',
+    '    <div class="modal-alt">',
+    '      <span>После смены пароля другие сессии будут завершены.</span>',
+    '    </div>',
+    '  </div>',
+    '</div>'
+  ].join('\n');
+
+  if (!document.getElementById('loginModal')) {
+    document.body.insertAdjacentHTML('beforeend', MODALS_HTML);
+  }
+
   var modal = document.getElementById('loginModal');
-  if (!btn || !modal) return;
+  if (!modal) return;
 
   var closeBtn = document.getElementById('modalClose');
   var form = document.getElementById('loginForm');
@@ -21,6 +90,7 @@
   var loginLink = document.querySelector('.btn-login-alt');
   var altQuestion = document.getElementById('altQuestion');
   var resendLink = document.getElementById('resendLink');
+  var btnSettings = document.getElementById('btnSettings');
   var userMenu = document.getElementById('userMenu');
   var logoutBtn = document.getElementById('btnLogout');
   var menuAdmin = document.getElementById('menuAdmin');
@@ -164,8 +234,9 @@
     /* админ-пункты меню видны только роли «Администратор» */
     if (menuAdmin) menuAdmin.hidden = !isAdmin;
     if (menuPilot) menuPilot.hidden = !isAdmin;
-    /* смена пароля доступна любому вошедшему */
+    /* «Настройки» (смена пароля) — любому вошедшему */
     if (changePassBtn) changePassBtn.hidden = !session;
+    if (btnSettings) btnSettings.hidden = !session;
     /* Оповещаем подсистемы (например, кнопку рабочего пространства) */
     try {
       window.dispatchEvent(new CustomEvent('aios-auth-change'));
@@ -192,6 +263,7 @@
     });
   }
   if (changePassBtn) changePassBtn.addEventListener('click', openPassModal);
+  if (btnSettings) btnSettings.addEventListener('click', openPassModal);
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') {
       if (!modal.hidden) closeModal();
