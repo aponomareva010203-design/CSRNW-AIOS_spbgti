@@ -1,6 +1,8 @@
-"""HTTP-слой авторизации: регистрация, вход, токены, админ-раздел.
+"""HTTP-слой авторизации: регистрация с подтверждением e-mail, вход, токены, админ-раздел.
 
-POST   /api/auth/register     — создать учётную запись (роль «Пользователь»);
+POST   /api/auth/register     — создать учётную запись (роль «Пользователь», без автовхода);
+POST   /api/auth/resend       — повторно отправить письмо подтверждения;
+GET    /api/auth/confirm      — подтверждение e-mail по ссылке из письма (редирект на главную);
 POST   /api/auth/login        — вход: выдаёт Bearer-токен, обновляет last_login;
 POST   /api/auth/logout       — выход: инвалидация текущего токена;
 GET    /api/auth/me           — профиль по токену;
@@ -9,7 +11,9 @@ PATCH  /api/admin/users/{id}  — [админ] смена роли;
 DELETE /api/admin/users/{id}  — [админ] удаление пользователя.
 
 Токен передаётся в заголовке Authorization: Bearer <token> и живёт
-7 дней (server-side, см. api/runtime/tokens.py).
+7 дней (server-side, см. api/runtime/tokens.py). Токены подтверждения
+e-mail живут 48 часов (api/runtime/confirmations.py); письма уходят через
+api/runtime/mailer.py — без настроенного SMTP ссылка печатается в лог.
 """
 
 import time
@@ -17,15 +21,18 @@ from functools import lru_cache
 
 import httpx
 from fastapi import APIRouter, Depends, Header, HTTPException
+from fastapi.responses import RedirectResponse
 from pydantic import BaseModel, Field
 
 from ..runtime.config import get_settings
+from ..runtime.confirmations import ConfirmationStore
 from ..runtime.llm_settings import (
     LLMSettingsError,
     LLMSettingsStore,
     effective_config,
     mask_key,
 )
+from ..runtime.mailer import MailError, send_confirmation_email
 from ..runtime.tokens import TokenStore
 from ..runtime.users import (
     ROLES,
@@ -50,6 +57,11 @@ def get_token_store() -> TokenStore:
 
 
 @lru_cache(maxsize=1)
+def get_confirmation_store() -> ConfirmationStore:
+    return ConfirmationStore(get_settings().runtime_dir / "confirm")
+
+
+@lru_cache(maxsize=1)
 def get_llm_store() -> LLMSettingsStore:
     return LLMSettingsStore(get_settings().runtime_dir)
 
@@ -59,7 +71,8 @@ class RegisterRequest(BaseModel):
 
     login: str = Field(min_length=3, max_length=120)
     password: str = Field(min_length=4, max_length=128)
-    name: str = Field(min_length=2, max_length=80)
+    # Имя опционально; правила (2–80, если задано) проверяет UserStore.
+    name: str = Field(default="", max_length=80)
 
 
 class LoginRequest(BaseModel):
@@ -67,6 +80,13 @@ class LoginRequest(BaseModel):
 
     login: str = Field(min_length=3, max_length=120)
     password: str = Field(min_length=1, max_length=128)
+
+
+class ResendRequest(BaseModel):
+    """Тело POST /api/auth/resend (пароль может быть ещё не введён)."""
+
+    login: str = Field(min_length=3, max_length=120)
+    password: str = Field(default="", max_length=128)
 
 
 class RoleUpdate(BaseModel):
@@ -124,16 +144,86 @@ async def require_admin(user: dict = Depends(get_current_user)) -> dict:
     return user
 
 
+def _confirmation_link(user: dict) -> str:
+    """Ссылка подтверждения e-mail для письма."""
+    token = get_confirmation_store().issue(user["id"])
+    base = get_settings().public_base_url.rstrip("/")
+    if not base:
+        # dev-фолбэк без настроенного домена: относительная ссылка в лог
+        return f"/api/auth/confirm?token={token}"
+    return f"{base}/api/auth/confirm?token={token}"
+
+
 @router.post("/auth/register", status_code=201)
 def register(req: RegisterRequest):
+    """Регистрация: создаёт неподтверждённую учётку и отправляет письмо.
+
+    Автовхода нет — сначала подтверждение e-mail по ссылке из письма.
+    Если письмо отправить не удалось, учётка откатывается, чтобы попытку
+    можно было повторить с чистого листа (502).
+    """
     store = get_user_store()
     try:
-        user = store.create(login=req.login, password=req.password, name=req.name)
+        user = store.create(login=req.login, password=req.password, name=req.name, confirmed=False)
     except DuplicateLogin:
         raise HTTPException(status_code=409, detail="Этот логин уже занят")
     except UserError as exc:
         raise HTTPException(status_code=422, detail=str(exc))
-    return store.public(user)
+
+    try:
+        send_confirmation_email(user["login"], _confirmation_link(user))
+    except MailError as exc:
+        store.delete(user["id"])
+        get_confirmation_store().revoke_all_for_user(user["id"])
+        raise HTTPException(
+            status_code=502, detail=f"Не удалось отправить письмо для подтверждения: {exc}"
+        )
+    return {"ok": True, "email": user["login"]}
+
+
+@router.post("/auth/resend")
+def resend(req: ResendRequest):
+    """Повторная отправка письма подтверждения.
+
+    Письмо уходит, только если учётка существует, не подтверждена и пароль
+    верен (защита от спама чужого ящика). Во всех остальных случаях ответ
+    тот же — не раскрываем существование и статус учётных записей.
+    """
+    store = get_user_store()
+    user = store.get_by_login(req.login)
+    if user is None or user.get("confirmed", True):
+        return {"ok": True}
+    if not store.verify_password(user, req.password):
+        return {"ok": True}
+    try:
+        send_confirmation_email(user["login"], _confirmation_link(user))
+    except MailError as exc:
+        raise HTTPException(
+            status_code=502, detail=f"Не удалось отправить письмо для подтверждения: {exc}"
+        )
+    return {"ok": True}
+
+
+@router.get("/auth/confirm")
+def confirm(token: str = ""):
+    """Подтверждение e-mail по ссылке из письма.
+
+    Успех или нет — редирект на главную с ?confirmed=1/0; страница показывает
+    соответствующее сообщение. Повторный переход по ссылке после
+    подтверждения считается успехом.
+    """
+    ok = False
+    store = get_confirmation_store()
+    user_id = store.resolve(token)
+    if user_id:
+        users = get_user_store()
+        user = users.get(user_id)
+        if user is not None:
+            if not user.get("confirmed", True):
+                users.confirm(user)
+            ok = True
+        store.revoke(token)
+    return RedirectResponse(f"/index.html?confirmed={1 if ok else 0}", status_code=303)
 
 
 @router.post("/auth/login")
@@ -142,6 +232,11 @@ def login(req: LoginRequest):
     user = store.get_by_login(req.login)
     if user is None or not store.verify_password(user, req.password):
         raise HTTPException(status_code=401, detail="Неверный логин или пароль")
+    if not user.get("confirmed", True):
+        raise HTTPException(
+            status_code=403,
+            detail="E-mail не подтверждён: перейдите по ссылке из письма или запросите новое письмо",
+        )
     user["last_login"] = time.time()
     store.save(user)
     token = get_token_store().issue(user["id"])
@@ -210,6 +305,7 @@ def admin_delete_user(user_id: str, admin: dict = Depends(require_admin)):
     if not get_user_store().delete(user_id):
         raise HTTPException(status_code=404, detail="Пользователь не найден")
     get_token_store().revoke_all_for_user(user_id)
+    get_confirmation_store().revoke_all_for_user(user_id)
     return {"ok": True}
 
 

@@ -8,6 +8,10 @@
 
 Роли: «Администратор» и «Пользователь». При первом старте (пустой каталог)
 создаётся стартовый администратор из прежней демо-учётной записи.
+
+Регистрация требует подтверждения e-mail: new записи создаются с
+confirmed=False; seed-админ и все записи до введения подтверждения —
+считаются подтверждёнными (чтение через .get("confirmed", True)).
 """
 
 import hashlib
@@ -74,16 +78,24 @@ class UserStore:
             password=settings.admin_password,
             name=SEED_ADMIN_NAME,
             role=ROLE_ADMIN,
+            confirmed=True,
         )
 
-    def create(self, login: str, password: str, name: str, role: str = ROLE_USER) -> dict:
+    def create(
+        self,
+        login: str,
+        password: str,
+        name: str = "",
+        role: str = ROLE_USER,
+        confirmed: bool = False,
+    ) -> dict:
         login = (login or "").strip().lower()
         name = (name or "").strip()
         if not LOGIN_RE.match(login) or len(login) > 120:
             raise UserError("Логин должен быть корректным e-mail адресом (до 120 символов)")
         if len(password or "") < 4:
             raise UserError("Пароль короче 4 символов")
-        if not 2 <= len(name) <= 80:
+        if name and not 2 <= len(name) <= 80:
             raise UserError("Имя должно быть от 2 до 80 символов")
         if role not in ROLES:
             raise UserError(f"Роль должна быть одной из: {', '.join(ROLES)}")
@@ -100,6 +112,7 @@ class UserStore:
             "password_hash": _hash_password(password, salt),
             "created_at": time.time(),
             "last_login": None,
+            "confirmed": confirmed,
         }
         self.save(user)
         return user
@@ -120,6 +133,7 @@ class UserStore:
             "role": user.get("role"),
             "created_at": user.get("created_at"),
             "last_login": user.get("last_login"),
+            "confirmed": bool(user.get("confirmed", True)),
         }
 
     def get(self, user_id: str) -> dict | None:
@@ -174,6 +188,11 @@ class UserStore:
             raise UserError("Пароль короче 4 символов")
         user["salt"] = secrets.token_hex(16)
         user["password_hash"] = _hash_password(password, user["salt"])
+        self.save(user)
+
+    def confirm(self, user: dict) -> None:
+        """Помечает e-mail подтверждённым (переход по ссылке из письма)."""
+        user["confirmed"] = True
         self.save(user)
 
     def verify_password(self, user: dict, password: str) -> bool:

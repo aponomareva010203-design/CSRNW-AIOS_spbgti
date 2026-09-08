@@ -6,8 +6,9 @@
    - chatStream         — потоковый чат с агентным рантаймом
                           (POST /api/chat, SSE поверх fetch);
    - listSessions / getSession / deleteSession — сессии диалогов;
-   - register / login / logout / me — серверная авторизация
-                          (POST /api/auth/*, Bearer-токен);
+   - register / resendConfirmation / login / logout / me — серверная авторизация
+                          (POST /api/auth/*, Bearer-токен; подтверждение e-mail —
+                          GET /api/auth/confirm по ссылке из письма);
    - adminListUsers / adminUpdateUserRole / adminDeleteUser —
                           админ-раздел (GET|PATCH|DELETE /api/admin/*).
 
@@ -159,9 +160,14 @@
     });
   }
 
-  /** Регистрация: {login, password, name} → {id, login, name, role}. */
+  /** Регистрация: {login, password, name?} → {ok, email}. Письмо — через SMTP. */
   function register(login, password, name) {
     return request('POST', '/auth/register', { login: login, password: password, name: name });
+  }
+
+  /** Повторная отправка письма подтверждения: {login, password} → {ok}. */
+  function resendConfirmation(login, password) {
+    return request('POST', '/auth/resend', { login: login, password: password });
   }
 
   /** Вход: {login, password} → {token, user}. */
@@ -229,6 +235,7 @@
     getSession: getSession,
     deleteSession: deleteSession,
     register: register,
+    resendConfirmation: resendConfirmation,
     login: login,
     logout: logout,
     me: me,

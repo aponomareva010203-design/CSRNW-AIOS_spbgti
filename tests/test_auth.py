@@ -1,8 +1,11 @@
-"""Смоук-тесты серверной авторизации: хранилища, токены, эндпоинты, админ-раздел."""
+"""Смоук-тесты серверной авторизации: хранилища, токены, подтверждение e-mail, эндпоинты, админ-раздел."""
+
+import logging
 
 import pytest
 
 from api.runtime.config import get_settings
+from api.runtime.confirmations import ConfirmationStore
 from api.runtime.tokens import TokenStore
 from api.runtime.users import DuplicateLogin, UserError, UserStore
 
@@ -32,8 +35,11 @@ def test_users_store(tmp_path):
     assert user["name"] == "Тестов Т."
     assert user["role"] == "Пользователь"
     assert user["last_login"] is None
+    assert user["confirmed"] is False  # новая регистрация ждёт подтверждения e-mail
     # в публичном представлении нет секретов
-    assert set(store.public(user)) == {"id", "login", "name", "role", "created_at", "last_login"}
+    assert set(store.public(user)) == {
+        "id", "login", "name", "role", "created_at", "last_login", "confirmed"
+    }
 
     assert store.verify_password(store.get(user["id"]), "secret") is True
     assert store.verify_password(store.get(user["id"]), "wrong") is False
@@ -53,6 +59,11 @@ def test_users_store(tmp_path):
     assert store.get(user["id"]) is None
     assert store.get("../etc/passwd") is None
 
+    # имя опционально: пустое значение допустимо
+    anon = store.create(login="d@e.io", password="12345", name="")
+    assert anon["name"] == ""
+    assert anon["confirmed"] is False
+
 
 def test_users_store_seeds_single_admin(tmp_path):
     root = tmp_path / "users"
@@ -61,6 +72,8 @@ def test_users_store_seeds_single_admin(tmp_path):
     assert admin is not None and admin["role"] == "Администратор"
     assert store.verify_password(admin, ADMIN_PASSWORD) is True
     assert store.count_admins() == 1
+    # seed-админ подтверждён (создан до введения подтверждения e-mail)
+    assert admin["confirmed"] is True
 
     # повторная инстанцирация того же каталога не плодит дубликаты
     again = UserStore(root)
@@ -118,14 +131,49 @@ def test_tokens_store(tmp_path):
     assert store.revoke_all_for_user("u2") == 2
 
 
+def test_confirmations_store(tmp_path):
+    store = ConfirmationStore(tmp_path / "confirm")
+
+    token = store.issue("u1")
+    assert len(token) == 43
+    assert store.resolve(token) == "u1"
+
+    # повторный выпуск переиспользует живой токен: ссылка из прежнего письма работает
+    assert store.issue("u1") == token
+
+    # просроченный токен удаляется, выдаётся новый
+    expired = store.issue("u2", ttl=-1)
+    assert store.resolve(expired) is None
+    fresh = store.issue("u2")
+    assert fresh != expired
+    assert store.resolve(fresh) == "u2"
+
+    # некорректные значения отбрасываются (path traversal)
+    assert store.resolve("../etc/passwd") is None
+    assert store.resolve("z" * 64) is None
+
+    assert store.revoke(fresh) is True
+    assert store.resolve(fresh) is None
+    assert store.revoke(fresh) is False
+
+    t3 = store.issue("u3")
+    assert store.issue("u3") == t3  # дубль не создаётся
+    assert store.revoke_all_for_user("u3") == 1
+
+
 def _reset(monkeypatch, tmp_path):
     """Свежие синглтоны на изолированном runtime-каталоге."""
     from api.routers import auth as auth_router
 
     monkeypatch.setenv("AIOS_RUNTIME_DIR", str(tmp_path / "rt"))
+    # письма в тестах не отправляются (AIOS_SMTP_HOST из .env отключаем),
+    # ссылки подтверждения — относительные (без домена)
+    monkeypatch.setenv("AIOS_SMTP_HOST", "")
+    monkeypatch.setenv("AIOS_PUBLIC_BASE_URL", "")
     get_settings.cache_clear()
     auth_router.get_user_store.cache_clear()
     auth_router.get_token_store.cache_clear()
+    auth_router.get_confirmation_store.cache_clear()
     return auth_router
 
 
@@ -193,7 +241,13 @@ def test_auth_endpoints_flow(tmp_path, monkeypatch):
 
     from api.main import app
 
-    _reset(monkeypatch, tmp_path)
+    ar = _reset(monkeypatch, tmp_path)
+
+    # письмо не отправляется по-настоящему: подменяем отправку фиксацией вызовов
+    sent = []
+    monkeypatch.setattr(
+        ar, "send_confirmation_email", lambda to, link: sent.append((to, link)) or "sent"
+    )
     client = TestClient(app)
 
     # --- регистрация ---
@@ -202,11 +256,20 @@ def test_auth_endpoints_flow(tmp_path, monkeypatch):
         json={"login": "user@ex.com", "password": "pass1234", "name": "Пользователь П."},
     )
     assert resp.status_code == 201
-    created = resp.json()
-    assert created["role"] == "Пользователь"
-    assert "password_hash" not in created and "salt" not in created
+    assert resp.json() == {"ok": True, "email": "user@ex.com"}
+    assert len(sent) == 1 and sent[0][0] == "user@ex.com"
+    assert "/api/auth/confirm?token=" in sent[0][1]
 
-    # занятый логин → 409; некорректный e-mail → 422
+    # имя опционально
+    assert (
+        client.post(
+            "/api/auth/register", json={"login": "anon@ex.com", "password": "pass1234"}
+        ).status_code
+        == 201
+    )
+    assert len(sent) == 2
+
+    # занятый логин → 409; некорректный e-mail → 422; короткое имя → 422
     assert (
         client.post(
             "/api/auth/register",
@@ -221,6 +284,34 @@ def test_auth_endpoints_flow(tmp_path, monkeypatch):
         ).status_code
         == 422
     )
+    assert (
+        client.post(
+            "/api/auth/register",
+            json={"login": "e@f.io", "password": "pass1234", "name": "И"},
+        ).status_code
+        == 422
+    )
+
+    # --- вход до подтверждения e-mail запрещён ---
+    assert (
+        client.post("/api/auth/login", json={"login": "user@ex.com", "password": "wrong"}).status_code
+        == 401
+    )
+    assert (
+        client.post("/api/auth/login", json={"login": "user@ex.com", "password": "pass1234"}).status_code
+        == 403
+    )
+
+    # --- подтверждение по ссылке из письма ---
+    confirm_token = sent[0][1].split("token=")[1]
+    resp = client.get(f"/api/auth/confirm?token={confirm_token}", follow_redirects=False)
+    assert resp.status_code == 303
+    assert resp.headers["location"].endswith("index.html?confirmed=1")
+
+    # токен одноразовый: повторный переход — «ссылка недействительна»
+    resp = client.get(f"/api/auth/confirm?token={confirm_token}", follow_redirects=False)
+    assert resp.status_code == 303
+    assert resp.headers["location"].endswith("index.html?confirmed=0")
 
     # --- вход ---
     assert (
@@ -232,12 +323,61 @@ def test_auth_endpoints_flow(tmp_path, monkeypatch):
     user_token = resp.json()["token"]
     user_id = resp.json()["user"]["id"]
     assert resp.json()["user"]["last_login"] is not None
+    assert resp.json()["user"]["confirmed"] is True
 
     # --- /me ---
     me = client.get("/api/auth/me", headers=auth(user_token))
     assert me.status_code == 200 and me.json()["login"] == "user@ex.com"
+    assert me.json()["confirmed"] is True
     assert client.get("/api/auth/me").status_code == 401
     assert client.get("/api/auth/me", headers=auth("f" * 64)).status_code == 401
+
+    # --- resend: подтверждённому и неизвестному письмо не уходит ---
+    sent.clear()
+    assert (
+        client.post(
+            "/api/auth/resend", json={"login": "user@ex.com", "password": "pass1234"}
+        ).json()["ok"]
+        is True
+    )
+    assert (
+        client.post(
+            "/api/auth/resend", json={"login": "ghost@ex.com", "password": "pass1234"}
+        ).json()["ok"]
+        is True
+    )
+    assert sent == []
+
+    # resend неподтверждённому: с неверным паролем — тихий отказ,
+    # с верным — письмо уходит, токен переиспользуется (ссылка из первого письма жива)
+    assert (
+        client.post(
+            "/api/auth/resend", json={"login": "anon@ex.com", "password": "wrong"}
+        ).json()["ok"]
+        is True
+    )
+    assert sent == []
+    assert (
+        client.post(
+            "/api/auth/resend", json={"login": "anon@ex.com", "password": "pass1234"}
+        ).json()["ok"]
+        is True
+    )
+    assert len(sent) == 1 and sent[0][0] == "anon@ex.com"
+    anon_token = sent[0][1].split("token=")[1]
+    assert (
+        client.post(
+            "/api/auth/resend", json={"login": "anon@ex.com", "password": "pass1234"}
+        ).json()["ok"]
+        is True
+    )
+    assert sent[1][1].split("token=")[1] == anon_token
+
+    # подтверждение anon по ссылке и вход (имя пустое)
+    resp = client.get(f"/api/auth/confirm?token={anon_token}", follow_redirects=False)
+    assert resp.headers["location"].endswith("index.html?confirmed=1")
+    resp = client.post("/api/auth/login", json={"login": "anon@ex.com", "password": "pass1234"})
+    assert resp.status_code == 200 and resp.json()["user"]["name"] == ""
 
     # --- админ-раздел: обычному пользователю запрещён ---
     assert client.get("/api/admin/users", headers=auth(user_token)).status_code == 403
@@ -249,8 +389,8 @@ def test_auth_endpoints_flow(tmp_path, monkeypatch):
     admin_id = resp.json()["user"]["id"]
 
     items = client.get("/api/admin/users", headers=auth(admin_token)).json()["items"]
-    assert [u["login"] for u in items] == [ADMIN_LOGIN, "user@ex.com"]
-    assert all("password_hash" not in u for u in items)
+    assert [u["login"] for u in items] == [ADMIN_LOGIN, "user@ex.com", "anon@ex.com"]
+    assert all("password_hash" not in u and "salt" not in u for u in items)
 
     # --- смена роли ---
     resp = client.patch(
@@ -300,8 +440,68 @@ def test_auth_endpoints_flow(tmp_path, monkeypatch):
     assert client.get("/api/auth/me", headers=auth(user_token)).status_code == 200
 
     # --- выход (токен пользователя отзывается на сервере) ---
+    # --- выход (токен пользователя отзывается на сервере) ---
     assert client.post("/api/auth/logout", headers=auth(user_token2)).json()["ok"] is True
     assert client.get("/api/auth/me", headers=auth(user_token2)).status_code == 401
+
+    get_settings.cache_clear()
+
+
+def test_register_smtp_failure_rolls_back(tmp_path, monkeypatch):
+    """Сбой отправки письма → 502, неподтверждённая учётка откатывается."""
+    from fastapi.testclient import TestClient
+
+    from api.main import app
+    from api.runtime.mailer import MailError
+
+    ar = _reset(monkeypatch, tmp_path)
+
+    def broken_mailer(to, link):
+        raise MailError("SMTPTransactionFailed: соединение отклонено")
+
+    monkeypatch.setattr(ar, "send_confirmation_email", broken_mailer)
+    client = TestClient(app)
+
+    resp = client.post(
+        "/api/auth/register",
+        json={"login": "user@ex.com", "password": "pass1234", "name": "Тестов Т."},
+    )
+    assert resp.status_code == 502
+    assert "подтверждения" in resp.json()["detail"]
+
+    # учётки нет: вход невозможен (401 «неверный логин/пароль», а не 403)
+    assert (
+        client.post("/api/auth/login", json={"login": "user@ex.com", "password": "pass1234"}).status_code
+        == 401
+    )
+
+    get_settings.cache_clear()
+
+
+def test_register_dev_fallback(tmp_path, monkeypatch, caplog):
+    """Без настроенного SMTP регистрация работает — ссылка печатается в лог."""
+    from fastapi.testclient import TestClient
+
+    from api.main import app
+
+    _reset(monkeypatch, tmp_path)  # AIOS_SMTP_HOST пуст → dev-фолбэк
+    client = TestClient(app)
+
+    with caplog.at_level(logging.WARNING, logger="aios.mailer"):
+        resp = client.post(
+            "/api/auth/register",
+            json={"login": "user@ex.com", "password": "pass1234", "name": "Тестов Т."},
+        )
+    assert resp.status_code == 201
+    assert resp.json() == {"ok": True, "email": "user@ex.com"}
+    assert "подтверждение e-mail" in caplog.text
+    assert "/api/auth/confirm?token=" in caplog.text
+
+    # вход всё ещё закрыт до подтверждения по напечатанной ссылке
+    assert (
+        client.post("/api/auth/login", json={"login": "user@ex.com", "password": "pass1234"}).status_code
+        == 403
+    )
 
     get_settings.cache_clear()
 

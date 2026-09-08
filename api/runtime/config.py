@@ -14,6 +14,14 @@
     AIOS_ADMIN_PASSWORD      — его пароль. Задаётся на сервере в .env; по умолчанию «1234»
                                — только для локальной разработки, в открытых исходниках.
 
+    Подтверждение e-mail при регистрации (SMTP):
+    AIOS_SMTP_HOST           — хост SMTP-сервера; пусто → dev-фолбэк (ссылка в лог);
+    AIOS_SMTP_PORT           — порт (465);
+    AIOS_SMTP_USER/PASSWORD  — учётные данные для входа на SMTP (пароль приложения);
+    AIOS_SMTP_FROM           — адрес отправителя писем (по умолчанию = AIOS_SMTP_USER);
+    AIOS_SMTP_TLS            — «ssl» (неявный TLS, порт 465) | «starttls» (587) | «none»;
+    AIOS_PUBLIC_BASE_URL     — публичный адрес сайта для ссылок в письмах.
+
 Без базового URL/ключа рантайм стартует с mock-провайдером:
 пайплайн (сессии, инструменты, SSE) полностью работает офлайн.
 """
@@ -62,6 +70,13 @@ class Settings:
     runtime_dir: Path
     admin_login: str
     admin_password: str
+    smtp_host: str
+    smtp_port: int
+    smtp_user: str
+    smtp_password: str
+    smtp_from: str
+    smtp_tls: str
+    public_base_url: str
 
     @property
     def has_real_provider(self) -> bool:
@@ -101,4 +116,11 @@ def get_settings() -> Settings:
         runtime_dir=Path(_env("AIOS_RUNTIME_DIR") or (BASE_DIR / ".aios-runtime")).resolve(),
         admin_login=_env("AIOS_ADMIN_LOGIN") or "m.kharitonov@csr-nw.ru",
         admin_password=_env("AIOS_ADMIN_PASSWORD") or "1234",
+        smtp_host=_env("AIOS_SMTP_HOST"),
+        smtp_port=_env_int("AIOS_SMTP_PORT", 465),
+        smtp_user=_env("AIOS_SMTP_USER"),
+        smtp_password=_env("AIOS_SMTP_PASSWORD"),
+        smtp_from=_env("AIOS_SMTP_FROM") or _env("AIOS_SMTP_USER"),
+        smtp_tls=_env("AIOS_SMTP_TLS") or "ssl",
+        public_base_url=_env("AIOS_PUBLIC_BASE_URL") or "",
     )

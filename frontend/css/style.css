@@ -592,6 +592,9 @@ gap: 6px;
 .login-msg[hidden] { display: none; }
 .login-msg--error { background: #F7ECEA; color: #A5483D; border: 1px solid #E5C6C0; }
 .login-msg--note { background: var(--gold-soft); color: var(--ink); border: 1px solid var(--line); }
+.resend-link { display: block; margin: -8px 0 12px; font-size: 12px; color: var(--green-deep); text-decoration: underline; }
+.resend-link:hover { color: var(--ink); }
+.resend-link[hidden] { display: none; }
 
 body.modal-open { overflow: hidden; }
 

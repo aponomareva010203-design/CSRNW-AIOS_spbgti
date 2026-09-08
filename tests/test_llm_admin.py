@@ -103,6 +103,10 @@ def test_admin_llm_endpoints(tmp_path, monkeypatch):
         "/api/auth/register",
         json={"login": "u@ex.com", "password": "pass1234", "name": "Юзер Ю."},
     )
+    # регистрация требует подтверждения e-mail — подтверждаем учётку напрямую
+    auth_router.get_user_store().confirm(
+        auth_router.get_user_store().get_by_login("u@ex.com")
+    )
     utoken = client.post(
         "/api/auth/login", json={"login": "u@ex.com", "password": "pass1234"}
     ).json()["token"]

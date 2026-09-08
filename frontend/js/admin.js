@@ -93,7 +93,7 @@
             '" data-name="' + esc(u.name || u.login) + '">Удалить</button>';
       return '<tr>' +
         '<td class="at-num">' + (i + 1) + '</td>' +
-        '<td class="at-name">' + esc(u.name) + '</td>' +
+        '<td class="at-name">' + esc(u.name || u.login) + '</td>' +
         '<td class="at-login">' + esc(u.login) + '</td>' +
         '<td>' + rolePill + '</td>' +
         '<td class="at-date">' + fmtDate(u.created_at) + '</td>' +

@@ -16,10 +16,12 @@
   var msg = document.getElementById('loginMsg');
   var title = document.getElementById('loginTitle');
   var nameField = document.getElementById('nameField');
+  var password2Field = document.getElementById('password2Field');
   var submitBtn = document.getElementById('loginSubmit');
   var registerLink = document.querySelector('.btn-register');
   var loginLink = document.querySelector('.btn-login-alt');
   var altQuestion = document.getElementById('altQuestion');
+  var resendLink = document.getElementById('resendLink');
   var userMenu = document.getElementById('userMenu');
   var logoutBtn = document.getElementById('btnLogout');
   var menuAdmin = document.getElementById('menuAdmin');
@@ -65,6 +67,9 @@
     var isReg = mode === 'register';
     if (title) title.textContent = isReg ? 'Регистрация в AIOS' : 'Вход в AIOS';
     if (nameField) nameField.hidden = !isReg;
+    if (password2Field) password2Field.hidden = !isReg;
+    var pass2 = form && form.elements.password2;
+    if (pass2) pass2.required = isReg; /* скрытые поля браузер не валидирует — управляю сам */
     if (submitBtn) submitBtn.textContent = isReg ? 'Создать аккаунт' : 'Войти';
     if (altQuestion) altQuestion.textContent = isReg ? 'Уже есть аккаунт?' : 'Нет аккаунта?';
     if (registerLink) registerLink.hidden = isReg;
@@ -82,6 +87,7 @@
 
   function hideMsg() {
     if (msg) msg.hidden = true;
+    if (resendLink) resendLink.hidden = true;
   }
 
   function showPassMsg(text, kind) {
@@ -141,13 +147,14 @@
     var session = getSession();
     var isAdmin = !!(session && session.role === 'Администратор');
     if (session) {
-      btn.textContent = session.name;
+      var displayName = session.name || session.login; /* имя опционально */
+      btn.textContent = displayName;
       btn.classList.add('btn-login--user');
-      btn.setAttribute('aria-label', session.name + ' — ' + session.role);
+      btn.setAttribute('aria-label', displayName + ' — ' + session.role);
       if (userMenu) {
         var nameEl = userMenu.querySelector('.user-menu-name');
         var roleEl = userMenu.querySelector('.user-menu-role');
-        if (nameEl) nameEl.textContent = session.name;
+        if (nameEl) nameEl.textContent = displayName;
         if (roleEl) roleEl.textContent = session.role;
       }
     } else {
@@ -217,15 +224,22 @@
 
       if (mode === 'register') {
         var name = form.elements.name.value.trim();
-        if (name.length < 2) { showMsg('Укажите имя (минимум 2 символа)', 'error'); return; }
+        var password2 = form.elements.password2.value;
+        if (name && name.length < 2) { showMsg('Имя — минимум 2 символа (или оставьте поле пустым)', 'error'); return; }
         if (password.length < 4) { showMsg('Пароль — минимум 4 символа', 'error'); return; }
+        if (password !== password2) { showMsg('Пароли не совпадают', 'error'); return; }
         submitBtn.disabled = true;
         API.register(login, password, name)
-          .then(function () { return API.login(login, password); })
-          .then(function (res) {
-            saveSession(res.token, res.user);
-            renderAuthState();
-            closeModal();
+          .then(function () {
+            /* автовхода нет: сначала подтверждение e-mail по ссылке из письма */
+            setMode('login');
+            var loginInput = form.elements.login;
+            if (loginInput) loginInput.value = login;
+            form.elements.name.value = '';
+            form.elements.password2.value = '';
+            showMsg('Аккаунт создан. Письмо со ссылкой подтверждения отправлено на ' +
+              login + '. Перейдите по ссылке из письма и войдите.', 'note');
+            if (resendLink) resendLink.hidden = false;
           })
           .catch(function (err) {
             showMsg(err && err.message ? err.message : 'Не удалось зарегистрироваться', 'error');
@@ -240,10 +254,36 @@
             closeModal();
           })
           .catch(function (err) {
-            showMsg(err && err.message ? err.message : 'Не удалось войти', 'error');
+            if (err && err.status === 403) {
+              /* e-mail не подтверждён — даём запросить письмо повторно */
+              showMsg(err && err.message ? err.message : 'E-mail не подтверждён', 'error');
+              if (resendLink) resendLink.hidden = false;
+            } else {
+              showMsg(err && err.message ? err.message : 'Не удалось войти', 'error');
+            }
           })
           .then(function () { submitBtn.disabled = false; });
       }
+    });
+  }
+
+  /* Повторная отправка письма подтверждения (после 403 или сразу после регистрации) */
+  if (resendLink) {
+    resendLink.addEventListener('click', function (e) {
+      e.preventDefault();
+      var API = window.AIOS_API;
+      if (!API || !API.resendConfirmation) return;
+      var loginValue = form && form.elements.login ? form.elements.login.value.trim().toLowerCase() : '';
+      var passwordValue = form && form.elements.password ? form.elements.password.value : '';
+      resendLink.hidden = true;
+      API.resendConfirmation(loginValue, passwordValue)
+        .then(function () {
+          showMsg('Письмо отправлено ещё раз — проверьте ящик ' + (loginValue || ''), 'note');
+        })
+        .catch(function (err) {
+          showMsg(err && err.message ? err.message : 'Не удалось отправить письмо', 'error');
+        })
+        .then(function () { if (resendLink) resendLink.hidden = false; });
     });
   }
 
@@ -315,6 +355,21 @@
         renderAuthState();
       }
     });
+  })();
+
+  /* Возврат из письма: /index.html?confirmed=1|0 — открываем форму с сообщением */
+  (function handleConfirmRedirect() {
+    var match = /[?&]confirmed=(1|0)\b/.exec(location.search);
+    if (!match) return;
+    try { history.replaceState(null, '', location.pathname); } catch (e) { /* старые браузеры */ }
+    openModal();
+    if (match[1] === '1') {
+      showMsg('E-mail подтверждён — теперь войдите', 'note');
+    } else {
+      setMode('login');
+      showMsg('Ссылка подтверждения недействительна или устарела. Введите e-mail и пароль — и отправьте письмо ещё раз.', 'error');
+      if (resendLink) resendLink.hidden = false;
+    }
   })();
 
   renderAuthState();
