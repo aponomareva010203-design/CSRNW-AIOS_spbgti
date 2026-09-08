@@ -237,7 +237,7 @@
     /* «Настройки» (смена пароля) — любому вошедшему */
     if (changePassBtn) changePassBtn.hidden = !session;
     if (btnSettings) btnSettings.hidden = !session;
-    /* Оповещаем подсистемы (например, кнопку рабочего пространства) */
+    /* Оповещаем подсистемы (например, раздел «Рабочее пространство» в меню) */
     try {
       window.dispatchEvent(new CustomEvent('aios-auth-change'));
     } catch (e) {}

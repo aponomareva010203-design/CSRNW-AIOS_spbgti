@@ -110,6 +110,26 @@ a { color: inherit; text-decoration: none; }
   gap: 2px;
 }
 
+/* заголовки групп внутри ленты (некликабельные) */
+.side-group-title {
+  margin: 14px 12px 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.side-nav > .side-group-title:first-child { margin-top: 2px; }
+
+/* контейнер раздела «Рабочее пространство»: целиком виден
+   только вошедшим (переключает workspace.js по #wsGroup) */
+.side-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
 .side-link {
   display: block;
   width: 100%;
@@ -135,9 +155,31 @@ a { color: inherit; text-decoration: none; }
   font-weight: 600;
 }
 
-/* display:block выше перебивает атрибут hidden — «Рабочее
-   пространство» и «Настройки» были бы видны всем */
-.side-link[hidden] { display: none; }
+/* золотое выделение «Рабочего чата» в ленте */
+.side-link--chat {
+  border: 1px solid var(--gold);
+  background: var(--gold-soft);
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.side-link--chat:hover {
+  background: #E2D1A3;
+  color: var(--ink);
+}
+
+/* приглушённая приписка «в разработке» в пункте «Полигоны» */
+.side-note {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--ink-soft);
+}
+
+/* display:block/flex выше перебивает атрибут hidden — пункты меню
+   и раздел были бы видны всем; парные правила обязательны */
+.side-link[hidden],
+.side-group[hidden],
+.side-group-title[hidden] { display: none; }
 
 /* ---------- Нижняя часть меню: настройки, админ-панель, вход ---------- */
 
@@ -434,11 +476,20 @@ a { color: inherit; text-decoration: none; }
     flex-wrap: wrap;
     gap: 4px;
   }
+  /* разделы в строку: контейнер прозрачен для flex, заголовки — метки */
+  .side-group { display: contents; }
+  .side-group-title {
+    margin: 0 0 0 10px;
+    font-size: 10px;
+    align-self: center;
+  }
+  .side-nav > .side-group-title:first-child { margin-left: 0; }
   .side-link {
     width: auto;
     padding: 7px 12px;
     border-radius: 999px;
   }
+  .side-note { display: none; }
   .sidebar-footer {
     margin-top: 0;
     margin-left: auto;

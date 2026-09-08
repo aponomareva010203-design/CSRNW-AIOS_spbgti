@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Админ-панель — AIOS Технологического института</title>
-<link rel="stylesheet" href="css/style.css?v=20260911">
+<link rel="stylesheet" href="css/style.css?v=20260912">
 </head>
 <body>
 <div class="layout">
@@ -15,12 +15,21 @@
       <span>AIOS</span>
     </a>
     <nav class="side-nav" aria-label="Разделы AIOS">
-      <button class="side-link" id="btnNavWorkspace" type="button" hidden>Рабочее пространство</button>
+      <span class="side-group-title">Дашборды</span>
       <a class="side-link" href="pilot.html">Статус пилотного проекта</a>
+
+      <span class="side-group-title">Каталоги</span>
       <a class="side-link" href="knowledge.html">Данные и знания</a>
       <a class="side-link" href="models.html">Модели</a>
-      <a class="side-link" href="agents.html">Агенты</a>
-      <a class="side-link" href="polygons.html">Полигоны</a>
+      <a class="side-link" href="agents.html">Агенты и навыки</a>
+      <a class="side-link" href="polygons.html">Полигоны <span class="side-note">в разработке</span></a>
+
+      <div class="side-group" id="wsGroup" hidden>
+        <span class="side-group-title">Рабочее пространство</span>
+        <button class="side-link side-link--chat" id="btnNavWorkspace" type="button" hidden>Рабочий чат</button>
+        <a class="side-link" id="menuCabinet" href="cabinet.html">Кабинет</a>
+        <a class="side-link" id="menuProjects" href="projects.html">Мои проекты</a>
+      </div>
     </nav>
     <div class="sidebar-footer">
       <button class="side-link" id="btnSettings" type="button" hidden>Настройки</button>
@@ -58,7 +67,7 @@
   <section class="admin-wrap admin-wrap--llm" id="llmWrap" hidden>
     <div class="admin-toolbar">
       <h2 class="admin-h2">Настройки внешних API (LLM)</h2>
-      <p class="admin-count" id="llmCurrent">Модель рабочего пространства для всех пользователей</p>
+      <p class="admin-count" id="llmCurrent">Модель рабочего чата для всех пользователей</p>
     </div>
     <form class="llm-form" id="llmForm">
       <label>
@@ -112,9 +121,9 @@
 
 </div>
 </div>
-<script src="js/api.js?v=20260911"></script>
-<script src="js/auth.js?v=20260911"></script>
-<script src="js/admin.js?v=20260911"></script>
-<script src="js/workspace.js?v=20260911"></script>
+<script src="js/api.js?v=20260912"></script>
+<script src="js/auth.js?v=20260912"></script>
+<script src="js/admin.js?v=20260912"></script>
+<script src="js/workspace.js?v=20260912"></script>
 </body>
 </html>

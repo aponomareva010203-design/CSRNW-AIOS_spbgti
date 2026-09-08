@@ -171,7 +171,7 @@
   function llmRenderCurrent(cfg) {
     if (!llmCurrent) return;
     if (!cfg || !cfg.configured) {
-      llmCurrent.textContent = 'LLM не настроена — рабочее пространство недоступно (503)';
+      llmCurrent.textContent = 'LLM не настроена — рабочий чат недоступен (503)';
       return;
     }
     var source = cfg.source === 'env' ? 'из .env' : 'задано админом';

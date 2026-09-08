@@ -1,9 +1,11 @@
 /* ============================================================
-   Рабочее пространство: клиент AIOS Harness. Панель наползает справа.
+   Рабочий чат: клиент AIOS Harness. Панель наползает справа.
    Работает на любой странице сайта: разметку панели скрипт
-   инъецирует в DOM, триггеры — плашка на главной (#btnWorkspace)
-   и кнопка в верхнем меню (#btnNavWorkspace). Оба видны только
-   при авторизации (auth.js диспатчит событие 'aios-auth-change').
+   инъецирует в DOM, триггеры — золотая плашка на главной
+   (#btnWorkspace) и пункт «Рабочий чат» в левом меню
+   (#btnNavWorkspace). Раздел «Рабочее пространство» меню (чат,
+   «Кабинет», «Мои проекты») виден только при авторизации
+   (auth.js диспатчит событие 'aios-auth-change').
 
    Диалог идёт через агентный рантайм (POST /api/chat, SSE):
    текст ассистента печатается потоково, вызовы инструментов
@@ -28,6 +30,9 @@
 
   var entryBtn = document.getElementById('btnWorkspace');
   var navBtn = document.getElementById('btnNavWorkspace');
+  var wsGroup = document.getElementById('wsGroup');
+  var menuCabinet = document.getElementById('menuCabinet');
+  var menuProjects = document.getElementById('menuProjects');
   var triggers = [];
   if (entryBtn) triggers.push(entryBtn);
   if (navBtn) triggers.push(navBtn);
@@ -41,7 +46,7 @@
     '  <div class="ws-grip" id="wsGrip" title="Потяните, чтобы изменить ширину" aria-hidden="true"></div>',
     '  <header class="ws-head">',
     '    <div class="ws-head-title">',
-    '      <h2 id="wsTitle">Рабочее пространство</h2>',
+    '      <h2 id="wsTitle">Рабочий чат</h2>',
     '      <span class="ws-model-label" id="wsModelLabel">LLM не выбрана</span>',
     '    </div>',
     '    <div class="ws-head-actions">',
@@ -52,7 +57,7 @@
     '  </header>',
     '  <div class="ws-messages" id="wsMessages" aria-live="polite"></div>',
     '  <form class="ws-composer" id="wsComposer" onsubmit="return false">',
-    '    <textarea id="wsInput" rows="1" placeholder="Сообщение рабочему пространству…" aria-label="Сообщение"></textarea>',
+    '    <textarea id="wsInput" rows="1" placeholder="Сообщение рабочему чату…" aria-label="Сообщение"></textarea>',
     '    <button class="ws-send" type="submit" aria-label="Отправить">↑</button>',
     '  </form>',
     '</div>'
@@ -104,6 +109,11 @@
   function syncEntry() {
     var show = isAuthed();
     triggers.forEach(function (btn) { btn.hidden = !show; });
+    /* раздел «Рабочее пространство» меню (чат, «Кабинет»,
+       «Мои проекты») — целиком только вошедшим */
+    if (wsGroup) wsGroup.hidden = !show;
+    if (menuCabinet) menuCabinet.hidden = !show;
+    if (menuProjects) menuProjects.hidden = !show;
   }
 
   syncEntry();
@@ -117,7 +127,7 @@
 
   function welcome() {
     appendMessage('assistant',
-      'Добро пожаловать в рабочее пространство. Диалог идёт через агентный рантайм; ' +
+      'Добро пожаловать в рабочий чат. Диалог идёт через агентный рантайм; ' +
       'модель задана администратором. ' +
       'Вызовы инструментов показываются карточками прямо в чате.');
   }
