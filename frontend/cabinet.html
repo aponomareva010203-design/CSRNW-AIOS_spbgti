@@ -22,7 +22,7 @@
       <a class="side-link" href="knowledge.html">Данные и знания</a>
       <a class="side-link" href="models.html">Модели</a>
       <a class="side-link" href="agents.html">Агенты и навыки</a>
-      <a class="side-link" href="polygons.html">Полигоны <span class="side-note">в разработке</span></a>
+      <a class="side-link side-link--disabled">Полигоны <span class="side-note">в разработке</span></a>
 
       <div class="side-group" id="wsGroup" hidden>
         <span class="side-group-title">Рабочее пространство</span>
@@ -57,10 +57,70 @@
     <div class="rule"></div>
   </section>
 
+  <div class="cab-wrap">
+
+    <!-- гость: кабинет недоступен -->
+    <section class="cab-denied" id="cabGuest">
+      <p class="login-msg" id="cabGuestMsg">Данные кабинета доступны только после входа в AIOS.</p>
+      <p class="cab-denied-hint">Нажмите <button class="cab-link-btn" id="cabLoginBtn" type="button">Войти</button> или кнопку «Войти» в левом меню.</p>
+    </section>
+
+    <!-- блок «Данные пользователя»: редактирует сам пользователь -->
+    <div class="org-card cab-card" id="cabCard" hidden>
+      <div class="org-card-head">
+        <h3 class="org-h3">Данные пользователя</h3>
+        <span class="org-updated" id="cabUpdated"></span>
+      </div>
+      <p class="cab-note">Заполняется вами; ассистент платформы использует эти данные для персонализации ответов.</p>
+
+      <form class="org-form" id="cabForm" novalidate>
+        <div class="cab-grid">
+          <label class="org-field">
+            <span class="org-field-title">Фамилия</span>
+            <input type="text" name="last_name" maxlength="80" placeholder="Иванов">
+          </label>
+          <label class="org-field">
+            <span class="org-field-title">Имя</span>
+            <input type="text" name="first_name" maxlength="80" placeholder="Иван">
+          </label>
+          <label class="org-field">
+            <span class="org-field-title">Отчество</span>
+            <input type="text" name="patronymic" maxlength="80" placeholder="Иванович">
+          </label>
+        </div>
+
+        <div class="org-field">
+          <span class="org-field-title">Должности</span>
+          <div class="org-aliases" id="cabPositions"></div>
+          <button class="btn-primary org-alias-add" id="cabPosAdd" type="button">+ Добавить должность</button>
+        </div>
+
+        <label class="org-field">
+          <span class="org-field-title">Учёная степень / звание</span>
+          <input type="text" name="degree" maxlength="160" placeholder="например: кандидат технических наук">
+        </label>
+
+        <label class="org-field">
+          <span class="org-field-title">Научные интересы</span>
+          <textarea name="interests" rows="4" maxlength="2000" placeholder="например: машинное обучение, математическое моделирование…"></textarea>
+        </label>
+
+        <p class="login-msg" id="cabMsg" hidden></p>
+        <div class="org-actions">
+          <button class="btn-primary" id="cabSave" type="submit">Сохранить</button>
+          <span class="org-updated" id="cabStatus"></span>
+        </div>
+      </form>
+
+    </div>
+
+  </div>
+
 </div>
 </div>
 <script src="js/api.js?v=20260912"></script>
 <script src="js/auth.js?v=20260912"></script>
 <script src="js/workspace.js?v=20260912"></script>
+<script src="js/cabinet.js?v=20260912"></script>
 </body>
 </html>

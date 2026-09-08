@@ -97,6 +97,20 @@ class SessionStore:
         items.sort(key=lambda s: s.get("updated_at") or 0, reverse=True)
         return items[:limit]
 
+    def iter_all(self):
+        """Все сессии (полные транскрипты) — для служебного анализа платформы.
+
+        Используется формирователем скрытого «Контекста о пользователе»
+        (runtime/user_context.py): свои сессии и упоминания пользователя.
+        """
+        for path in sorted(self.root.glob("*.json")):
+            try:
+                data = json.loads(path.read_text(encoding="utf-8"))
+            except (OSError, ValueError):
+                continue
+            if isinstance(data, dict):
+                yield data
+
     def delete(self, session_id: str) -> bool:
         try:
             path = self._path(session_id)

@@ -1,0 +1,297 @@
+"""Скрытый блок «Контекст о пользователе»: сбор материала и генерация LLM.
+
+Формируется языковой моделью по расписанию (не чаще раза в сутки на
+пользователя) на основе двух источников, видимых платформе:
+
+  1. сессии пользователя с нейросетью (сессии, привязанные к учётной записи
+     по Bearer-токену в POST /api/chat);
+  2. упоминания пользователя — сообщения в сессиях других пользователей,
+     где встречаются его ФИО/фамилия с инициалами/логин.
+
+Правила блока:
+  • не дублирует анкетные данные из блока «Данные пользователя» — анкета
+    передаётся модели отдельной секцией с запретом на пересказ;
+  • не более 1000 символов (CONTEXT_MAX_CHARS в runtime/cabinet.py);
+  • перегенерируется, только если появился новый материал: sha256-дайджест
+    собранного материала сравнивается с сохранённым в файле блока;
+    без изменений планировщик лишь обновляет отметку checked_at.
+
+Планировщик — фоновая asyncio-задача (запускается lifespan-ом приложения):
+первый проход через 30 секунд после старта, далее каждые
+AIOS_USER_CONTEXT_INTERVAL секунд (по умолчанию 3600 — раз в час проверка,
+итого для каждого пользователя — не чаще раза в сутки). Без настроенной
+LLM проходы пропускаются. При нескольких воркерах uvicorn задача дублируется,
+но атомарная запись файлов делает конкуренцию безвредной.
+"""
+
+import asyncio
+import contextlib
+import hashlib
+import json
+import logging
+import time
+
+from .cabinet import CONTEXT_MAX_CHARS, get_store
+from .config import get_settings
+from .llm_settings import effective_config
+from .providers import build_provider
+from .sessions import SessionStore
+from .users import UserStore
+
+logger = logging.getLogger("aios.user_context")
+
+DAY_SECONDS = 24 * 60 * 60
+STARTUP_DELAY = 30.0  # первый проход планировщика после старта, сек
+
+# бюджеты материала, чтобы промпт не разрастался
+OWN_SESSIONS_LIMIT = 20  # сколько последних своих сессий берём
+OWN_MESSAGES_PER_SESSION = 12  # сообщений на сессию
+MESSAGE_EXCERPT_CHARS = 400  # обрезка одного сообщения
+MENTIONS_LIMIT = 30  # сколько упоминаний берём
+
+SYSTEM_PROMPT = (
+    "Ты — служебный модуль платформы AIOS. Твоя задача — составить компактный "
+    "контекст о пользователе для персонализации ассистента.\n"
+    "Правила:\n"
+    "1. Опирайся только на приведённые материалы: сессии пользователя "
+    "с нейросетью и упоминания о нём в сессиях платформы.\n"
+    "2. Не дублируй анкетные данные (ФИО, должности, учёную степень, научные "
+    "интересы) — они переданы отдельно и уже известны.\n"
+    "3. Пиши о содержательном: типичные задачи и запросы, рабочий стиль, "
+    "упоминания в рабочих обсуждениях, роли в проектах, чего ожидает от платформы.\n"
+    "4. Не выдумывай фактов; если материала мало — скажи об этом коротко.\n"
+    "5. Ответ — связный текст на русском без markdown-разметки, списков и "
+    "заголовков, не более 1000 символов. Никаких пояснений о задании — только "
+    "сам контекст."
+)
+
+
+def _mention_needles(user: dict, profile: dict) -> list[str]:
+    """Варианты написания, по которым ищем упоминания пользователя."""
+    needles: set[str] = set()
+    last = (profile.get("last_name") or "").strip()
+    first = (profile.get("first_name") or "").strip()
+    patronymic = (profile.get("patronymic") or "").strip()
+    if last and first:
+        needles.add(f"{last} {first}")
+        initial = first[0]
+        if patronymic:
+            needles.add(f"{last} {initial}.{patronymic[0]}.")
+            needles.add(f"{last} {first} {patronymic}")
+        needles.add(f"{last} {initial}.")
+    if user.get("name"):
+        needles.add(str(user["name"]).strip())
+    if user.get("login"):
+        needles.add(str(user["login"]).strip().lower())
+    return sorted(n for n in needles if len(n) >= 5)
+
+
+def _iter_dialog_messages(session: dict) -> list[str]:
+    """Текстовые сообщения сессии (без вызовов инструментов и их результатов)."""
+    out = []
+    for msg in session.get("messages") or []:
+        if msg.get("role") in ("user", "assistant") and msg.get("content"):
+            out.append(str(msg["content"]))
+    return out
+
+
+
+def collect_material(user: dict, profile: dict, sessions) -> dict:
+    """Собирает материал о пользователе из всех сессий платформы.
+
+    Возвращает {"own_sessions": [...], "mentions": [...]}; sessions —
+    итератор полных сессий (SessionStore.iter_all()).
+    """
+    uid = user.get("id")
+    needles = [n.lower() for n in _mention_needles(user, profile)]
+    own: list[dict] = []
+    mentions: list[dict] = []
+
+    for session in sessions:
+        messages = _iter_dialog_messages(session)
+        if not messages:
+            continue
+        if session.get("user_id") == uid:
+            own.append(
+                {
+                    "id": session.get("id"),
+                    "title": session.get("title") or "",
+                    "updated_at": session.get("updated_at"),
+                    "messages": [m[:MESSAGE_EXCERPT_CHARS] for m in messages[-OWN_MESSAGES_PER_SESSION:]],
+                }
+            )
+            continue
+        if not needles:
+            continue
+        for message in messages:
+            lowered = message.lower()
+            if any(n in lowered for n in needles):
+                mentions.append(
+                    {
+                        "session_id": session.get("id"),
+                        "title": session.get("title") or "",
+                        "excerpt": message[:MESSAGE_EXCERPT_CHARS],
+                    }
+                )
+                break  # одно упоминание на сессию достаточно
+
+    own.sort(key=lambda s: s.get("updated_at") or 0, reverse=True)
+    return {"own_sessions": own[:OWN_SESSIONS_LIMIT], "mentions": mentions[:MENTIONS_LIMIT]}
+
+
+def material_digest(material: dict) -> str:
+    """Отпечаток материала: меняется только при новых сессиях/упоминаниях.
+
+    Для своих сессий достаточно идентификатора, времени обновления и числа
+    сообщений — сообщения в сессии только дописываются; упоминания входят
+    цитатами, так как набор строк зависит от содержимого.
+    """
+    own = [
+        [s.get("id"), s.get("updated_at"), len(s.get("messages") or [])]
+        for s in material.get("own_sessions") or []
+    ]
+    mentions = [
+        [m.get("session_id"), m.get("excerpt")] for m in material.get("mentions") or []
+    ]
+    payload = json.dumps({"own": own, "mentions": mentions}, ensure_ascii=False, sort_keys=True)
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+def _truncate(text: str, limit: int) -> str:
+    """Обрезка по границе слова, чтобы не рвать посреди слова."""
+    text = " ".join(text.split())
+    if len(text) <= limit:
+        return text
+    cut = text[:limit]
+    if " " in cut:
+        cut = cut[: cut.rfind(" ")]
+    return cut.rstrip(" ,;:.-") or text[:limit]
+
+
+def _render_task(user: dict, profile: dict, material: dict) -> str:
+    """Пользовательское сообщение для модели: анкета + материал анализа."""
+    from .cabinet import full_name  # локальный импорт — избежать цикла на уровне модуля
+
+    lines: list[str] = []
+    name = full_name(profile)
+    lines.append(f"Пользователь: {name or (user.get('login') or '')}")
+    lines.append(
+        "Анкетные данные (НЕ дублировать в ответе): "
+        f"должности: {'; '.join(profile.get('positions') or []) or '—'}; "
+        f"учёная степень: {profile.get('degree') or '—'}; "
+        f"научные интересы: {profile.get('interests') or '—'}"
+    )
+    lines.append("")
+
+    lines.append("=== Сессии пользователя с нейросетью ===")
+    if material.get("own_sessions"):
+        for session in material["own_sessions"]:
+            lines.append(f"Сессия «{session['title']}»:")
+            for message in session["messages"]:
+                lines.append(f"  • {message}")
+    else:
+        lines.append("(сессий нет)")
+    lines.append("")
+
+    lines.append("=== Упоминания пользователя в сессиях платформы ===")
+    if material.get("mentions"):
+        for mention in material["mentions"]:
+            lines.append(f"Сессия «{mention['title']}»: {mention['excerpt']}")
+    else:
+        lines.append("(упоминаний нет)")
+
+    lines.append("")
+    lines.append(f"Составь контекст о пользователе (до {CONTEXT_MAX_CHARS} символов).")
+    return "\n".join(lines)
+
+
+async def generate_context(provider, user: dict, profile: dict, material: dict) -> str:
+    """Один вызов LLM: контекст по материалу, обрезанный до лимита блока."""
+    messages = [
+        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "user", "content": _render_task(user, profile, material)},
+    ]
+    chunks: list[str] = []
+    async for kind, payload in provider.stream_chat(messages, tools=None):
+        if kind == "text":
+            chunks.append(payload)
+    return _truncate("".join(chunks), CONTEXT_MAX_CHARS)
+
+
+def _current_provider():
+    """Провайдер из действующих настроек LLM; None — LLM не настроена."""
+    settings = get_settings()
+    return build_provider(effective_config(), read_timeout=settings.request_timeout)
+
+
+async def run_user_context_job(provider=None) -> dict:
+    """Один проход по всем пользователям (вызывается планировщиком и тестами).
+
+    Для каждого пользователя: не чаще раза в сутки; при неизменном дайджесте
+    материала контекст не трогаем (только отметка checked_at); без материала
+    файл контекста не создаём. Возвращает счётчики прохода.
+    """
+    provider = provider if provider is not None else _current_provider()
+    stats = {"users": 0, "generated": 0, "unchanged": 0, "skipped_fresh": 0, "no_material": 0}
+    if provider is None:
+        stats["skipped"] = "llm_not_configured"
+        return stats
+
+    settings = get_settings()
+    users = UserStore(settings.runtime_dir / "users")
+    sessions = SessionStore(settings.runtime_dir / "sessions")
+    cabinet = get_store()
+    now = time.time()
+
+    for user in users.list_all():  # публичное представление: id, login, name, …
+        uid = user.get("id")
+        if not uid:
+            continue
+        stats["users"] += 1
+
+        ctx = cabinet.get_context(uid)
+        checked = float(ctx.get("checked_at") or ctx.get("generated_at") or 0) if ctx else 0.0
+        if ctx is not None and now - checked < DAY_SECONDS:
+            stats["skipped_fresh"] += 1
+            continue  # расписание: этому пользователю сегодня уже проверяли
+
+        profile = cabinet.get_profile(uid)
+        material = collect_material(user, profile, sessions.iter_all())
+        if not material["own_sessions"] and not material["mentions"]:
+            stats["no_material"] += 1
+            continue
+
+        digest = material_digest(material)
+        if ctx is not None and ctx.get("source_digest") == digest and ctx.get("context"):
+            cabinet.touch_checked(uid)  # нового материала нет — контекст не меняем
+            stats["unchanged"] += 1
+            continue
+
+        try:
+            text = await generate_context(provider, user, profile, material)
+        except Exception:  # noqa: BLE001 — сбой одного пользователя не валит проход
+            logger.exception("Не удалось сформировать контекст для %s", uid)
+            continue
+        if not text:
+            continue
+        cabinet.save_context(uid, text, digest)
+        stats["generated"] += 1
+        logger.info("Контекст о пользователе %s обновлён (%d символов)", uid, len(text))
+
+    return stats
+
+
+async def scheduler_loop() -> None:
+    """Фоновый цикл приложения: периодические проходы run_user_context_job."""
+    await asyncio.sleep(STARTUP_DELAY)
+    while True:
+        interval = max(60.0, get_settings().user_context_interval)
+        try:
+            await run_user_context_job()
+        except asyncio.CancelledError:
+            raise
+        except Exception:  # noqa: BLE001 — планировщик живёт дальше любого сбоя
+            logger.exception("Сбой прохода формирования контекстов")
+        with contextlib.suppress(asyncio.CancelledError):
+            await asyncio.sleep(interval)
+

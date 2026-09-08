@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Админ-панель — AIOS Технологического института</title>
-<link rel="stylesheet" href="css/style.css?v=20260912">
+<link rel="stylesheet" href="css/style.css?v=20260914">
 </head>
 <body>
 <div class="layout">
@@ -22,7 +22,7 @@
       <a class="side-link" href="knowledge.html">Данные и знания</a>
       <a class="side-link" href="models.html">Модели</a>
       <a class="side-link" href="agents.html">Агенты и навыки</a>
-      <a class="side-link" href="polygons.html">Полигоны <span class="side-note">в разработке</span></a>
+      <a class="side-link side-link--disabled">Полигоны <span class="side-note">в разработке</span></a>
 
       <div class="side-group" id="wsGroup" hidden>
         <span class="side-group-title">Рабочее пространство</span>
@@ -95,6 +95,59 @@
     </form>
   </section>
 
+  <!-- Элемент 2 плана: раздел «Об организации» — профиль, показатели и документы -->
+  <section class="admin-wrap admin-wrap--org" id="orgWrap" hidden>
+    <div class="admin-toolbar">
+      <h2 class="admin-h2">Об организации</h2>
+      <p class="admin-count">Профиль, показатели деятельности и основные документы организации</p>
+    </div>
+    <p class="login-msg login-msg--error admin-msg" id="orgMsg" hidden></p>
+    <p class="login-msg login-msg--note admin-msg" id="orgStatus" hidden></p>
+
+    <!-- Элемент 1: Информация об организации (рендерится из profile.json/metrics.json) -->
+    <div class="org-card" id="orgInfoCard" hidden>
+      <div class="org-card-head">
+        <h3 class="org-h3">Информация об организации</h3>
+        <span class="org-type" id="orgType"></span>
+      </div>
+
+      <form class="org-form" id="orgProfileForm" novalidate>
+        <h4 class="org-h4">Основная информация</h4>
+        <div id="orgProfileFields"></div>
+        <label class="org-source">
+          <span>Источник данных</span>
+          <input type="text" name="source" maxlength="300" placeholder="например: мониторинг Минобрнауки, 2025">
+        </label>
+        <div class="org-actions">
+          <button class="btn-primary org-save" type="submit">Сохранить раздел</button>
+          <span class="org-updated" id="orgProfileUpdated"></span>
+        </div>
+      </form>
+
+      <form class="org-form" id="orgMetricsForm" novalidate>
+        <h4 class="org-h4">Показатели деятельности</h4>
+        <div id="orgMetricsFields"></div>
+        <label class="org-source">
+          <span>Источник данных</span>
+          <input type="text" name="source" maxlength="300" placeholder="например: форма ВПО-1, 2025">
+        </label>
+        <div class="org-actions">
+          <button class="btn-primary org-save" type="submit">Сохранить раздел</button>
+          <span class="org-updated" id="orgMetricsUpdated"></span>
+        </div>
+      </form>
+    </div>
+
+    <!-- Элемент 2: Основные документы организации -->
+    <div class="org-card" id="orgDocsCard" hidden>
+      <div class="org-card-head">
+        <h3 class="org-h3">Основные документы</h3>
+        <span class="org-updated">Скачивание — по клику на карточку</span>
+      </div>
+      <div id="orgDocsGroups"></div>
+    </div>
+  </section>
+
   <section class="admin-wrap" id="adminWrap" hidden>
     <div class="admin-toolbar">
       <p class="admin-count">Всего регистраций: <span id="adminCount">…</span></p>
@@ -121,9 +174,10 @@
 
 </div>
 </div>
-<script src="js/api.js?v=20260912"></script>
-<script src="js/auth.js?v=20260912"></script>
-<script src="js/admin.js?v=20260912"></script>
-<script src="js/workspace.js?v=20260912"></script>
+<script src="js/api.js?v=20260914"></script>
+<script src="js/auth.js?v=20260914"></script>
+<script src="js/admin.js?v=20260914"></script>
+<script src="js/organization.js?v=20260914"></script>
+<script src="js/workspace.js?v=20260914"></script>
 </body>
 </html>

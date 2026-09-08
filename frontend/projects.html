@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Мои проекты — AIOS Технологического института</title>
-<link rel="stylesheet" href="css/style.css?v=20260912">
+<link rel="stylesheet" href="css/style.css?v=20260913">
 </head>
 <body>
 <div class="layout">
@@ -22,7 +22,7 @@
       <a class="side-link" href="knowledge.html">Данные и знания</a>
       <a class="side-link" href="models.html">Модели</a>
       <a class="side-link" href="agents.html">Агенты и навыки</a>
-      <a class="side-link" href="polygons.html">Полигоны <span class="side-note">в разработке</span></a>
+      <a class="side-link side-link--disabled">Полигоны <span class="side-note">в разработке</span></a>
 
       <div class="side-group" id="wsGroup" hidden>
         <span class="side-group-title">Рабочее пространство</span>
@@ -49,7 +49,7 @@
     </div>
   </aside>
 
-  <div class="page">
+  <div class="page page--full">
 
   <section class="section-head">
     <a class="backlink" href="index.html">← AIOS Технологического института</a>
@@ -57,10 +57,26 @@
     <div class="rule"></div>
   </section>
 
+  <p class="login-msg" id="prjMsg" hidden></p>
+
+  <div class="cab-denied" id="prjGuest" hidden>
+    <p id="prjGuestMsg">Карточки проектов доступны только после входа в AIOS.</p>
+    <button class="btn-primary" id="prjGuestLogin" type="button">Войти</button>
+  </div>
+
+  <div id="prjWrap" hidden>
+    <div class="projects-grid" id="prjGrid"></div>
+    <div class="prj-empty-actions" id="prjEmptyActions" hidden>
+      <button class="btn-primary" id="prjStartOnboarding" type="button">Запустить онбординг проекта</button>
+    </div>
+  </div>
+
 </div>
 </div>
-<script src="js/api.js?v=20260912"></script>
+<script src="js/api.js?v=20260913"></script>
 <script src="js/auth.js?v=20260912"></script>
+<script src="js/agents.js?v=20260912"></script>
+<script src="js/projects.js?v=20260913"></script>
 <script src="js/workspace.js?v=20260912"></script>
 </body>
 </html>

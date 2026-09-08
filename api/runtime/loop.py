@@ -14,6 +14,8 @@ run_agent_loop — асинхронный генератор событий-сл
 import json
 import time
 
+from . import skill_context
+from .cabinet import get_store as get_cabinet_store
 from .prompts import build_system_prompt
 
 HISTORY_LIMIT = 24  # сколько последних сообщений сессии уходит в модель
@@ -24,9 +26,31 @@ def _now() -> float:
     return time.time()
 
 
+def grant_pending_permissions(session: dict) -> bool:
+    """Переводит запросы разрешений на чтение документов из pending в granted.
+
+    Диалоговый механизм: инструмент read_document при попытке прочитать
+    большой PDF помечает запрос pending и велит модели спросить пользователя.
+    Следующее сообщение пользователя считается ответом на этот вопрос —
+    интент ответа не разбираем (модель обязана уважать отказ), но без
+    ответа пользователя сервер чтение не разрешит.
+    """
+    perms = session.get("doc_permissions")
+    if not isinstance(perms, dict):
+        return False
+    changed = False
+    for doc_id, state in list(perms.items()):
+        if state == "pending":
+            perms[doc_id] = "granted"
+            changed = True
+    return changed
+
+
 async def run_agent_loop(*, settings, provider, registry, store, session, user_text: str):
     model = session.get("model")
     store.append_message(session, {"role": "user", "content": user_text, "ts": _now()})
+    if grant_pending_permissions(session):
+        store.save(session)
 
     messages = [
         {
@@ -34,6 +58,16 @@ async def run_agent_loop(*, settings, provider, registry, store, session, user_t
             "content": build_system_prompt(session.get("agent_id"), session.get("skill_ids")),
         }
     ]
+    # блок «Кабинет»: анкетные данные и скрытый контекст о пользователе
+    # (сессия привязана к учётной записи через Bearer-токен в /api/chat)
+    user_block = get_cabinet_store().prompt_block(session.get("user_id"))
+    if user_block:
+        messages[0]["content"] += "\n\n" + user_block
+    # динамические блоки по упоминаниям в вопросе: «Об организации»,
+    # «Мои проекты» (детекция и сборка — runtime/skill_context.py)
+    context_block = skill_context.context_block(session, user_text)
+    if context_block:
+        messages[0]["content"] += "\n\n" + context_block
     messages.extend(session["messages"][-HISTORY_LIMIT:])
 
     for _ in range(settings.max_tool_iterations):
@@ -72,7 +106,8 @@ async def run_agent_loop(*, settings, provider, registry, store, session, user_t
 
         for call in tool_calls:
             yield {"type": "tool_call", "id": call.id, "name": call.name, "arguments": call.arguments}
-            result = await registry.call(call.name, call.arguments)
+            # ctx даёт инструментам состояние сессии (разрешения на чтение PDF)
+            result = await registry.call(call.name, call.arguments, ctx={"session": session})
             tool_msg = {
                 "role": "tool",
                 "tool_call_id": call.id,

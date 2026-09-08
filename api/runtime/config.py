@@ -10,6 +10,13 @@
     AIOS_MAX_TOOL_ITERATIONS — лимит итераций цикла «модель ↔ инструменты» (8);
     AIOS_TOOLS_ROOT          — корень песочницы файловых инструментов (./data);
     AIOS_RUNTIME_DIR         — каталог рантайма: сессии и служебные файлы (./.aios-runtime);
+    AIOS_USER_CONTEXT_INTERVAL — как часто фоновый планировщик проверяет, не пора ли
+                                обновить скрытый «Контекст о пользователе», сек (3600);
+                                сам контекст для каждого пользователя пересобирается
+                                не чаще раза в сутки и только при новых сессиях/упоминаниях;
+    AIOS_ORGANIZATION_DIR    — каталог раздела «Об организации» (./data/organization):
+                               profile.json, metrics.json, documents.json и objects/ с файлами
+                               документов (в тестах перенаправляется во временный каталог);
     AIOS_ADMIN_LOGIN         — логин стартового администратора (m.kharitonov@csr-nw.ru);
     AIOS_ADMIN_PASSWORD      — его пароль. Задаётся на сервере в .env; по умолчанию «1234»
                                — только для локальной разработки, в открытых исходниках.
@@ -68,6 +75,8 @@ class Settings:
     max_tool_iterations: int
     tools_root: Path
     runtime_dir: Path
+    user_context_interval: float
+    organization_dir: Path
     admin_login: str
     admin_password: str
     smtp_host: str
@@ -114,6 +123,10 @@ def get_settings() -> Settings:
         max_tool_iterations=max(1, _env_int("AIOS_MAX_TOOL_ITERATIONS", 8)),
         tools_root=Path(_env("AIOS_TOOLS_ROOT") or (BASE_DIR / "data")).resolve(),
         runtime_dir=Path(_env("AIOS_RUNTIME_DIR") or (BASE_DIR / ".aios-runtime")).resolve(),
+        user_context_interval=_env_float("AIOS_USER_CONTEXT_INTERVAL", 3600.0),
+        organization_dir=Path(
+            _env("AIOS_ORGANIZATION_DIR") or (BASE_DIR / "data" / "organization")
+        ).resolve(),
         admin_login=_env("AIOS_ADMIN_LOGIN") or "m.kharitonov@csr-nw.ru",
         admin_password=_env("AIOS_ADMIN_PASSWORD") or "1234",
         smtp_host=_env("AIOS_SMTP_HOST"),

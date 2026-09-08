@@ -19,7 +19,7 @@ from pathlib import Path
 
 from .. import datarepo
 
-SKILL_BODY_LIMIT = 12_000
+SKILL_BODY_LIMIT = 20_000
 
 _PROMPTS_DIR = Path(__file__).resolve().parent
 

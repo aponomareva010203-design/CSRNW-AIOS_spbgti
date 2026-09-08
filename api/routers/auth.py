@@ -26,6 +26,7 @@ from pydantic import BaseModel, Field
 
 from ..runtime.config import get_settings
 from ..runtime.confirmations import ConfirmationStore
+from ..runtime.cabinet import get_store as get_cabinet_store
 from ..runtime.llm_settings import (
     LLMSettingsError,
     LLMSettingsStore,
@@ -306,6 +307,8 @@ def admin_delete_user(user_id: str, admin: dict = Depends(require_admin)):
         raise HTTPException(status_code=404, detail="Пользователь не найден")
     get_token_store().revoke_all_for_user(user_id)
     get_confirmation_store().revoke_all_for_user(user_id)
+    # блоки «Кабинета» (данные пользователя и скрытый контекст) удаляются вместе с учёткой
+    get_cabinet_store().delete_user(user_id)
     return {"ok": True}
 
 

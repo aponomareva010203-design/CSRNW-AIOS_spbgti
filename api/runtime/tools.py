@@ -7,6 +7,10 @@
 
 Файловые инструменты (read_file/list_files/write_file) ограничены песочницей
 tools_root (по умолчанию data/): выход за корень отклоняется.
+
+Обработчики получают (args, ctx): ctx — контекст цикла {"session": …};
+он нужен инструментам с состоянием сессии (read_document хранит в ней
+разрешения пользователя на чтение больших PDF).
 """
 
 import json
@@ -16,6 +20,8 @@ from typing import Awaitable, Callable
 
 from ..catalog import CATALOG
 from . import datarepo
+from . import organization
+from . import projects
 
 MAX_READ_CHARS = 20_000
 MAX_WRITE_CHARS = 200_000
@@ -31,7 +37,7 @@ class Tool:
     name: str
     description: str
     parameters: dict
-    handler: Callable[[dict], Awaitable[dict]]
+    handler: Callable[..., Awaitable[dict]]
 
 
 class ToolRegistry:
@@ -60,12 +66,13 @@ class ToolRegistry:
             for tool in self._tools.values()
         ]
 
-    async def call(self, name: str, arguments: dict) -> dict:
+    async def call(self, name: str, arguments: dict, ctx: dict | None = None) -> dict:
+        """Безопасный вызов инструмента; ctx — контекст цикла (сессия)."""
         tool = self._tools.get(name)
         if tool is None:
             return {"ok": False, "error": f"Неизвестный инструмент: {name}"}
         try:
-            return await tool.handler(arguments or {})
+            return await tool.handler(arguments or {}, ctx)
         except Exception as exc:  # noqa: BLE001 — ошибка инструмента не роняет цикл
             return {"ok": False, "error": f"{type(exc).__name__}: {exc}"}
 
@@ -95,7 +102,7 @@ def _builtin_tools(root: Path) -> list:
             raise ValueError(f"Путь вне песочницы ({root}): {rel}")
         return candidate
 
-    async def read_file(args: dict) -> dict:
+    async def read_file(args: dict, ctx: dict | None) -> dict:
         path = safe_path(str(args.get("path", "")))
         if not path.is_file():
             return {"ok": False, "error": f"Файл не найден: {args.get('path')}"}
@@ -108,7 +115,7 @@ def _builtin_tools(root: Path) -> list:
             "content": text[:MAX_READ_CHARS],
         }
 
-    async def list_files(args: dict) -> dict:
+    async def list_files(args: dict, ctx: dict | None) -> dict:
         sub = safe_path(str(args.get("subdir") or "."))
         base = sub if sub.is_dir() else root
         files = sorted(
@@ -123,7 +130,7 @@ def _builtin_tools(root: Path) -> list:
             "files": [str(p.relative_to(root)) for p in files[:MAX_LISTED_FILES]],
         }
 
-    async def write_file(args: dict) -> dict:
+    async def write_file(args: dict, ctx: dict | None) -> dict:
         path = safe_path(str(args.get("path", "")))
         content = str(args.get("content", ""))
         if len(content) > MAX_WRITE_CHARS:
@@ -160,7 +167,7 @@ def _builtin_tools(root: Path) -> list:
                 score += 3 if token in name else (2 if token in tags else 1)
         return score
 
-    async def search_knowledge(args: dict) -> dict:
+    async def search_knowledge(args: dict, ctx: dict | None) -> dict:
         """Подбор RAG-баз и онтологий по запросу (по карточкам каталога)."""
         query = str(args.get("query", "")).strip()
         if not query:
@@ -206,7 +213,7 @@ def _builtin_tools(root: Path) -> list:
             "note": "Поиск по каталогу баз знаний и онтологий (по карточкам). Полнотекстовый поиск по корпусам (Qdrant) подключается отдельным инструментом.",
         }
 
-    async def get_catalog(args: dict) -> dict:
+    async def get_catalog(args: dict, ctx: dict | None) -> dict:
         """Каталог артефактов: модели, агенты или навыки."""
         kind = str(args.get("kind", "")).strip().lower()
         query = str(args.get("query", "")).strip().lower()
@@ -221,6 +228,199 @@ def _builtin_tools(root: Path) -> list:
         if query:
             items = [i for i in items if query in json.dumps(i, ensure_ascii=False).lower()]
         return {"ok": True, "kind": kind, "count": len(items), "items": items[:MAX_CATALOG_ITEMS]}
+
+    # ----- раздел «Об организации» -----
+
+    async def get_organization(args: dict, ctx: dict | None) -> dict:
+        """Данные организации: профиль, показатели и документы с .md-описаниями."""
+        section = str(args.get("section", "all")).strip().lower() or "all"
+        if section not in ("profile", "metrics", "documents", "all"):
+            return {"ok": False, "error": "section должен быть одним из: profile, metrics, documents, all"}
+        store = organization.get_store()
+        result: dict = {"ok": True, "section": section}
+        if section in ("profile", "all"):
+            result["profile"] = store.load_profile()
+        if section in ("metrics", "all"):
+            result["metrics"] = store.load_metrics()
+        if section in ("documents", "all"):
+            result["documents"] = [organization.public_document(d) for d in store.load_documents()]
+            result["note"] = (
+                "У каждого документа есть короткое .md-описание (summary). Полную версию "
+                "читайте инструментом read_document; большие PDF — только после явного "
+                "разрешения пользователя."
+            )
+        return result
+
+    # ----- карточки проектов («Мои проекты») -----
+
+    def _projects_user(ctx: dict | None) -> str | None:
+        """Владелец карточек — пользователь, привязанный к сессии по токену."""
+        session = ctx.get("session") if isinstance(ctx, dict) else None
+        user_id = session.get("user_id") if isinstance(session, dict) else None
+        return user_id or None
+
+    async def get_projects(args: dict, ctx: dict | None) -> dict:
+        """Карточки проектов текущего пользователя («Мои проекты»)."""
+        user_id = _projects_user(ctx)
+        if not user_id:
+            return {
+                "ok": False,
+                "error": "Карточки проектов доступны только авторизованным "
+                "пользователям. Попросите пользователя войти в AIOS.",
+            }
+        store = projects.get_store()
+        cards = [store.public_card(c) for c in store.list(user_id)]
+        return {
+            "ok": True,
+            "count": len(cards),
+            "items": cards,
+            "note": "status: draft — черновик онбординга; active — подтверждён "
+            "пользователем и виден на странице «Мои проекты».",
+        }
+
+    async def save_project_card(args: dict, ctx: dict | None) -> dict:
+        """Создаёт/обновляет карточку проекта (upsert по project_id)."""
+        user_id = _projects_user(ctx)
+        if not user_id:
+            return {
+                "ok": False,
+                "error": "Карточки проектов доступны только авторизованным "
+                "пользователям. Попросите пользователя войти в AIOS.",
+            }
+        card = args.get("card")
+        if not isinstance(card, dict):
+            card = {k: v for k, v in args.items() if k != "card"}
+        store = projects.get_store()
+        saved = store.save(user_id, card)
+        return {
+            "ok": True,
+            "project_id": saved["id"],
+            "status": saved["status"],
+            "card": store.public_card(saved),
+            "note": "Карточка сохранена. При следующих вызовах передавайте этот "
+            "project_id — карточка обновится, а не создастся заново. Статус "
+            "active ставьте только после явного подтверждения пользователя.",
+        }
+
+    def _extract_pdf_pages(path: Path, args: dict) -> dict:
+        """Извлекает текст PDF (pypdf) с диапазоном страниц и лимитом символов."""
+        from pypdf import PdfReader  # лениво: остальной рантайм работает и без pypdf
+
+        reader = PdfReader(str(path))
+        pages_total = len(reader.pages)
+
+        def _int_arg(key: str, default: int) -> int:
+            try:
+                return int(args.get(key, default))
+            except (TypeError, ValueError):
+                return default
+
+        start = max(1, min(_int_arg("start_page", 1), pages_total))
+        end = max(start, min(_int_arg("end_page", pages_total), pages_total))
+        chunks: list[str] = []
+        used = 0
+        truncated = end < pages_total
+        for idx in range(start - 1, end):
+            page_text = (reader.pages[idx].extract_text() or "").strip()
+            if used + len(page_text) > MAX_READ_CHARS:
+                page_text = page_text[: MAX_READ_CHARS - used]
+                truncated = True
+            chunks.append(page_text)
+            used += len(page_text)
+            if truncated:
+                break
+        text = "\n\n".join(c for c in chunks if c)
+        return {
+            "pages_total": pages_total,
+            "pages_read": [start, end],
+            "truncated": truncated,
+            "content": text,
+        }
+
+    async def read_document(args: dict, ctx: dict | None) -> dict:
+        """Документ организации: .md-описание или (full=true) полная версия файла."""
+        doc_id = str(args.get("document_id", "")).strip()
+        full = bool(args.get("full", False))
+        store = organization.get_store()
+        doc = store.get_document(doc_id)
+        if doc is None:
+            return {"ok": False, "error": f"Документ не найден: {doc_id or '—'}"}
+
+        if not full:
+            # первый уровень доступа: короткое .md-описание — без разрешений
+            summary = str(doc.get("summary") or "").strip()
+            return {
+                "ok": True,
+                "document_id": doc_id,
+                "title": doc.get("title"),
+                "category": organization.CATEGORIES.get(doc.get("category"), doc.get("category")),
+                "filename": doc.get("filename"),
+                "summary": summary
+                or "(короткое .md-описание не заполнено — попросите администратора добавить его в админ-панели)",
+                "hint": "Это короткое описание. Полная версия — read_document с full=true "
+                "(для больших PDF нужно разрешение пользователя).",
+            }
+
+        try:
+            path = store.document_path(doc)
+        except organization.OrganizationError as exc:
+            return {"ok": False, "error": str(exc)}
+        if not path.is_file():
+            return {"ok": False, "error": "Файл документа отсутствует в organization/objects/"}
+        size = path.stat().st_size
+        ext = path.suffix.lower()
+
+        if ext == ".pdf":
+            # большие PDF — диалоговое разрешение пользователя (state в сессии)
+            if size > organization.PDF_PERMISSION_THRESHOLD:
+                session = ctx.get("session") if isinstance(ctx, dict) else None
+                perms = session.get("doc_permissions") if isinstance(session, dict) else None
+                if not (isinstance(perms, dict) and perms.get(doc_id) == "granted"):
+                    if isinstance(session, dict):
+                        session.setdefault("doc_permissions", {})[doc_id] = "pending"
+                    return {
+                        "ok": False,
+                        "needs_permission": True,
+                        "document_id": doc_id,
+                        "title": doc.get("title"),
+                        "size": size,
+                        "message": (
+                            f"Документ «{doc.get('title', doc_id)}» — большой PDF "
+                            f"({size // 1024} КБ). Сначала спросите у пользователя разрешение "
+                            "прочитать этот документ, дождитесь ответа и вызовите read_document "
+                            "повторно с full=true и confirmed=true. Пока разрешения нет — "
+                            "используйте короткое .md-описание (read_document без full)."
+                        ),
+                    }
+            try:
+                extracted = _extract_pdf_pages(path, args)
+            except ImportError:
+                return {"ok": False, "error": "Библиотека pypdf не установлена на сервере"}
+            except Exception as exc:  # noqa: BLE001 — битый PDF не должен ронять цикл
+                return {"ok": False, "error": f"Не удалось прочитать PDF: {type(exc).__name__}: {exc}"}
+            return {
+                "ok": True,
+                "document_id": doc_id,
+                "title": doc.get("title"),
+                "filename": doc.get("filename"),
+                "format": "pdf",
+                "size": size,
+                **extracted,
+            }
+
+        # текстовые форматы читаются полностью без разрешения
+        text = path.read_text(encoding="utf-8", errors="replace")
+        return {
+            "ok": True,
+            "document_id": doc_id,
+            "title": doc.get("title"),
+            "filename": doc.get("filename"),
+            "format": ext.lstrip("."),
+            "size": size,
+            "truncated": len(text) > MAX_READ_CHARS,
+            "content": text[:MAX_READ_CHARS],
+        }
+
 
     return [
         Tool(
@@ -280,5 +480,58 @@ def _builtin_tools(root: Path) -> list:
                 "required": ["path", "content"],
             },
             handler=write_file,
+        ),
+        Tool(
+            name="get_organization",
+            description="Данные организации из раздела «Об организации»: profile — основная информация (название, aliases, описание, направления деятельности), metrics — показатели деятельности, documents — основные документы с короткими .md-описаниями. Разрешение пользователя не требуется.",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "section": {
+                        "type": "string",
+                        "enum": ["profile", "metrics", "documents", "all"],
+                        "default": "all",
+                        "description": "Какой раздел вернуть",
+                    },
+                },
+            },
+            handler=get_organization,
+        ),
+        Tool(
+            name="read_document",
+            description="Читает документ организации. Без full возвращает короткое .md-описание документа (разрешение не нужно) — начинай всегда с него. С full=true читает полную версию файла; большие PDF требуют явного разрешения пользователя: инструмент вернёт needs_permission — спроси пользователя, дождись ответа и вызови снова с full=true и confirmed=true. Для PDF доступны start_page/end_page.",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "document_id": {"type": "string", "description": "Идентификатор документа (doc-…) из get_organization"},
+                    "full": {"type": "boolean", "default": False, "description": "Читать полную версию файла вместо .md-описания"},
+                    "confirmed": {"type": "boolean", "default": False, "description": "Пользователь разрешил чтение большого PDF"},
+                    "start_page": {"type": "integer", "minimum": 1, "description": "Первая страница PDF (с 1)"},
+                    "end_page": {"type": "integer", "minimum": 1, "description": "Последняя страница PDF включительно"},
+                },
+                "required": ["document_id"],
+            },
+            handler=read_document,
+        ),
+        Tool(
+            name="get_projects",
+            description="Карточки проектов текущего пользователя со страницы «Мои проекты» (id, название, категория, стадия, бюджет, «Задел» и т.д.). Работает только для авторизованных пользователей.",
+            parameters={"type": "object", "properties": {}},
+            handler=get_projects,
+        ),
+        Tool(
+            name="save_project_card",
+            description="Создаёт или обновляет карточку проекта пользователя (upsert по project_id). После каждого шага онбординга передавайте накопленную карточку целиком; project_id берите из результата первого вызова и не выдумывайте. Статус active — только после явного подтверждения пользователя (первое сохранение всегда draft).",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "card": {
+                        "type": "object",
+                        "description": "Карточка: {project_id?, title?, category?, description?, outcome?, stage?, stakeholders?, budget?, presentation?, materials?, status?}",
+                    },
+                },
+                "required": ["card"],
+            },
+            handler=save_project_card,
         ),
     ]

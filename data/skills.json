@@ -8,6 +8,15 @@
       "author": "Максим Беляков",
       "recommended_model": "ChemLLM-7B",
       "file_url": "/data/skills/scimlchem-architect.md"
+    },
+    {
+      "id": "project-onboarding",
+      "name": "Онбординг проекта",
+      "domain": "Рабочее пространство",
+      "description_ru": "Диалоговый сбор карточки проекта за 7 шагов с сохранением в «Мои проекты»: тема, результат, стадия, бюджет, задел.",
+      "author": "Команда AIOS",
+      "recommended_model": "—",
+      "file_url": "/data/skills/project-onboarding.md"
     }
   ]
 }

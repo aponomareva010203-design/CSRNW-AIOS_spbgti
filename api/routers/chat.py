@@ -1,6 +1,9 @@
 """HTTP-слой харнесса: SSE-чат, сессии, статус рантайма.
 
 POST /api/chat          — сообщение ассистенту; ответ — поток SSE-событий;
+                          необязательный заголовок Authorization: Bearer
+                          привязывает сессию к учётной записи (анализ сессий
+                          для скрытого «Контекста о пользователе» в «Кабинете»);
 GET  /api/sessions      — список сессий (сводки);
 GET  /api/sessions/{id} — полная сессия (транскрипт);
 DELETE /api/sessions/{id};
@@ -13,7 +16,7 @@ tool_result/done/error, затем «data: [DONE]\n\n».
 import json
 from functools import lru_cache
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Header, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
@@ -53,6 +56,27 @@ def get_provider():
     return build_provider(effective_config(), read_timeout=get_settings().request_timeout)
 
 
+def _token_user_id(authorization: str | None) -> str | None:
+    """Необязательная авторизация чата: id пользователя по Bearer-токену.
+
+    Без заголовка чат работает анонимно (user_id = None). Неверный токен
+    приравнивается к анонимному — вход остаётся отдельным шагом интерфейса.
+    Привязка нужна, чтобы планировщик «Контекста о пользователе» анализировал
+    именно сессии владельца учётной записи.
+    """
+    if not authorization or not authorization.lower().startswith("bearer "):
+        return None
+    token = authorization[7:].strip()
+    if not token:
+        return None
+    # хранилище токенов живёт в роутере auth; импорт здесь — без цикла,
+    # так как auth импортирует chat только лениво (в admin_set_llm)
+    from .auth import get_token_store
+
+    return get_token_store().resolve(token)
+
+
+
 def _sse(event: dict) -> str:
     return f"data: {json.dumps(event, ensure_ascii=False)}\n\n"
 
@@ -71,7 +95,7 @@ def runtime_status():
 
 
 @router.post("/chat")
-async def chat(req: ChatRequest):
+async def chat(req: ChatRequest, authorization: str | None = Header(default=None)):
     provider = get_provider()
     if provider is None:
         raise HTTPException(
@@ -86,10 +110,18 @@ async def chat(req: ChatRequest):
 
     cfg = effective_config()
     store = get_store()
+    # необязательная привязка диалога к учётной записи (для «Кабинета»)
+    user_id = _token_user_id(authorization)
     if req.session_id:
         session = store.get(req.session_id)
         if session is None:
             raise HTTPException(status_code=404, detail="Сессия не найдена")
+        owner = session.get("user_id")
+        if owner and user_id and owner != user_id:
+            # чужая сессия ничем не отличается от несуществующей
+            raise HTTPException(status_code=404, detail="Сессия не найдена")
+        if not owner and user_id:
+            session["user_id"] = user_id  # анонимная сессия усыновляется владельцем токена
     else:
         session = store.create(
             title=req.message[:80],
@@ -97,6 +129,8 @@ async def chat(req: ChatRequest):
             agent_id=req.agent_id,
             skill_ids=req.skill_ids,
         )
+        if user_id:
+            session["user_id"] = user_id
     session["model"] = cfg.model
     if req.agent_id:
         session["agent_id"] = req.agent_id

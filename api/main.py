@@ -1,5 +1,8 @@
 """FastAPI-приложение AIOS: API каталога моделей + раздача статики."""
 
+import asyncio
+import contextlib
+from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Optional
 
@@ -8,12 +11,33 @@ from fastapi.staticfiles import StaticFiles
 
 from .catalog import CATALOG
 from .routers.auth import router as auth_router
+from .routers.cabinet import router as cabinet_router
 from .routers.chat import router as chat_router
+from .routers.organization import router as organization_router
+from .routers.projects import router as projects_router
+from .runtime.user_context import scheduler_loop
 from .schemas import ModelsResponse, ModelSource
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-app = FastAPI(title="AIOS API", version="0.3.0")
+
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    """Фоновая задача: суточное обновление скрытых «Контекстов о пользователе».
+
+    TestClient(app) без контекстного менеджера lifespan не запускает —
+    тесты остаются детерминированными.
+    """
+    task = asyncio.create_task(scheduler_loop())
+    try:
+        yield
+    finally:
+        task.cancel()
+        with contextlib.suppress(asyncio.CancelledError):
+            await task
+
+
+app = FastAPI(title="AIOS API", version="0.4.0", lifespan=lifespan)
 
 
 class _NoCacheStaticMiddleware:
@@ -56,6 +80,15 @@ app.include_router(chat_router)
 
 # Авторизация и админ-раздел: /api/auth/*, /api/admin/*.
 app.include_router(auth_router)
+
+# Страница «Кабинет»: /api/cabinet/* — собственные данные пользователя.
+app.include_router(cabinet_router)
+
+# Страница «Мои проекты»: /api/projects/* — карточки проектов пользователя.
+app.include_router(projects_router)
+
+# Раздел «Об организации» для админ-панели: /api/admin/organization*.
+app.include_router(organization_router)
 
 
 @app.get("/api/models", response_model=ModelsResponse)

@@ -21,6 +21,7 @@
 (function () {
   var AUTH_KEY = 'aios-auth-v1';
   var SESSION_KEY = 'aios-workspace-session-v1';
+  var SKILL_KEY = 'aios-workspace-skill-v1'; /* навык, запущенный в чате (ставит agents.js) */
 
   var MIN_WIDTH = 400;
   var DEFAULT_WIDTH = 560;
@@ -56,6 +57,7 @@
     '    </div>',
     '  </header>',
     '  <div class="ws-messages" id="wsMessages" aria-live="polite"></div>',
+    '  <div class="ws-skillbar" id="wsSkillbar" hidden></div>',
     '  <form class="ws-composer" id="wsComposer" onsubmit="return false">',
     '    <textarea id="wsInput" rows="1" placeholder="Сообщение рабочему чату…" aria-label="Сообщение"></textarea>',
     '    <button class="ws-send" type="submit" aria-label="Отправить">↑</button>',
@@ -78,6 +80,7 @@
   var composer = document.getElementById('wsComposer');
   var sendBtn = composer.querySelector('.ws-send');
   var input = document.getElementById('wsInput');
+  var skillbar = document.getElementById('wsSkillbar');
 
   /* ---------- утилиты ---------- */
 
@@ -102,6 +105,65 @@
       if (id) localStorage.setItem(SESSION_KEY, id);
       else localStorage.removeItem(SESSION_KEY);
     } catch (e) { /* приватный режим */ }
+  }
+
+  /* ---------- активный навык (кнопка «Запустить в рабочем чате») ---------- */
+
+  function readSkill() {
+    try {
+      var raw = localStorage.getItem(SKILL_KEY);
+      var s = raw ? JSON.parse(raw) : null;
+      return s && s.skill_id ? s : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function saveSkill(skill, open) {
+    try {
+      localStorage.setItem(SKILL_KEY, JSON.stringify({
+        skill_id: skill.skill_id,
+        name: skill.name || '',
+        open: !!open
+      }));
+    } catch (e) { /* приватный режим */ }
+  }
+
+  function clearSkill() {
+    try { localStorage.removeItem(SKILL_KEY); } catch (e) { /* приватный режим */ }
+  }
+
+  /* Плашка над полем ввода: какой навык активен в этом чате.
+     skill_ids уезжают на сервер с каждым сообщением (сессия хранит их
+     сама), поэтому чип живет до явного «✕» — и переживает новый диалог. */
+  function syncSkillbar() {
+    if (!skillbar) return;
+    var skill = readSkill();
+    skillbar.innerHTML = '';
+    if (!skill) {
+      skillbar.hidden = true;
+      return;
+    }
+    skillbar.hidden = false;
+    var chip = document.createElement('span');
+    chip.className = 'ws-skill-chip';
+    var label = document.createElement('span');
+    label.className = 'ws-skill-chip-label';
+    label.textContent = 'Навык: ' + (skill.name || skill.skill_id);
+    var del = document.createElement('button');
+    del.type = 'button';
+    del.className = 'ws-skill-chip-x';
+    del.setAttribute('aria-label', 'Убрать навык из чата');
+    del.title = 'Убрать навык из чата';
+    del.textContent = '✕';
+    del.addEventListener('click', function () {
+      clearSkill();
+      syncSkillbar();
+      input.focus();
+    });
+    chip.appendChild(label);
+    chip.appendChild(del);
+    skillbar.appendChild(chip);
   }
 
   /* ---------- видимость триггеров ---------- */
@@ -162,6 +224,7 @@
         scrollDown();
       }
     }
+    syncSkillbar();
   }
 
   function finishClose() {
@@ -269,13 +332,22 @@
     messagesEl.scrollTop = messagesEl.scrollHeight;
   }
 
-  function appendMessage(role, text) {
+  function appendMessage(role, text, skill) {
     var msg = document.createElement('div');
     msg.className = 'ws-msg ws-msg--' + role;
-    msg.textContent = text;
+    if (role === 'user' && skill) {
+      var tag = document.createElement('span');
+      tag.className = 'ws-msg-skill';
+      tag.textContent = '⚡ ' + (skill.name || skill.skill_id);
+      msg.appendChild(tag);
+    }
+    var textEl = document.createElement('span');
+    textEl.className = 'ws-msg-text';
+    textEl.textContent = text;
+    msg.appendChild(textEl);
     messagesEl.appendChild(msg);
     scrollDown();
-    return msg;
+    return { root: msg, text: textEl };
   }
 
   function appendStreamingMessage() {
@@ -348,6 +420,59 @@
     card.pre.textContent = text;
   }
 
+  /* ---------- протокол быстрых ответов (```aios-choices) ---------- */
+
+  var CHOICES_RE = /```aios-choices[ \t]*\r?\n([\s\S]*?)```/g;
+
+  /* Модель оформляет варианты fenced-блоком aios-choices; после завершения
+     ответа убираем блок из текста (он дублирует кнопки) и рисуем кнопки.
+     Нажатие отправляет текст варианта обычным сообщением пользователя. */
+  function renderChoices(bubble) {
+    if (!bubble || !bubble.text) return;
+    var text = bubble.text.textContent || '';
+    if (text.indexOf('aios-choices') === -1) return;
+    var options = [];
+    text = text.replace(CHOICES_RE, function (all, body) {
+      String(body || '').split(/\r?\n/).forEach(function (line) {
+        line = line.trim().replace(/^[-*•]\s+/, '');
+        if (line) options.push(line);
+      });
+      return '';
+    });
+    if (!options.length) return;
+    bubble.text.textContent = text.replace(/\n{3,}/g, '\n\n').trim();
+    var wrap = document.createElement('div');
+    wrap.className = 'ws-choices';
+    options.slice(0, 8).forEach(function (opt) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'ws-choice-btn';
+      btn.textContent = opt;
+      btn.addEventListener('click', function () {
+        Array.prototype.forEach.call(wrap.querySelectorAll('button'), function (b) {
+          b.disabled = true;
+        });
+        send(opt);
+      });
+      wrap.appendChild(btn);
+    });
+    bubble.root.appendChild(wrap);
+    scrollDown();
+  }
+
+  /* Карточка проекта сохранена — короткая ссылка на страницу «Мои проекты» */
+  function appendProjectsAction() {
+    var row = document.createElement('div');
+    row.className = 'ws-projects-action';
+    var link = document.createElement('a');
+    link.className = 'ws-projects-link';
+    link.href = 'projects.html';
+    link.textContent = 'Открыть «Мои проекты» →';
+    row.appendChild(link);
+    messagesEl.appendChild(row);
+    scrollDown();
+  }
+
   /* ---------- сессия: восстановление и новый диалог ---------- */
 
   function restoreSession() {
@@ -370,7 +495,7 @@
               } catch (e) { /* показываем как есть */ }
               cards[tc.id] = appendToolCard((tc.function && tc.function.name) || 'tool', args);
             });
-            if (m.content) appendMessage('assistant', m.content);
+            if (m.content) renderChoices(appendMessage('assistant', m.content));
           } else if (m.role === 'tool') {
             var card = cards[m.tool_call_id];
             if (card) {
@@ -379,6 +504,10 @@
                 pretty = JSON.stringify(JSON.parse(m.content), null, 2);
               } catch (e) { /* оставляем как есть */ }
               fillToolCard(card, { ok: true, result: pretty });
+            }
+            /* при восстановлении онбординга показываем ссылку один раз */
+            if (m.name === 'save_project_card' && !messagesEl.querySelector('.ws-projects-action')) {
+              appendProjectsAction();
             }
           }
         });
@@ -410,14 +539,23 @@
     input.style.height = Math.min(input.scrollHeight, 140) + 'px';
   }
 
-  function send() {
-    var text = input.value.trim();
+  function send(forcedText) {
+    var forced = typeof forcedText === 'string' && forcedText.trim();
+    var text = forced ? forcedText.trim() : input.value.trim();
     if (!text || sending) return;
     sending = true;
     sendBtn.disabled = true;
-    appendMessage('user', text);
-    input.value = '';
-    autosize();
+
+    /* активный навык едет на сервер с сообщением (id сессии хранит skill_ids
+       сам); чип-метка показывается на первом сообщении нового диалога */
+    var skill = readSkill();
+    var freshChat = !getSessionId();
+    appendMessage('user', text, skill && freshChat ? skill : null);
+
+    if (!forced) {
+      input.value = '';
+      autosize();
+    }
 
     var bubble = appendStreamingMessage();
     var cards = {};
@@ -430,6 +568,7 @@
       if (!bubble.text.textContent) {
         bubble.text.textContent = '(пустой ответ модели)';
       }
+      renderChoices(bubble);
       sending = false;
       sendBtn.disabled = false;
       input.focus();
@@ -440,6 +579,7 @@
       message: text,
       session_id: getSessionId()
     };
+    if (skill) payload.skill_ids = [skill.skill_id];
 
     function runStream() {
       return window.AIOS_API.chatStream(payload, {
@@ -457,6 +597,9 @@
         onToolResult: function (ev) {
           var card = cards[ev.id];
           if (card) fillToolCard(card, ev);
+          if (ev.name === 'save_project_card' && ev.ok !== false) {
+            appendProjectsAction();
+          }
           scrollDown();
         },
         onError: function (msg) {
@@ -498,4 +641,17 @@
   });
 
   input.addEventListener('input', autosize);
+
+  syncSkillbar();
+
+  /* «Запустить в рабочем чате» (agents.js ставит флаг с open:true):
+     открываем панель сразу, чип навыка подхватится в openPanel */
+  (function handleSkillLaunch() {
+    var skill = readSkill();
+    if (skill && skill.open) {
+      skill.open = false;
+      saveSkill(skill, false);
+      openPanel(null);
+    }
+  })();
 })();

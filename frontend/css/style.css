@@ -149,6 +149,9 @@ a { color: inherit; text-decoration: none; }
 
 .side-link:hover { color: var(--green-deep); background: var(--paper-soft); }
 
+/* Неактивный пункт меню («Полигоны» в разработке): не кликается, приглушён */
+.side-link--disabled { pointer-events: none; opacity: 0.55; }
+
 .side-link.active {
   color: var(--green-deep);
   background: var(--paper-soft);
@@ -1634,7 +1637,510 @@ body.ws-dragging { user-select: none; }
 /* метка «LLM не настроена» в рабочем пространстве */
 .ws-model-label--off { color: #A5483D; font-weight: 600; }
 
+/* ---------- Админ-панель: раздел «Об организации» ---------- */
+
+.admin-wrap--org { margin-top: 28px; }
+
+.org-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 22px 24px;
+  margin-bottom: 24px;
+}
+.org-card[hidden] { display: none; }
+
+.org-card-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.org-h3 { margin: 0; font-size: 17px; color: var(--ink); }
+.org-h4 {
+  margin: 0 0 12px;
+  font-size: 13.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+}
+.org-type {
+  font-size: 12px;
+  font-weight: 650;
+  color: var(--green-deep);
+  background: #E7ECDF;
+  border-radius: 999px;
+  padding: 3px 10px;
+  white-space: nowrap;
+}
+
+.org-form {
+  border-top: 1px solid var(--line);
+  margin-top: 14px;
+  padding-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.org-form[hidden] { display: none; }
+
+.org-field { display: flex; flex-direction: column; gap: 6px; font-size: 13px; }
+.org-field-title { font-weight: 650; color: var(--ink-soft); }
+.org-field input,
+.org-field textarea,
+.org-source input,
+.org-upload-form input,
+.org-upload-form textarea,
+.org-edit-form input,
+.org-edit-form select,
+.org-edit-form textarea {
+  padding: 10px 13px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 14.5px;
+  background: var(--paper);
+  color: var(--ink);
+}
+.org-field textarea { resize: vertical; line-height: 1.45; }
+.org-field input:focus,
+.org-field textarea:focus,
+.org-source input:focus,
+.org-upload-form input:focus,
+.org-upload-form textarea:focus,
+.org-edit-form input:focus,
+.org-edit-form select:focus,
+.org-edit-form textarea:focus {
+  outline: none;
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(124,139,108,.18);
+}
+.org-field--metric input { max-width: 320px; }
+
+.org-source { display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 650; color: var(--ink-soft); }
+
+.org-aliases { display: flex; flex-direction: column; gap: 8px; }
+.org-alias-row { display: flex; gap: 8px; align-items: stretch; }
+.org-alias-row input { flex: 1; min-width: 0; }
+.org-alias-del {
+  width: 38px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--paper);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+.org-alias-del:hover { border-color: #E5C6C0; background: #F7ECEA; color: #A5483D; }
+.org-alias-add { align-self: flex-start; margin-top: 2px; }
+
+.org-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.org-save { margin-top: 0; }
+.org-updated { font-size: 12.5px; color: var(--ink-soft); white-space: nowrap; }
+
+/* --- документы организации --- */
+
+.org-doc-group { border-top: 1px solid var(--line); margin-top: 16px; padding-top: 16px; }
+.org-doc-group:first-child { border-top: none; margin-top: 8px; padding-top: 0; }
+
+.org-doc-group-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.org-doc-group-head .org-h4 { margin: 0; }
+.org-doc-count {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: #E7ECDF;
+  color: var(--green-deep);
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.org-doc-list { display: flex; flex-direction: column; gap: 10px; }
+.org-doc-empty { margin: 0 0 4px; font-size: 13px; color: var(--ink-soft); }
+
+.org-doc {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--paper);
+  overflow: hidden;
+}
+.org-doc-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.org-doc-main {
+  flex: 1;
+  min-width: 240px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  text-decoration: none;
+  color: var(--ink);
+  cursor: pointer;
+}
+.org-doc-main:hover .org-doc-title { color: var(--green-deep); text-decoration: underline; }
+.org-doc-icon {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: #F0E3C3;
+  color: #7A6028;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+}
+.org-doc-icon[data-ext="pdf"] { background: #F7E0DC; color: #A3413B; }
+.org-doc-icon[data-ext="doc"],
+.org-doc-icon[data-ext="docx"],
+.org-doc-icon[data-ext="rtf"],
+.org-doc-icon[data-ext="odt"] { background: #E3ECF4; color: #2E5E8C; }
+.org-doc-icon[data-ext="xls"],
+.org-doc-icon[data-ext="xlsx"],
+.org-doc-icon[data-ext="csv"] { background: #E3F1E6; color: #2F7A45; }
+.org-doc-icon[data-ext="ppt"],
+.org-doc-icon[data-ext="pptx"] { background: #FBE9D6; color: #B4622A; }
+.org-doc-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.org-doc-title { font-weight: 650; font-size: 14.5px; overflow-wrap: anywhere; }
+.org-doc-meta { font-size: 12.5px; color: var(--ink-soft); overflow-wrap: anywhere; }
+.org-doc-side { display: flex; gap: 8px; padding: 0 14px; flex-wrap: wrap; }
+
+.org-doc-summary {
+  border-top: 1px dashed var(--line);
+  padding: 10px 14px 12px;
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+.org-doc-summary[hidden] { display: none; }
+.org-doc-summary-title {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+}
+.org-doc-summary pre {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-family: inherit;
+  line-height: 1.45;
+  max-height: 200px;
+  overflow: auto;
+}
+.org-doc-summary--empty { font-style: italic; }
+
+.org-upload-form,
+.org-edit-form {
+  margin-top: 10px;
+  border-top: 1px dashed var(--line);
+  padding-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 13px;
+}
+.org-upload-form[hidden] { display: none; }
+.org-upload-form label,
+.org-edit-form label { display: flex; flex-direction: column; gap: 6px; font-weight: 650; color: var(--ink-soft); }
+.org-edit-form { border-top: none; padding-top: 0; }
+
+@media (max-width: 900px) {
+  .org-doc-main { min-width: 100%; }
+  .org-doc-side { padding: 0 14px 12px; }
+}
+
+
 @media (max-width: 900px) {
   .admin-table-wrap { overflow-x: auto; }
   .admin-table { min-width: 860px; }
 }
+/* ---------- Страница «Кабинет» ---------- */
+
+.cab-wrap { margin-top: 28px; }
+
+.cab-denied {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 26px 28px;
+}
+.cab-denied[hidden] { display: none; }
+.cab-denied p { margin: 0; }
+.cab-denied .login-msg { margin-bottom: 10px; }
+.cab-denied-hint { color: var(--ink-soft); font-size: 13.5px; }
+.cab-link-btn {
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-weight: 650;
+  color: var(--green-deep);
+  text-decoration: underline;
+  cursor: pointer;
+}
+.cab-link-btn:hover { color: var(--green); }
+
+.cab-card { margin-top: 0; }
+.cab-card[hidden] { display: none; }
+
+.cab-note { margin: 6px 0 0; font-size: 13px; color: var(--ink-soft); }
+
+.cab-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 900px) {
+  .cab-grid { grid-template-columns: 1fr; }
+}
+
+/* ============================================================
+   Рабочий чат: навык-чип, быстрые ответы (aios-choices),
+   ссылка на «Мои проекты» после сохранения карточки
+   ============================================================ */
+
+.ws-skillbar { padding: 0 16px; }
+.ws-skillbar[hidden] { display: none; }
+
+.ws-skill-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 6px 5px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--gold-soft);
+  font-size: 12.5px;
+  color: var(--ink);
+}
+
+.ws-skill-chip-label { font-weight: 600; }
+
+.ws-skill-chip-x {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink-soft);
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.ws-skill-chip-x:hover { background: rgba(44, 49, 40, .12); color: var(--ink); }
+
+/* метка навыка на первом сообщении нового диалога */
+.ws-msg-skill {
+  display: inline-block;
+  margin-right: 8px;
+  padding: 2px 9px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--gold-soft);
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  vertical-align: baseline;
+}
+
+/* быстрые ответы: кнопки вместо fenced-блока aios-choices */
+.ws-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.ws-choice-btn {
+  padding: 8px 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper-soft);
+  color: var(--ink);
+  font: inherit;
+  font-size: 13.5px;
+  cursor: pointer;
+  transition: background .15s ease, border-color .15s ease;
+}
+
+.ws-choice-btn:hover:not(:disabled) {
+  background: var(--gold-soft);
+  border-color: rgba(194, 160, 84, .55);
+}
+
+.ws-choice-btn:disabled { opacity: .45; cursor: default; }
+
+/* путь на «Мои проекты» после save_project_card */
+.ws-projects-action { text-align: right; }
+
+.ws-projects-link {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 7px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--paper-soft);
+  color: var(--green-deep);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.ws-projects-link:hover { background: var(--gold-soft); }
+
+/* ============================================================
+   «Мои проекты»: сетка карточек
+   ============================================================ */
+
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+  margin-top: 32px;
+}
+
+.prj-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--paper-soft);
+  text-align: left;
+  font: inherit;
+  color: var(--ink);
+  cursor: pointer;
+  transition: border-color .15s ease, transform .15s ease;
+}
+
+.prj-card:hover { border-color: rgba(194, 160, 84, .55); }
+.prj-card--draft { border-style: dashed; }
+
+.prj-card-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.prj-card-title { font-weight: 700; font-size: 16px; }
+
+.prj-card-sub { font-size: 12.5px; color: var(--ink-soft); }
+
+.prj-card-desc { font-size: 13.5px; line-height: 1.45; }
+
+.prj-card-foot { font-size: 12px; color: var(--ink-soft); }
+
+.prj-status {
+  flex: none;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.prj-status--active { background: rgba(124, 139, 108, .18); color: var(--green-deep); }
+.prj-status--draft { background: var(--gold-soft); color: var(--ink-soft); }
+
+.prj-empty-actions { margin-top: 18px; }
+
+/* ---------- правка/удаление карточки, полная ширина ---------- */
+
+/* страница «Мои проекты» и карточка проекта — на всю ширину окна */
+.page--full { max-width: none; }
+
+.modal--project {
+  max-width: 1500px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+}
+
+.prj-modal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.prj-btn-ghost {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--line);
+}
+.prj-btn-ghost:hover { background: var(--gold-soft); border-color: rgba(194, 160, 84, .55); }
+
+.prj-btn-danger {
+  background: transparent;
+  color: #a33a2a;
+  border: 1px solid rgba(163, 58, 42, .35);
+}
+.prj-btn-danger:hover { background: rgba(163, 58, 42, .08); border-color: rgba(163, 58, 42, .6); }
+
+.prj-btn-danger[disabled], .prj-btn-ghost[disabled] { opacity: .55; cursor: default; }
+
+.prj-edit-form { display: flex; flex-direction: column; gap: 12px; margin-top: 6px; }
+.prj-edit-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 13px;
+  font-weight: 650;
+  color: var(--ink-soft);
+}
+.prj-edit-form label.prj-edit-check {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  color: var(--ink);
+}
+.prj-edit-form input[type="text"],
+.prj-edit-form textarea {
+  font: inherit;
+  font-weight: 400;
+  color: var(--ink);
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--paper);
+  resize: vertical;
+}
+.prj-edit-form input[type="text"]:focus,
+.prj-edit-form textarea:focus {
+  outline: none;
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(124, 139, 108, .18);
+}
+
+.cab-denied .btn-primary { margin-top: 10px; }

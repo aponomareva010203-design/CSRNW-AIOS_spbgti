@@ -129,3 +129,120 @@ def test_chat_endpoint_sse(tmp_path, monkeypatch):
         chat_router.get_provider.cache_clear()
     except AttributeError:
         pass  # get_provider подменён на lambda-заглушку с MockProvider
+
+
+# ---------------------------------------------------------------------------
+# Навык «Онбординг проекта» и динамический контекст (runtime/skill_context.py)
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture()
+def _projects_env(monkeypatch, tmp_path):
+    """Изолированные каталоги рантайма и организации + свежие кэши."""
+    from api.runtime import projects
+
+    monkeypatch.setenv("AIOS_RUNTIME_DIR", str(tmp_path / "rt"))
+    monkeypatch.setenv("AIOS_ORGANIZATION_DIR", str(tmp_path / "org"))
+    get_settings.cache_clear()
+    projects.get_store.cache_clear()
+    yield tmp_path
+    get_settings.cache_clear()
+    projects.get_store.cache_clear()
+
+
+def test_registry_has_project_tools(tmp_path):
+    registry = build_default_registry(tmp_path / "tools")
+    assert "get_projects" in registry.names()
+    assert "save_project_card" in registry.names()
+
+
+def test_onboarding_skill_body_fits_limit():
+    """Навык онбординга читается целиком: файл на месте, лимит не режет."""
+    from api.runtime import datarepo
+    from api.runtime.prompts import SKILL_BODY_LIMIT, build_system_prompt
+
+    assert SKILL_BODY_LIMIT >= 20_000
+    skill = datarepo.get_skill("project-onboarding")
+    assert skill, "навык project-onboarding должен быть в data/skills.json"
+    body = datarepo.skill_body(skill, limit=SKILL_BODY_LIMIT)
+    assert "aios-choices" in body
+    assert "Шаг 7" in body
+    assert "усечён" not in body
+
+    prompt = build_system_prompt(skill_ids=["project-onboarding"])
+    assert "Онбординг проекта" in prompt and "save_project_card" in prompt
+
+
+def test_skill_context_blocks_by_mentions(_projects_env):
+    """Блоки «Об организации» и «Мои проекты» подмешиваются по упоминаниям."""
+    from api.runtime import projects, skill_context
+
+    uid = "abc123def456"
+
+    # без упоминаний — блоков нет
+    assert skill_context.context_block({"user_id": uid}, "привет") == ""
+
+    # организация упомянута → блок собирается из профиля организации
+    from api.runtime import organization
+
+    organization.get_store().save_profile({"name": "ТИ НЦ РАН", "description": "Институт"})
+    block = skill_context.context_block({"user_id": uid}, "какие у института показатели?")
+    assert "Сведения об организации" in block
+    assert "ТИ НЦ РАН" in block
+
+    # активная карточка проекта + упоминание проектов → блок «Мои проекты»
+    card = projects.get_store().save(
+        uid, {"title": "Мембраны", "goal": "Селективность мембран 99% к 2027 году"}
+    )
+    projects.get_store().save(uid, {"project_id": card["id"], "status": "active"})
+    block = skill_context.context_block({"user_id": uid}, "что у меня с проектами?")
+    assert "Мои проекты" in block and "Мембраны" in block
+
+    # черновик в блок не попадает; без пользователя — тоже
+    projects.get_store().save(uid, {"title": "Черновик"})
+    block = skill_context.context_block({"user_id": uid}, "проект?")
+    assert "Черновик" not in block
+    assert skill_context.context_block({}, "проект?") == ""
+
+
+def test_loop_injects_context_block(_projects_env):
+    """Системный промпт цикла получает динамические блоки по упоминаниям."""
+    from api.runtime import projects
+    from api.runtime.loop import run_agent_loop
+    from api.runtime.sessions import SessionStore
+
+    settings = get_settings()
+    store = SessionStore(_projects_env / "sessions")
+    registry = build_default_registry(_projects_env / "tools")
+    session = store.create(title="t")
+    session["user_id"] = "abc123def456"
+    card = projects.get_store().save(
+        session["user_id"],
+        {"title": "Мембраны", "goal": "Селективность мембран 99% к 2027 году"},
+    )
+    projects.get_store().save(
+        session["user_id"], {"project_id": card["id"], "status": "active"}
+    )
+
+    captured = {}
+
+    class CapturingProvider(MockProvider):
+        async def stream_chat(self, messages, tools=None, model=None):
+            captured["system"] = messages[0]["content"]
+            async for kind, payload in super().stream_chat(messages, tools, model):
+                yield kind, payload
+
+    async def run():
+        async for _ in run_agent_loop(
+            settings=settings,
+            provider=CapturingProvider(),
+            registry=registry,
+            store=store,
+            session=session,
+            user_text="как продвигается мой проект?",
+        ):
+            pass
+
+    asyncio.run(run())
+    assert "Мои проекты" in captured["system"]
+    assert "Мембраны" in captured["system"]

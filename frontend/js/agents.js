@@ -186,6 +186,21 @@
     } else {
       dl.style.display = 'none';
     }
+    /* «Запустить в рабочем чате»: workspace.js на следующей странице
+       (или на этой же) подхватит флаг, откроет панель и повесит чип навыка */
+    var launch = document.getElementById('skillModalLaunch');
+    if (launch) {
+      launch.onclick = function () {
+        try {
+          localStorage.setItem('aios-workspace-skill-v1', JSON.stringify({
+            skill_id: skill.id,
+            name: skill.name || '',
+            open: true
+          }));
+        } catch (e) { /* приватный режим */ }
+        skillModal.close();
+      };
+    }
     skillModal.open();
   }
 
