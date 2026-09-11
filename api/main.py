@@ -14,7 +14,11 @@ from .routers.auth import router as auth_router
 from .routers.cabinet import router as cabinet_router
 from .routers.chat import router as chat_router
 from .routers.organization import router as organization_router
+from .routers.ontologies import router as ontologies_router
+from .routers.rag import router as rag_router
+from .routers.pilot import router as pilot_router
 from .routers.projects import router as projects_router
+from .routers.feedback import router as feedback_router
 from .runtime.user_context import scheduler_loop
 from .schemas import ModelsResponse, ModelSource
 
@@ -84,11 +88,22 @@ app.include_router(auth_router)
 # Страница «Кабинет»: /api/cabinet/* — собственные данные пользователя.
 app.include_router(cabinet_router)
 
-# Страница «Мои проекты»: /api/projects/* — карточки проектов пользователя.
+# Страница «Проекты»: /api/projects/* — карточки проектов пользователя.
 app.include_router(projects_router)
+
+# Страница «Статус пилотного проекта»: /api/pilot/* — строки таблицы
+# (активные карточки всех пользователей) и статусы артефактов.
+app.include_router(pilot_router)
+
+# Онтологии навыка «Конструктор онтологий»: /api/ontologies/*.
+app.include_router(ontologies_router)
+app.include_router(rag_router)
 
 # Раздел «Об организации» для админ-панели: /api/admin/organization*.
 app.include_router(organization_router)
+
+# Предложения пользователей: /api/feedback/* — записи в feedback/proposals.json.
+app.include_router(feedback_router)
 
 
 @app.get("/api/models", response_model=ModelsResponse)

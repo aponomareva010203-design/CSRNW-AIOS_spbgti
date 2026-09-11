@@ -1,6 +1,7 @@
 """Смоук-тесты агентного рантайма: песочница, сессии, цикл, SSE-эндпоинт."""
 
 import asyncio
+import re
 
 import pytest
 
@@ -173,8 +174,25 @@ def test_onboarding_skill_body_fits_limit():
     assert "Онбординг проекта" in prompt and "save_project_card" in prompt
 
 
+def test_hypotheses_skill_body_fits_limit():
+    """Навык формулировки гипотез — самый большой (53k символов): не режется."""
+    from api.runtime import datarepo
+    from api.runtime.prompts import SKILL_BODY_LIMIT, build_system_prompt
+
+    skill = datarepo.get_skill("aios-hypotheses-skill")
+    assert skill, "навык aios-hypotheses-skill должен быть в data/skills.json"
+    body = datarepo.skill_body(skill, limit=SKILL_BODY_LIMIT)
+    assert "aios-choices" in body
+    assert "Гипотезы дашбордов" in body
+    assert "save_hypotheses" in body
+    assert "усечён" not in body
+
+    prompt = build_system_prompt(skill_ids=["aios-hypotheses-skill"])
+    assert "Формулировка гипотез" in prompt and "save_hypotheses" in prompt
+
+
 def test_skill_context_blocks_by_mentions(_projects_env):
-    """Блоки «Об организации» и «Мои проекты» подмешиваются по упоминаниям."""
+    """Блоки «Об организации» и «Проекты» подмешиваются по упоминаниям."""
     from api.runtime import projects, skill_context
 
     uid = "abc123def456"
@@ -190,13 +208,13 @@ def test_skill_context_blocks_by_mentions(_projects_env):
     assert "Сведения об организации" in block
     assert "ТИ НЦ РАН" in block
 
-    # активная карточка проекта + упоминание проектов → блок «Мои проекты»
+    # активная карточка проекта + упоминание проектов → блок «Проекты»
     card = projects.get_store().save(
         uid, {"title": "Мембраны", "goal": "Селективность мембран 99% к 2027 году"}
     )
     projects.get_store().save(uid, {"project_id": card["id"], "status": "active"})
     block = skill_context.context_block({"user_id": uid}, "что у меня с проектами?")
-    assert "Мои проекты" in block and "Мембраны" in block
+    assert "Проекты" in block and "Мембраны" in block
 
     # черновик в блок не попадает; без пользователя — тоже
     projects.get_store().save(uid, {"title": "Черновик"})
@@ -244,5 +262,211 @@ def test_loop_injects_context_block(_projects_env):
             pass
 
     asyncio.run(run())
-    assert "Мои проекты" in captured["system"]
+    assert "Проекты" in captured["system"]
     assert "Мембраны" in captured["system"]
+
+
+# ---------------------------------------------------------------------------
+# SSE-keepalive и читаемые ошибки транспорта LLM
+# (модель молчит > таймаута простоя браузера → у пользователя был «Load failed»)
+# ---------------------------------------------------------------------------
+
+
+def test_chat_sse_keepalive_during_silent_provider(tmp_path, monkeypatch):
+    """Пока модель думает, SSE-поток шлёт keep-alive — соединение не простаивает."""
+    from fastapi.testclient import TestClient
+
+    from api.main import app
+    from api.routers import chat as chat_router
+
+    class SilentProvider:
+        """Провайдер, «думающий» дольше HEARTBEAT_INTERVAL."""
+
+        async def stream_chat(self, messages, tools=None, model=None):
+            await asyncio.sleep(0.3)
+            yield ("text", "отвечаю")
+
+    monkeypatch.setenv("AIOS_RUNTIME_DIR", str(tmp_path / "rt"))
+    get_settings.cache_clear()
+    chat_router.get_store.cache_clear()
+    chat_router.get_registry.cache_clear()
+    monkeypatch.setattr(chat_router, "get_provider", lambda: SilentProvider())
+    monkeypatch.setattr(chat_router, "HEARTBEAT_INTERVAL", 0.05)
+
+    client = TestClient(app)
+    resp = client.post("/api/chat", json={"message": "привет"})
+    assert resp.status_code == 200
+    body = resp.text
+    assert '"type":"session"' in body.replace(" ", "")
+    # 0.3 c тишины при тике 0.05 c — несколько keep-alive до первого токена
+    assert body.count("keep-alive") >= 2
+    assert "отвечаю" in body
+    assert body.rstrip().endswith("[DONE]")
+
+    get_settings.cache_clear()
+    chat_router.get_store.cache_clear()
+    chat_router.get_registry.cache_clear()
+    try:
+        chat_router.get_provider.cache_clear()
+    except AttributeError:
+        pass  # get_provider подменён на lambda-заглушку с SilentProvider
+
+
+def test_chat_turn_survives_client_disconnect(tmp_path, monkeypatch):
+    """Обрыв соединения не убивает генерацию: turn дописывает ответ в фоне.
+
+    Сценарий пункта «свернули рабочий чат»: SSE-канал закрывается, пока модель
+    ещё отвечает, — агентный цикл должен завершиться в фоне и сохранить
+    финальное сообщение ассистента в транскрипт сессии, чтобы повторное
+    открытие чата показало полный ответ.
+    """
+    import json as _json
+
+    from api.routers import chat as chat_router
+    from api.routers.chat import ChatRequest
+
+    class SlowProvider:
+        """Провайдер, отвечающий с задержкой: рвём соединение, пока он «думает»."""
+
+        async def stream_chat(self, messages, tools=None, model=None):
+            await asyncio.sleep(0.2)
+            yield ("text", "дописал в фоне")
+
+    monkeypatch.setenv("AIOS_RUNTIME_DIR", str(tmp_path / "rt"))
+    get_settings.cache_clear()
+    chat_router.get_store.cache_clear()
+    chat_router.get_registry.cache_clear()
+    monkeypatch.setattr(chat_router, "get_provider", lambda: SlowProvider())
+
+    async def scenario():
+        response = await chat_router.chat(ChatRequest(message="привет"), authorization=None)
+        stream = response.body_iterator
+        first = await stream.__anext__()  # первое событие — session
+        event = _json.loads(first.removeprefix("data: ").strip())
+        assert event["type"] == "session"
+
+        # Дочитываем до первого события уже внутри try-блока event_stream:
+        # к этому моменту продюсер создан, агентный цикл пошёл (пользовательская
+        # реплика записана). aclose() на первом yield ничего не рвёт — генератор
+        # ещё «не открыл» соединение.
+        second = await stream.__anext__()
+        delta = _json.loads(second.removeprefix("data: ").strip())
+        assert delta["type"] == "delta"
+        assert delta["text"] == "дописал в фоне"
+
+        await stream.aclose()  # имитация обрыва соединения (GeneratorExit в event_stream)
+
+        # turn должен завершиться в фоне и дописать ответ ассистента
+        session_id = event["id"]
+        for _ in range(100):
+            loaded = chat_router.get_store().get(session_id)
+            if loaded and [m["role"] for m in loaded["messages"]] == ["user", "assistant"]:
+                break
+            await asyncio.sleep(0.05)
+        loaded = chat_router.get_store().get(session_id)
+        assert [m["role"] for m in loaded["messages"]] == ["user", "assistant"]
+        assert loaded["messages"][-1]["content"] == "дописал в фоне"
+
+        # реестр фоновых turn'ов чистится watchdog'ом и done-callback'ами
+        for _ in range(20):
+            if not chat_router._BACKGROUND_TURNS:
+                break
+            await asyncio.sleep(0.05)
+        assert not chat_router._BACKGROUND_TURNS
+
+    asyncio.run(scenario())
+
+    get_settings.cache_clear()
+    chat_router.get_store.cache_clear()
+    chat_router.get_registry.cache_clear()
+    try:
+        chat_router.get_provider.cache_clear()
+    except AttributeError:
+        pass  # get_provider подменён на lambda-заглушку
+
+
+def test_provider_transport_errors_are_readable():
+    """Сетевые сбои LLM превращаются в ProviderError с человеческим текстом."""
+    import httpx
+
+    from api.runtime.llm_settings import LLMConfig
+    from api.runtime.providers import OpenAICompatProvider, ProviderError
+
+    cfg = LLMConfig(base_url="https://llm.test/v1", api_key="k", model="m", source="admin")
+
+    async def drain(gen):
+        async for _ in gen:
+            pass
+
+    def timeout_handler(request):
+        raise httpx.ReadTimeout("timed out", request=request)
+
+    provider = OpenAICompatProvider(
+        cfg, read_timeout=5.0, transport=httpx.MockTransport(timeout_handler)
+    )
+    with pytest.raises(ProviderError, match="не ответила за 5 сек"):
+        asyncio.run(drain(provider.stream_chat([{"role": "user", "content": "привет"}])))
+
+    def connect_handler(request):
+        raise httpx.ConnectError("connection refused", request=request)
+
+    provider2 = OpenAICompatProvider(cfg, transport=httpx.MockTransport(connect_handler))
+    with pytest.raises(ProviderError, match="Ошибка транспорта LLM"):
+        asyncio.run(drain(provider2.stream_chat([{"role": "user", "content": "привет"}])))
+
+
+def test_skill_launch_starts_new_session(tmp_path, monkeypatch):
+    """Запуск навыка в существующей сессии (набор skill_ids изменился) —
+    новая сессия с этим навыком, старая не трогается: пайплайн навыка
+    начинается с первого шага, без подтверждений."""
+    from fastapi.testclient import TestClient
+
+    from api.main import app
+    from api.routers import chat as chat_router
+
+    monkeypatch.setenv("AIOS_RUNTIME_DIR", str(tmp_path / "rt"))
+    get_settings.cache_clear()
+    chat_router.get_store.cache_clear()
+    chat_router.get_registry.cache_clear()
+    monkeypatch.setattr(chat_router, "get_provider", lambda: MockProvider())
+
+    client = TestClient(app)
+
+    def session_id_of(text):
+        return re.search(r'"type":\s*"session",\s*"id":\s*"([^"]+)"', text).group(1)
+
+    # 1) онбординг-сессия
+    resp = client.post(
+        "/api/chat",
+        json={"message": "начнём онбординг", "skill_ids": ["project-onboarding"]},
+    )
+    assert resp.status_code == 200
+    first_sid = session_id_of(resp.text)
+
+    # 2) продолжение с тем же навыком — та же сессия
+    resp = client.post(
+        "/api/chat",
+        json={"message": "да", "session_id": first_sid,
+              "skill_ids": ["project-onboarding"]},
+    )
+    assert session_id_of(resp.text) == first_sid
+
+    # 3) запрос навыка «Формулировка гипотез» — автоматом новая сессия
+    resp = client.post(
+        "/api/chat",
+        json={"message": "запусти формулировку гипотез", "session_id": first_sid,
+              "skill_ids": ["aios-hypotheses-skill"]},
+    )
+    sid3 = session_id_of(resp.text)
+    assert sid3 != first_sid
+    new_session = client.get(f"/api/sessions/{sid3}").json()
+    assert new_session["skill_ids"] == ["aios-hypotheses-skill"]
+    # пайплайн пошёл с первого шага: в новой сессии только это сообщение
+    assert [m["role"] for m in new_session["messages"]] == ["user", "assistant"]
+    # старая сессия не тронута
+    old_session = client.get(f"/api/sessions/{first_sid}").json()
+    assert old_session["skill_ids"] == ["project-onboarding"]
+
+    get_settings.cache_clear()
+    chat_router.get_store.cache_clear()
+    chat_router.get_registry.cache_clear()

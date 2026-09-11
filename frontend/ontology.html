@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Визуализация онтологии — AIOS Технологического института</title>
+<link rel="stylesheet" href="css/style.css?v=20260923">
+</head>
+<body>
+<div class="layout">
+
+  <aside class="sidebar">
+    <a class="wordmark" href="index.html">
+      <span class="sigil"></span>
+      <span>AIOS</span>
+    </a>
+    <nav class="side-nav" aria-label="Разделы AIOS">
+      <span class="side-group-title">Дашборды</span>
+      <a class="side-link" href="pilot.html">Статус пилотного проекта</a>
+
+      <span class="side-group-title">Каталоги</span>
+      <a class="side-link" href="knowledge.html">Данные и знания</a>
+      <a class="side-link" href="models.html">Модели</a>
+      <a class="side-link" href="agents.html">Агенты и навыки</a>
+      <a class="side-link side-link--disabled">Полигоны <span class="side-note">в разработке</span></a>
+
+      <div class="side-group" id="wsGroup" hidden>
+        <span class="side-group-title">Рабочее пространство</span>
+        <button class="side-link side-link--chat" id="btnNavWorkspace" type="button" hidden>Рабочий чат</button>
+        <a class="side-link" id="menuCabinet" href="cabinet.html">Кабинет</a>
+        <a class="side-link" id="menuProjects" href="projects.html">Проекты</a>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="side-link" id="btnSettings" type="button" hidden>Настройки</button>
+      <button class="side-link" id="btnSuggest" type="button">Предложить изменения</button>
+      <a class="side-link" id="menuAdmin" href="admin.html" hidden>Админ-панель</a>
+      <div class="sidebar-user">
+        <button class="btn-login" id="btnLogin" type="button" aria-haspopup="dialog" aria-controls="loginModal">Войти</button>
+        <div class="user-menu" id="userMenu" hidden>
+          <div class="user-menu-head">
+            <span class="user-menu-name"></span>
+            <span class="user-menu-role"></span>
+          </div>
+          <a class="user-menu-item" id="menuPilot" href="pilot.html" hidden>Пилот: режим администратора</a>
+          <button class="user-menu-item" id="btnChangePass" type="button" hidden>Сменить пароль</button>
+          <button class="user-menu-item user-menu-logout" id="btnLogout" type="button">Выйти</button>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="page page--wide">
+
+  <!-- ==================== Заголовок раздела ==================== -->
+  <section class="section-head">
+    <a href="knowledge.html" class="backlink">← Данные и знания</a>
+    <h1>Визуализация онтологии</h1>
+    <div class="rule"></div>
+  </section>
+
+  <!-- ==================== Панель выбора и мета ==================== -->
+  <section class="onto3d-bar">
+    <label class="onto3d-label" for="onto3dSelect">Онтология</label>
+    <select class="onto3d-select" id="onto3dSelect"></select>
+    <span class="onto3d-meta" id="onto3dMeta"></span>
+    <button type="button" class="onto3d-btn onto3d-btn--primary" id="onto3dAddClass" hidden>+ класс</button>
+  </section>
+
+  <!-- ==================== Основная информация об онтологии ==================== -->
+  <section class="onto3d-info" id="onto3dInfo" hidden>
+    <div class="onto3d-info-main">
+      <h2 class="onto3d-info-name" id="onto3dInfoName"></h2>
+      <p class="onto3d-info-desc" id="onto3dInfoDesc"></p>
+      <div class="onto3d-info-tags" id="onto3dInfoTags"></div>
+    </div>
+    <dl class="onto3d-info-facts" id="onto3dInfoFacts"></dl>
+  </section>
+
+  <!-- ==================== Сцена ==================== -->
+  <section class="onto3d-wrap" id="onto3dWrap">
+    <canvas class="onto3d-canvas" id="onto3dCanvas"></canvas>
+    <div class="onto3d-legend" id="onto3dLegend" hidden></div>
+    <aside class="onto3d-side" id="onto3dSide" hidden>
+      <button type="button" class="onto3d-side-close" id="onto3dSideClose" aria-label="Закрыть">&times;</button>
+
+      <div id="onto3dSideBody">
+        <h2 class="onto3d-side-name" id="onto3dSideName" hidden></h2>
+        <input class="onto3d-input onto3d-side-name-input" id="onto3dFName" type="text" maxlength="120" hidden>
+        <p class="onto3d-side-desc" id="onto3dSideDesc" hidden></p>
+        <textarea class="onto3d-input" id="onto3dFDesc" rows="3" hidden></textarea>
+        <div class="onto3d-side-parent" id="onto3dSideParentRow" hidden>
+          <span class="onto3d-side-parent-label">Родитель:</span>
+          <span id="onto3dSideParent"></span>
+        </div>
+        <select class="onto3d-input" id="onto3dFParent" hidden></select>
+
+        <div class="onto3d-side-actions" id="onto3dSideActions" hidden>
+          <button type="button" class="onto3d-btn onto3d-btn--primary" id="onto3dSideEdit">Редактировать</button>
+        </div>
+        <div class="onto3d-side-actions" id="onto3dSideSaveActions" hidden>
+          <button type="button" class="onto3d-btn onto3d-btn--primary" id="onto3dFSave">Сохранить</button>
+          <button type="button" class="onto3d-btn" id="onto3dFCancel">Отмена</button>
+        </div>
+        <p class="onto3d-form-error" id="onto3dFError" hidden></p>
+
+        <div class="onto3d-side-block" id="onto3dSideAttrs" hidden>
+          <h3>Атрибуты</h3>
+          <ul id="onto3dSideAttrsList"></ul>
+          <div id="onto3dFAttrs" hidden></div>
+          <button type="button" class="onto3d-btn onto3d-btn--sm" id="onto3dFAddAttr" hidden>+ атрибут</button>
+        </div>
+        <div class="onto3d-side-block" id="onto3dSideSyn" hidden>
+          <h3>Синонимы</h3>
+          <p id="onto3dSideSynText" hidden></p>
+          <input class="onto3d-input" id="onto3dFSyn" type="text" hidden>
+        </div>
+        <div class="onto3d-side-block" id="onto3dSideLinksBlock">
+          <h3>Связи</h3>
+          <ul id="onto3dSideLinks"></ul>
+          <div class="onto3d-rel-add">
+            <button type="button" class="onto3d-btn onto3d-btn--sm" id="onto3dRelAddBtn" hidden>+ связь</button>
+            <div class="onto3d-rel-form" id="onto3dSideRelForm" hidden>
+              <select class="onto3d-input" id="onto3dRelDir">
+                <option value="out">этот класс → цель</option>
+                <option value="in">цель → этот класс</option>
+              </select>
+              <select class="onto3d-input" id="onto3dRelTarget"></select>
+              <input class="onto3d-input" id="onto3dRelName" type="text" placeholder="Название связи" maxlength="120">
+              <div class="onto3d-rel-form-actions">
+                <button type="button" class="onto3d-btn onto3d-btn--sm onto3d-btn--primary" id="onto3dRelSubmit">Добавить</button>
+                <button type="button" class="onto3d-btn onto3d-btn--sm" id="onto3dRelCancel">Отмена</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="onto3d-side-danger" id="onto3dSideDanger" hidden>
+          <button type="button" class="onto3d-btn onto3d-btn--danger" id="onto3dSideDeleteBtn">Удалить класс</button>
+        </div>
+      </div>
+    </aside>
+    <div class="onto3d-help">Вращение — перетаскивание · Масштаб — колесо · Клик — карточка класса</div>
+    <div class="onto3d-empty" id="onto3dEmpty" hidden></div>
+  </section>
+
+  <!-- ==================== Компетентностные вопросы ==================== -->
+  <section class="onto3d-cq" id="onto3dCq" hidden>
+    <h2>Компетентностные вопросы</h2>
+    <ul id="onto3dCqList"></ul>
+  </section>
+
+  </div>
+</div>
+
+<script src="js/api.js?v=20260916"></script>
+<script src="js/auth.js?v=20260913"></script>
+<script src="js/ontology3d.js?v=20260922"></script>
+<script src="js/workspace.js?v=20260927"></script>
+</body>
+</html>

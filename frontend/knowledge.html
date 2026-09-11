@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Данные и знания — AIOS Технологического института</title>
-<link rel="stylesheet" href="css/style.css?v=20260912">
+<link rel="stylesheet" href="css/style.css?v=20260923">
 </head>
 <body>
 <div class="layout">
@@ -28,11 +28,12 @@
         <span class="side-group-title">Рабочее пространство</span>
         <button class="side-link side-link--chat" id="btnNavWorkspace" type="button" hidden>Рабочий чат</button>
         <a class="side-link" id="menuCabinet" href="cabinet.html">Кабинет</a>
-        <a class="side-link" id="menuProjects" href="projects.html">Мои проекты</a>
+        <a class="side-link" id="menuProjects" href="projects.html">Проекты</a>
       </div>
     </nav>
     <div class="sidebar-footer">
       <button class="side-link" id="btnSettings" type="button" hidden>Настройки</button>
+      <button class="side-link" id="btnSuggest" type="button">Предложить изменения</button>
       <a class="side-link" id="menuAdmin" href="admin.html" hidden>Админ-панель</a>
       <div class="sidebar-user">
         <button class="btn-login" id="btnLogin" type="button" aria-haspopup="dialog" aria-controls="loginModal">Войти</button>
@@ -58,17 +59,6 @@
     <div class="rule"></div>
   </section>
 
-  <!-- ==================== Спойлер: RAG-базы ==================== -->
-  <section class="spoiler" id="spoilerRag">
-    <button type="button" class="spoiler-toggle" aria-expanded="false">
-      <span class="spoiler-title">RAG-базы</span>
-      <span class="spoiler-chevron"></span>
-    </button>
-    <div class="spoiler-body" hidden>
-      <div class="models-grid" id="gridRag"></div>
-    </div>
-  </section>
-
   <!-- ==================== Спойлер: Онтологии ==================== -->
   <section class="spoiler" id="spoilerOnto">
     <button type="button" class="spoiler-toggle" aria-expanded="false">
@@ -76,7 +66,47 @@
       <span class="spoiler-chevron"></span>
     </button>
     <div class="spoiler-body" hidden>
+      <div class="onto-cta">
+        <button type="button" class="btn-primary" id="btnOntoConstructor">Сконструировать онтологию в чате</button>
+      </div>
       <div class="models-grid" id="gridOnto"></div>
+    </div>
+  </section>
+
+  <!-- ==================== Спойлер: RAG-базы ==================== -->
+  <section class="spoiler" id="spoilerRag">
+    <button type="button" class="spoiler-toggle" aria-expanded="false">
+      <span class="spoiler-title">RAG-базы</span>
+      <span class="spoiler-chevron"></span>
+    </button>
+    <div class="spoiler-body" hidden>
+      <div class="onto-cta">
+        <button type="button" class="btn-primary" id="btnRagConstructor">Сконструировать RAG базу</button>
+      </div>
+      <div class="models-grid" id="gridRag"></div>
+    </div>
+  </section>
+
+  <!-- ==================== Моя RAG-база (открывается по ?rag_id=, ссылка из кабинета) ==================== -->
+  <section class="spoiler spoiler--open" id="sectionMyRag" hidden>
+    <div id="myRagDetail" class="rag-detail" hidden>
+      <button type="button" class="backlink" id="btnMyRagBack">← К списку моих баз</button>
+      <h3 id="myRagDetailName"></h3>
+      <p class="mm-desc" id="myRagDetailDesc"></p>
+      <p class="mm-source" id="myRagDetailMeta"></p>
+
+      <div class="rag-upload">
+        <label for="myRagFileInput" class="btn-primary">Загрузить документ</label>
+        <input type="file" id="myRagFileInput" accept=".pdf,.txt,.md" hidden>
+        <span id="myRagUploadStatus" class="mm-source"></span>
+      </div>
+
+      <div id="myRagDocs" class="rag-doc-list"></div>
+
+      <div class="rag-publish-row">
+        <span id="myRagPublishMsg" class="mm-source"></span>
+        <button type="button" class="btn-primary" id="btnMyRagPublish">Опубликовать базу</button>
+      </div>
     </div>
   </section>
 
@@ -115,9 +145,9 @@
 </div>
 </div>
 
-<script src="js/api.js?v=20260912"></script>
-<script src="js/auth.js?v=20260912"></script>
-<script src="js/knowledge.js?v=20260912"></script>
-<script src="js/workspace.js?v=20260912"></script>
+<script src="js/api.js?v=20260913"></script>
+<script src="js/auth.js?v=20260913"></script>
+<script src="js/knowledge.js?v=20260918"></script>
+<script src="js/workspace.js?v=20260927"></script>
 </body>
 </html>

@@ -143,6 +143,32 @@
     if (ragImg.src.indexOf(PLACEHOLDER_IMG) === -1) ragImg.src = PLACEHOLDER_IMG;
   });
 
+  /* ссылка на карточку проекта (projects.html?id=…) в новом окне —
+     единый формат для RAG-баз и онтологий */
+  function makeProjectLink(name, projectId) {
+    var a = document.createElement('a');
+    a.className = 'prj-link';
+    a.href = 'projects.html?id=' + encodeURIComponent(projectId);
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    a.textContent = name || projectId;
+    return a;
+  }
+
+  /* «Проект: <ссылки>» — названия из item.project(s), адреса из
+     item.project_id(s); без привязки к проекту — прочерк */
+  function fillProjectLine(el, prefix, names, ids) {
+    el.textContent = '';
+    el.appendChild(document.createTextNode(prefix + ' '));
+    var written = false;
+    (names || []).forEach(function (name, i) {
+      if (i) el.appendChild(document.createTextNode(', '));
+      el.appendChild(makeProjectLink(name, (ids || [])[i] || ''));
+      written = true;
+    });
+    if (!written) el.appendChild(document.createTextNode('—'));
+  }
+
   function openRag(base) {
     ragImg.src = base.image_url || PLACEHOLDER_IMG;
     ragImg.alt = base.name;
@@ -155,8 +181,16 @@
       ['Статус', base.status]
     ]);
     renderTags(document.getElementById('ragModalTags'), base.tags);
-    document.getElementById('ragModalSource').textContent =
-      'Проект: ' + (base.project || '—') + (base.domain ? ' · ' + base.domain : '');
+    fillProjectLine(
+      document.getElementById('ragModalSource'),
+      'Проект:',
+      base.project ? [base.project] : [],
+      base.project_id ? [base.project_id] : []
+    );
+    if (base.domain) {
+      var src = document.getElementById('ragModalSource');
+      src.appendChild(document.createTextNode(' · ' + base.domain));
+    }
     var actions = document.getElementById('ragModalActions');
     actions.innerHTML = '';
     if (base.access_url) {
@@ -210,14 +244,25 @@
       ['Классов', onto.classes_count],
       ['Связей', onto.relations_count],
       ['Формат', onto.format],
-      ['Статус', onto.status]
+      ['Статус', onto.status],
+      ['Автор', onto.author]
     ]);
-    document.getElementById('ontoModalProjects').textContent =
-      'Проекты: ' + ((onto.projects || []).join(', ') || '—');
+    var ontoIds = onto.project_ids || (onto.projects || []).map(function () { return ''; });
+    fillProjectLine(
+      document.getElementById('ontoModalProjects'),
+      'Проекты:',
+      onto.projects || [],
+      ontoIds
+    );
     renderTags(document.getElementById('ontoModalTags'), onto.tags);
     var actions = document.getElementById('ontoModalActions');
     actions.innerHTML = '';
     if (onto.file_url) {
+      var view3d = document.createElement('a');
+      view3d.className = 'btn-primary mm-btn';
+      view3d.href = 'ontology.html?id=' + encodeURIComponent(onto.id);
+      view3d.textContent = '3D-визуализация';
+      actions.appendChild(view3d);
       var dl = document.createElement('a');
       dl.className = 'btn-primary mm-btn';
       dl.href = onto.file_url;
@@ -235,7 +280,7 @@
       .then(function (data) {
         var items = (data && data.items) || [];
         if (!items.length) {
-          showEmpty(ontoGrid, 'Онтологии пока не добавлены — скоро здесь появится первая карточка.');
+          showEmpty(ontoGrid, 'Онтологии пока не добавлены — соберите первую навыком «Конструктор онтологий» прямо в чате.');
           return;
         }
         ontoGrid.innerHTML = '';
@@ -244,6 +289,36 @@
         });
       })
       .catch(function () { showError(ontoGrid, loadOnto); });
+  }
+
+  /* CTA «Сконструировать …»: кладём флаг навыка тем же ключом, что и
+     agents.js, и просим панель чата открыться (событие ловит
+     workspace.js — см. aios-launch-skill) */
+  function launchSkill(skillId, skillName) {
+    try {
+      localStorage.setItem('aios-workspace-skill-v1', JSON.stringify({
+        skill_id: skillId,
+        name: skillName,
+        open: false
+      }));
+    } catch (e) { /* приватный режим */ }
+    document.dispatchEvent(new CustomEvent('aios-launch-skill', {
+      detail: { skill_id: skillId, name: skillName }
+    }));
+  }
+
+  var ontoCta = document.getElementById('btnOntoConstructor');
+  if (ontoCta) {
+    ontoCta.addEventListener('click', function () {
+      launchSkill('ontology-engineer', 'Конструктор онтологий');
+    });
+  }
+
+  var ragCta = document.getElementById('btnRagConstructor');
+  if (ragCta) {
+    ragCta.addEventListener('click', function () {
+      launchSkill('rag-builder', 'Конструктор RAG');
+    });
   }
 
   /* ---------- спойлеры с ленивой загрузкой ---------- */
@@ -276,4 +351,157 @@
       btn.addEventListener('click', function () { toggleSpoiler(spoiler); });
     }
   });
+
+  /* ============================================================
+     Мои RAG-базы (после входа): список своих черновиков/баз,
+     карточка с формой загрузки документов и публикацией.
+     ============================================================ */
+
+  var AUTH_KEY = 'aios-auth-v1';
+  var API = window.AIOS_API;
+
+  function getSession() {
+    try {
+      var raw = localStorage.getItem(AUTH_KEY);
+      var s = raw ? JSON.parse(raw) : null;
+      return s && s.token ? s : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function escHtml(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  var myRagSection = document.getElementById('sectionMyRag');
+  var myRagDetailEl = document.getElementById('myRagDetail');
+  var myRagDetailName = document.getElementById('myRagDetailName');
+  var myRagDetailDesc = document.getElementById('myRagDetailDesc');
+  var myRagDetailMeta = document.getElementById('myRagDetailMeta');
+  var myRagFileInput = document.getElementById('myRagFileInput');
+  var myRagUploadStatus = document.getElementById('myRagUploadStatus');
+  var myRagDocsEl = document.getElementById('myRagDocs');
+  var btnMyRagBack = document.getElementById('btnMyRagBack');
+  var btnMyRagPublish = document.getElementById('btnMyRagPublish');
+  var myRagPublishMsg = document.getElementById('myRagPublishMsg');
+
+  var docPollTimer = null;
+  var currentRagId = null;
+
+  var DOC_STATUS_LABEL = {
+    queued: 'в очереди',
+    processing: 'обрабатывается',
+    ready: 'готов',
+    error: 'ошибка'
+  };
+
+  function stopDocPolling() {
+    if (docPollTimer) {
+      clearInterval(docPollTimer);
+      docPollTimer = null;
+    }
+  }
+
+  function renderDocs(items) {
+    if (!myRagDocsEl) return;
+    if (!items.length) {
+      myRagDocsEl.innerHTML = '<p class="mm-source">Документов пока нет — загрузите первый файл.</p>';
+      return;
+    }
+    myRagDocsEl.innerHTML = items.map(function (d) {
+      var status = d.status || 'queued';
+      var label = DOC_STATUS_LABEL[status] || status;
+      return '<div class="rag-doc-row">' +
+        '<span class="rag-doc-name">' + escHtml(d.filename || d.doc_id) + '</span>' +
+        '<span class="rag-doc-status rag-doc-status--' + escHtml(status) + '">' + escHtml(label) + '</span>' +
+        (d.error ? '<span class="mm-source">' + escHtml(d.error) + '</span>' : '') +
+        '</div>';
+    }).join('');
+  }
+
+  function pollDocs(session, ragId) {
+    if (!API.ragListDocuments) return;
+    API.ragListDocuments(session.token, ragId)
+      .then(function (data) {
+        renderDocs((data && data.items) || []);
+      })
+      .catch(function () { /* сеть моргнула — подождём следующий тик */ });
+  }
+
+  function openMyRagDetail(session, ragId) {
+    currentRagId = ragId;
+    stopDocPolling();
+    if (!API.ragGet) return;
+    API.ragGet(session.token, ragId).then(function (card) {
+      myRagDetailEl.hidden = false;
+      myRagDetailName.textContent = card.name || ragId;
+      myRagDetailDesc.textContent = card.description || '';
+      myRagDetailMeta.textContent = 'Статус: ' + (card.status || 'draft') +
+        (card.ontology_id ? ' · онтология: ' + card.ontology_id : '');
+      myRagUploadStatus.textContent = '';
+      myRagPublishMsg.textContent = '';
+      renderDocs(card.documents || []);
+      pollDocs(session, ragId);
+      docPollTimer = setInterval(function () { pollDocs(session, ragId); }, 4000);
+    }).catch(function (err) {
+      myRagPublishMsg.textContent = 'Не удалось открыть базу: ' + (err && err.message ? err.message : 'ошибка сети');
+    });
+  }
+
+  function loadMyRag(preselectRagId) {
+    var session = getSession();
+    if (!myRagSection) return;
+    if (!session || !preselectRagId) {
+      myRagSection.hidden = true;
+      stopDocPolling();
+      return;
+    }
+    myRagSection.hidden = false;
+    openMyRagDetail(session, preselectRagId);
+  }
+
+  if (btnMyRagBack) {
+    btnMyRagBack.addEventListener('click', function () {
+      window.location.href = 'cabinet.html';
+    });
+  }
+
+  if (myRagFileInput) {
+    myRagFileInput.addEventListener('change', function () {
+      var file = myRagFileInput.files && myRagFileInput.files[0];
+      var session = getSession();
+      if (!file || !session || !currentRagId || !API.ragUploadDocument) return;
+      myRagUploadStatus.textContent = 'Загрузка «' + file.name + '»…';
+      API.ragUploadDocument(session.token, currentRagId, file).then(function () {
+        myRagUploadStatus.textContent = 'Файл принят, идёт обработка.';
+        pollDocs(session, currentRagId);
+      }).catch(function (err) {
+        myRagUploadStatus.textContent = 'Ошибка загрузки: ' + (err && err.message ? err.message : 'сеть');
+      }).finally(function () {
+        myRagFileInput.value = '';
+      });
+    });
+  }
+
+  if (btnMyRagPublish) {
+    btnMyRagPublish.addEventListener('click', function () {
+      var session = getSession();
+      if (!session || !currentRagId || !API.ragPublish) return;
+      myRagPublishMsg.textContent = 'Публикация…';
+      API.ragPublish(session.token, currentRagId).then(function () {
+        myRagPublishMsg.textContent = 'Опубликовано в каталоге «Данные и знания».';
+      }).catch(function (err) {
+        myRagPublishMsg.textContent = 'Не удалось опубликовать: ' + (err && err.message ? err.message : 'ошибка');
+      });
+    });
+  }
+
+  var params = new URLSearchParams(window.location.search);
+  var initialRagId = params.get('rag_id');
+
+  window.addEventListener('aios-auth-change', function () { loadMyRag(initialRagId); });
+  loadMyRag(initialRagId);
 })();

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Статус пилотного проекта — AIOS Технологического института</title>
-<link rel="stylesheet" href="css/style.css?v=20260912">
+<link rel="stylesheet" href="css/style.css?v=20260923">
 </head>
 <body>
 <div class="layout">
@@ -28,11 +28,12 @@
         <span class="side-group-title">Рабочее пространство</span>
         <button class="side-link side-link--chat" id="btnNavWorkspace" type="button" hidden>Рабочий чат</button>
         <a class="side-link" id="menuCabinet" href="cabinet.html">Кабинет</a>
-        <a class="side-link" id="menuProjects" href="projects.html">Мои проекты</a>
+        <a class="side-link" id="menuProjects" href="projects.html">Проекты</a>
       </div>
     </nav>
     <div class="sidebar-footer">
       <button class="side-link" id="btnSettings" type="button" hidden>Настройки</button>
+      <button class="side-link" id="btnSuggest" type="button">Предложить изменения</button>
       <a class="side-link" id="menuAdmin" href="admin.html" hidden>Админ-панель</a>
       <div class="sidebar-user">
         <button class="btn-login" id="btnLogin" type="button" aria-haspopup="dialog" aria-controls="loginModal">Войти</button>
@@ -59,10 +60,12 @@
 
   <section class="pilot-wrap">
     <div class="pilot-legend">
+      <span class="pl-title">Легенда</span>
       <span class="pl-item"><span class="pl-dot pl-dot--0"></span>не начато</span>
-      <span class="pl-item"><span class="pl-dot pl-dot--1"></span>начато</span>
-      <span class="pl-item"><span class="pl-dot pl-dot--2"></span>в работе</span>
-      <span class="pl-item"><span class="pl-dot pl-dot--3"></span>готово</span>
+      <span class="pl-item"><span class="pl-dot pl-dot--1"></span>гипотеза сформулирована</span>
+      <span class="pl-item"><span class="pl-dot pl-dot--2"></span>в процессе создания</span>
+      <span class="pl-item"><span class="pl-dot pl-dot--3"></span>завершено</span>
+      <span class="pl-hint">При наведении на значок статуса выводится формулировка гипотезы, клик открывает пояснение.</span>
       <span class="pl-hint" id="adminHint"></span>
     </div>
     <div class="pilot-table-wrap">
@@ -82,16 +85,13 @@
         <tbody id="pilotBody"></tbody>
       </table>
     </div>
-    <div class="pilot-actions">
-      <button class="pt-add" id="btnAddRow" type="button" hidden>+ Добавить проект</button>
-    </div>
   </section>
 
 </div>
 </div>
-<script src="js/api.js?v=20260912"></script>
+<script src="js/api.js?v=20260916"></script>
 <script src="js/auth.js?v=20260912"></script>
-<script src="js/pilot.js?v=20260912"></script>
-<script src="js/workspace.js?v=20260912"></script>
+<script src="js/pilot.js?v=20260910b"></script>
+<script src="js/workspace.js?v=20260927"></script>
 </body>
 </html>

@@ -12,12 +12,31 @@
    - cabinetGetProfile / cabinetSaveProfile — блок «Данные пользователя»
                           страницы «Кабинет» (GET|PUT /api/cabinet/profile);
                           доступен только собственный блок — по токену;
-    - projectsList / projectsGet — карточки проектов страницы «Мои проекты»
+   - cabinetListSessions / cabinetDeleteSession — история сессий владельца
+                         токена (GET|DELETE /api/cabinet/sessions*);
+   - cabinetListProjects — проекты для раздела «Результаты работы»
+                         (GET /api/cabinet/projects): свои карточки (role:
+                         owner) и проекты с участием пользователя (role:
+                         participant, поиск по ФИО);
+    - projectsList / projectsGet — карточки проектов страницы «Проекты»
                            (GET /api/projects*), только собственные — по токену;
     - projectsUpdate — правка карточки руководителем проекта
                            (PATCH /api/projects/{id}, владелец токена);
     - projectsDelete — удаление карточки (DELETE /api/projects/{id}),
                            только роль «Администратор»;
+    - pilotList — строки таблицы «Статус пилотного проекта»
+                           (GET /api/pilot/projects, публичный): активные
+                           карточки всех пользователей со статусами артефактов
+                           и их гипотезами;
+    - pilotSetStatus — статус артефакта проекта
+                           (PATCH /api/pilot/projects/{id}), только «Администратор»;
+
+     - ontologiesList / ontologiesGet / ontologiesUpdate / ontologiesPublish —
+                            онтологии навыка «Конструктор онтологий»
+                            (GET|PATCH|POST /api/ontologies*), правка и публикация
+                            в каталог «Данные и знания» (владелец токена);
+     - ontologiesDelete — удаление онтологии (DELETE /api/ontologies/{id}),
+                            только роль «Администратор»;
 
    - adminListUsers / adminUpdateUserRole / adminDeleteUser —
                           админ-раздел (GET|PATCH|DELETE /api/admin/*);
@@ -228,6 +247,11 @@
     return request('GET', '/admin/users', undefined, token);
   }
 
+  /** Предложение по улучшению платформы: {message, login?} → {ok}. */
+  function sendSuggestion(payload, token) {
+    return request('POST', '/feedback/suggestions', payload, token);
+  }
+
   /** [админ] Смена роли: 'Администратор' | 'Пользователь'. */
   function adminUpdateUserRole(token, id, role) {
     return request('PATCH', '/admin/users/' + encodeURIComponent(id), { role: role }, token);
@@ -314,11 +338,46 @@
     return request('PUT', '/cabinet/profile', profile || {}, token);
   }
 
-  /* ---------- Мои проекты (карточки проектов пользователя) ---------- */
+  /** История сессий владельца токена: {items: [{id, title, created_at, updated_at, model, message_count}]}. */
+  function cabinetListSessions(token) {
+    return request('GET', '/cabinet/sessions', undefined, token);
+  }
+
+  /** Удалить свою сессию из истории ({ok, deleted}); чужая — 404. */
+  function cabinetDeleteSession(token, sessionId) {
+    return request('DELETE', '/cabinet/sessions/' + encodeURIComponent(sessionId), undefined, token);
+  }
+
+  /** Проекты «Результатов работы»: {items: [...]} с role: owner|participant. */
+  function cabinetListProjects(token) {
+    return request('GET', '/cabinet/projects', undefined, token);
+  }
+
+  /** Таблица «Моя команда»: {items: [{user_id, full_name, position, statuses, permissions}]}. */
+  function cabinetListTeam(token) {
+    return request('GET', '/cabinet/team', undefined, token);
+  }
+
+  /** Выдать/снять права редактирования участнику команды ({ok, permissions}). */
+  function cabinetSetTeamPermissions(token, userId, permissions) {
+    return request(
+      'PUT',
+      '/cabinet/team/' + encodeURIComponent(userId) + '/permissions',
+      { permissions: permissions || {} },
+      token
+    );
+  }
+
+  /* ---------- Проекты (карточки проектов пользователя) ---------- */
 
   /** Карточки проектов владельца токена: {items: [...]} (GET /api/projects). */
   function projectsList(token) {
     return request('GET', '/projects', undefined, token);
+  }
+
+  /** Пустая карточка-черновик владельца токена (POST /api/projects, fields — те же поля, что у PATCH). */
+  function projectsCreate(token, fields) {
+    return request('POST', '/projects', fields || {}, token);
   }
 
   /** Одна карточка проекта по id (GET /api/projects/{id}). */
@@ -336,9 +395,146 @@
     return request('DELETE', '/projects/' + encodeURIComponent(projectId), undefined, token);
   }
 
+  /** Прикрепить файл к своей карточке (multipart): kind — groundwork_files|presentation_files. */
+  function projectsUploadFile(token, projectId, kind, file) {
+    var form = new FormData();
+    form.append('kind', kind);
+    form.append('file', file, file.name);
+    return fetch(BASE_URL + '/projects/' + encodeURIComponent(projectId) + '/files', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token },
+      body: form
+    }).then(function (res) {
+      if (res.ok) return res.json();
+      return fail(res);
+    });
+  }
+
+  /** JSON-карточка гипотез проекта (GET /api/projects/{id}/hypotheses). */
+  function projectsHypotheses(token, projectId) {
+    return request('GET', '/projects/' + encodeURIComponent(projectId) + '/hypotheses', undefined, token);
+  }
+
+  /* ---------- Статус пилотного проекта (таблица из карточек) ---------- */
+
+  /**
+   * Строки таблицы пилота: {items: [{id, title, lead, artifacts: {rag:
+   * {status, hypothesis}, ...}}]} — публичный эндпоинт, токен не нужен.
+   */
+  function pilotList() {
+    return getJSON('/pilot/projects');
+  }
+
+  /**
+   * Статус артефакта проекта — только роль «Администратор».
+   * @param {string} token — Bearer-токен администратора.
+   * @param {string} projectId — id карточки (prj-…).
+   * @param {string} artifact — ключ артефакта: rag|models|agents|polygon|social.
+   * @param {number} status — 0..3.
+   */
+  function pilotSetStatus(token, projectId, artifact, status) {
+    return request(
+      'PATCH',
+      '/pilot/projects/' + encodeURIComponent(projectId),
+      { artifact: artifact, status: status },
+      token
+    );
+  }
+
+  /* ---------- Онтологии (навык «Конструктор онтологий») ---------- */
+
+  /** Онтологии владельца токена: {items: [...]} — полные графы. */
+  function ontologiesList(token) {
+    return request('GET', '/ontologies', undefined, token);
+  }
+
+  /** Одна онтология по id (GET /api/ontologies/{id}). */
+  function ontologiesGet(token, ontologyId) {
+    return request('GET', '/ontologies/' + encodeURIComponent(ontologyId), undefined, token);
+  }
+
+  /** Правка онтологии владельцем (PATCH /api/ontologies/{id}, частичный словарь). */
+  function ontologiesUpdate(token, ontologyId, patch) {
+    return request('PATCH', '/ontologies/' + encodeURIComponent(ontologyId), patch || {}, token);
+  }
+
+  /** Опубликовать онтологию в каталог «Данные и знания» (владелец). */
+  function ontologiesPublish(token, ontologyId) {
+    return request('POST', '/ontologies/' + encodeURIComponent(ontologyId) + '/publish', undefined, token);
+  }
+
+  /** Удалить онтологию — только роль «Администратор» ({ok, deleted}). */
+  function ontologiesDelete(token, ontologyId) {
+    return request('DELETE', '/ontologies/' + encodeURIComponent(ontologyId), undefined, token);
+  }
+
+  /** RAG-базы владельца токена, свежие сверху (GET /api/rag). */
+  function ragList(token) {
+    return request('GET', '/rag', undefined, token);
+  }
+
+  /** Одна RAG-база владельца по id (GET /api/rag/{id}). */
+  function ragGet(token, ragId) {
+    return request('GET', '/rag/' + encodeURIComponent(ragId), undefined, token);
+  }
+
+  /** Правка карточки RAG-базы (частичный словарь полей). */
+  function ragUpdate(token, ragId, patch) {
+    return request('PATCH', '/rag/' + encodeURIComponent(ragId), patch || {}, token);
+  }
+
+  /** Опубликовать RAG-базу в каталог «Данные и знания» (владелец). */
+  function ragPublish(token, ragId) {
+    return request('POST', '/rag/' + encodeURIComponent(ragId) + '/publish', undefined, token);
+  }
+
+  /** Статусы документов базы — для опроса страницей загрузки. */
+  function ragListDocuments(token, ragId) {
+    return request('GET', '/rag/' + encodeURIComponent(ragId) + '/documents', undefined, token);
+  }
+
+  /** Загрузить документ в RAG-базу (multipart); индексация идёт фоном на сервере. */
+  function ragUploadDocument(token, ragId, file) {
+    var form = new FormData();
+    form.append('file', file, file.name);
+    return fetch(BASE_URL + '/rag/' + encodeURIComponent(ragId) + '/documents', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token },
+      body: form
+    }).then(function (res) {
+      if (res.ok) return res.json();
+      return fail(res);
+    });
+  }
+
+  /** Загрузить вложение к сообщению рабочего чата (multipart, по Bearer).
+    * Возвращает дескриптор {attachment_id, filename, size}: его id уходит
+    * в chatStream (payload.attachment_ids). Без входа — 401 от сервера. */
+  function chatUploadAttachment(file) {
+    var form = new FormData();
+    form.append('file', file, file.name);
+    var headers = {};
+    var token = authToken();
+    if (token) headers['Authorization'] = 'Bearer ' + token;
+    return fetch(BASE_URL + '/chat/attachments', {
+      method: 'POST',
+      headers: headers,
+      body: form
+    }).then(function (res) {
+      if (res.ok) return res.json();
+      return fail(res);
+    });
+  }
+
+  /** Удалить RAG-базу — только роль «Администратор» ({ok, deleted}). */
+  function ragDelete(token, ragId) {
+    return request('DELETE', '/rag/' + encodeURIComponent(ragId), undefined, token);
+  }
+
   window.AIOS_API = {
     getModels: getModels,
     chatStream: chatStream,
+    chatUploadAttachment: chatUploadAttachment,
     listSessions: listSessions,
     getSession: getSession,
     deleteSession: deleteSession,
@@ -350,11 +546,34 @@
     changePassword: changePassword,
     cabinetGetProfile: cabinetGetProfile,
     cabinetSaveProfile: cabinetSaveProfile,
+    cabinetListSessions: cabinetListSessions,
+    cabinetDeleteSession: cabinetDeleteSession,
+    cabinetListProjects: cabinetListProjects,
+    cabinetListTeam: cabinetListTeam,
+    cabinetSetTeamPermissions: cabinetSetTeamPermissions,
     projectsList: projectsList,
+    projectsCreate: projectsCreate,
     projectsGet: projectsGet,
     projectsUpdate: projectsUpdate,
     projectsDelete: projectsDelete,
+    projectsUploadFile: projectsUploadFile,
+    projectsHypotheses: projectsHypotheses,
+    pilotList: pilotList,
+    pilotSetStatus: pilotSetStatus,
+    ontologiesList: ontologiesList,
+    ontologiesGet: ontologiesGet,
+    ontologiesUpdate: ontologiesUpdate,
+    ontologiesPublish: ontologiesPublish,
+    ontologiesDelete: ontologiesDelete,
+    ragList: ragList,
+    ragGet: ragGet,
+    ragUpdate: ragUpdate,
+    ragPublish: ragPublish,
+    ragListDocuments: ragListDocuments,
+    ragUploadDocument: ragUploadDocument,
+    ragDelete: ragDelete,
     adminListUsers: adminListUsers,
+    sendSuggestion: sendSuggestion,
     adminUpdateUserRole: adminUpdateUserRole,
     adminDeleteUser: adminDeleteUser,
     adminGetLLM: adminGetLLM,

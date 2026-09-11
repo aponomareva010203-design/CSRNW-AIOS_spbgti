@@ -17,9 +17,12 @@ import time
 from . import skill_context
 from .cabinet import get_store as get_cabinet_store
 from .prompts import build_system_prompt
+from .usage import get_store as get_usage_store
 
 HISTORY_LIMIT = 24  # сколько последних сообщений сессии уходит в модель
 TOOL_CONTENT_LIMIT = 6_000  # обрезка содержимого tool-сообщения для модели
+# оценка токенов, если провайдер не прислал usage: ~4 символа на токен
+_CHARS_PER_TOKEN = 4
 
 
 def _now() -> float:
@@ -46,9 +49,33 @@ def grant_pending_permissions(session: dict) -> bool:
     return changed
 
 
-async def run_agent_loop(*, settings, provider, registry, store, session, user_text: str):
+def _estimate_tokens(messages: list, completion_text: str) -> tuple[int, int]:
+    """Оценка токенов шага по длине текста (~4 символа на токен).
+
+    Применяется, когда провайдер не вернул usage (event "usage" не пришёл).
+    """
+    prompt_chars = 0
+    for msg in messages:
+        content = msg.get("content") or ""
+        prompt_chars += len(content) if isinstance(content, str) else 0
+    return max(1, prompt_chars // _CHARS_PER_TOKEN), max(1, len(completion_text) // _CHARS_PER_TOKEN)
+
+
+def _record_usage(user_id: str | None, prompt_tokens: int, completion_tokens: int) -> None:
+    """Учёт токенов шага; сессии без учётной записи (user_id пуст) не пишем."""
+    if user_id:
+        get_usage_store().record(user_id, prompt_tokens, completion_tokens)
+
+
+async def run_agent_loop(*, settings, provider, registry, store, session,
+                         user_text: str, user_attachments: list | None = None):
     model = session.get("model")
-    store.append_message(session, {"role": "user", "content": user_text, "ts": _now()})
+    user_msg = {"role": "user", "content": user_text, "ts": _now()}
+    if user_attachments:
+        # дескрипторы вложений — для отрисовки файлов в истории чата
+        # (frontend/js/workspace.js); сам контекст уже в user_text
+        user_msg["attachments"] = user_attachments
+    store.append_message(session, user_msg)
     if grant_pending_permissions(session):
         store.save(session)
 
@@ -63,8 +90,13 @@ async def run_agent_loop(*, settings, provider, registry, store, session, user_t
     user_block = get_cabinet_store().prompt_block(session.get("user_id"))
     if user_block:
         messages[0]["content"] += "\n\n" + user_block
+    # RAG-базы, явно подключённые пользователем кнопкой в рабочем чате —
+    # добавляется безусловно, без привязки к тексту вопроса
+    rag_block = skill_context.connected_rag_block(session)
+    if rag_block:
+        messages[0]["content"] += "\n\n" + rag_block
     # динамические блоки по упоминаниям в вопросе: «Об организации»,
-    # «Мои проекты» (детекция и сборка — runtime/skill_context.py)
+    # «Проекты» (детекция и сборка — runtime/skill_context.py)
     context_block = skill_context.context_block(session, user_text)
     if context_block:
         messages[0]["content"] += "\n\n" + context_block
@@ -73,12 +105,26 @@ async def run_agent_loop(*, settings, provider, registry, store, session, user_t
     for _ in range(settings.max_tool_iterations):
         final_text = ""
         tool_calls = []
+        usage = None
         async for kind, payload in provider.stream_chat(messages, registry.specs(), model):
             if kind == "text":
                 final_text += payload
                 yield {"type": "delta", "text": payload}
             elif kind == "tool_calls":
                 tool_calls = payload
+            elif kind == "usage" and isinstance(payload, dict):
+                usage = payload
+
+        # учёт токенов шага: точный usage провайдера либо оценка по длине
+        if usage:
+            _record_usage(
+                session.get("user_id"),
+                int(usage.get("prompt_tokens") or 0),
+                int(usage.get("completion_tokens") or 0),
+            )
+        else:
+            prompt_t, completion_t = _estimate_tokens(messages, final_text)
+            _record_usage(session.get("user_id"), prompt_t, completion_t)
 
         if not tool_calls:
             store.append_message(session, {"role": "assistant", "content": final_text, "ts": _now()})

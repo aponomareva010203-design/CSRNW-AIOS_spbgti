@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Кабинет — AIOS Технологического института</title>
-<link rel="stylesheet" href="css/style.css?v=20260912">
+<link rel="stylesheet" href="css/style.css?v=20260925">
 </head>
 <body>
 <div class="layout">
@@ -28,11 +28,12 @@
         <span class="side-group-title">Рабочее пространство</span>
         <button class="side-link side-link--chat" id="btnNavWorkspace" type="button" hidden>Рабочий чат</button>
         <a class="side-link active" id="menuCabinet" href="cabinet.html">Кабинет</a>
-        <a class="side-link" id="menuProjects" href="projects.html">Мои проекты</a>
+        <a class="side-link" id="menuProjects" href="projects.html">Проекты</a>
       </div>
     </nav>
     <div class="sidebar-footer">
       <button class="side-link" id="btnSettings" type="button" hidden>Настройки</button>
+      <button class="side-link" id="btnSuggest" type="button">Предложить изменения</button>
       <a class="side-link" id="menuAdmin" href="admin.html" hidden>Админ-панель</a>
       <div class="sidebar-user">
         <button class="btn-login" id="btnLogin" type="button" aria-haspopup="dialog" aria-controls="loginModal">Войти</button>
@@ -59,18 +60,20 @@
 
   <div class="cab-wrap">
 
-    <!-- гость: кабинет недоступен -->
-    <section class="cab-denied" id="cabGuest">
-      <p class="login-msg" id="cabGuestMsg">Данные кабинета доступны только после входа в AIOS.</p>
-      <p class="cab-denied-hint">Нажмите <button class="cab-link-btn" id="cabLoginBtn" type="button">Войти</button> или кнопку «Войти» в левом меню.</p>
-    </section>
+    <!-- прогресс-бар: этапы работы пользователя в платформе -->
+    <div class="org-card cab-card cab-progress" id="cabProgressCard" hidden>
+      <ol class="cab-progress-bar" id="cabProgressBar"></ol>
+      <p class="cab-progress-hint" id="cabProgressHint"></p>
+    </div>
 
-    <!-- блок «Данные пользователя»: редактирует сам пользователь -->
+    <!-- блок «Данные пользователя»: редактирует сам пользователь (сворачиваемый) -->
     <div class="org-card cab-card" id="cabCard" hidden>
-      <div class="org-card-head">
-        <h3 class="org-h3">Данные пользователя</h3>
+      <button class="cab-sec-head" id="cabProfileHead" type="button" aria-controls="cabProfileBody" aria-expanded="true">
+        <span class="org-h3 cab-sec-title">Данные пользователя</span>
         <span class="org-updated" id="cabUpdated"></span>
-      </div>
+        <span class="cab-sec-chev" aria-hidden="true"></span>
+      </button>
+      <div class="cab-sec-body" id="cabProfileBody">
       <p class="cab-note">Заполняется вами; ассистент платформы использует эти данные для персонализации ответов.</p>
 
       <form class="org-form" id="cabForm" novalidate>
@@ -105,22 +108,127 @@
           <textarea name="interests" rows="4" maxlength="2000" placeholder="например: машинное обучение, математическое моделирование…"></textarea>
         </label>
 
+        <label class="cab-consent">
+          <input type="checkbox" id="cabConsent">
+          <span>Даю Фонду «ЦСР «Северо-Запад» согласие на обработку указанных выше персональных данных</span>
+        </label>
+
         <p class="login-msg" id="cabMsg" hidden></p>
         <div class="org-actions">
           <button class="btn-primary" id="cabSave" type="submit">Сохранить</button>
           <span class="org-updated" id="cabStatus"></span>
         </div>
       </form>
+      </div>
 
+    </div>
+
+    <!-- гость: кабинет недоступен -->
+    <section class="cab-denied" id="cabGuest">
+      <p class="login-msg" id="cabGuestMsg">Данные кабинета доступны только после входа в AIOS.</p>
+      <p class="cab-denied-hint">Нажмите <button class="cab-link-btn" id="cabLoginBtn" type="button">Войти</button> или кнопку «Войти» в левом меню.</p>
+    </section>
+
+    <!-- история сессий рабочего чата (сворачиваемая, список со скроллом) -->
+    <div class="org-card cab-card" id="cabSessionsCard" hidden>
+      <button class="cab-sec-head" id="cabSessionsHead" type="button" aria-controls="cabSessionsBody" aria-expanded="true">
+        <span class="org-h3 cab-sec-title">История сессий</span>
+        <span class="org-updated" id="cabSessionsCount"></span>
+        <span class="cab-sec-chev" aria-hidden="true"></span>
+      </button>
+      <div class="cab-sec-body" id="cabSessionsBody">
+        <p class="cab-note">Диалоги рабочего чата, привязанные к вашей учётной записи. Клик по сессии — открыть её в рабочем пространстве.</p>
+        <p class="login-msg" id="cabSessionsMsg" hidden></p>
+        <div class="cab-sessions" id="cabSessions" hidden></div>
+      </div>
+    </div>
+
+    <!-- результаты работы: созданные проекты и участие (сворачиваемый) -->
+    <div class="org-card cab-card" id="cabResultsCard" hidden>
+      <button class="cab-sec-head" id="cabResultsHead" type="button" aria-controls="cabResultsBody" aria-expanded="true">
+        <span class="org-h3 cab-sec-title">Результаты работы</span>
+        <span class="org-updated" id="cabResultsCount"></span>
+        <span class="cab-sec-chev" aria-hidden="true"></span>
+      </button>
+      <div class="cab-sec-body" id="cabResultsBody">
+        <p class="cab-note">Созданные вами проекты, проекты с вашим участием и ваши системы знаний. Клик по карточке — подробности.</p>
+        <p class="login-msg" id="cabResultsMsg" hidden></p>
+
+        <!-- 1. Проекты -->
+        <div class="cab-subsec" id="cabResultsProjects">
+          <div class="cab-subsec-title">Проекты</div>
+          <div class="cab-group-title">Руковожу</div>
+          <div class="cab-results" id="cabResultsOwner" hidden></div>
+          <div class="cab-group-title">Участвую</div>
+          <div class="cab-results" id="cabResultsParticipant" hidden></div>
+          <p class="cab-note">Навык «Онбординг проекта» в рабочем чате соберёт карточку нового проекта за несколько вопросов.</p>
+          <div class="org-actions">
+            <button class="btn-primary" id="prjStartOnboarding" type="button">Создать новый проект</button>
+          </div>
+        </div>
+
+        <!-- 2. Системы знаний -->
+        <div class="cab-subsec" id="cabResultsKnowledge">
+          <div class="cab-subsec-title">Системы знаний</div>
+          <div class="cab-group-title">Онтологии</div>
+          <div class="cab-results" id="cabResultsOntologies" hidden></div>
+          <div class="org-actions">
+            <button class="btn-primary" id="btnCabOntoCreate" type="button">Создать онтологию</button>
+          </div>
+          <div class="cab-group-title">RAG-системы</div>
+          <div class="cab-results" id="cabResultsRag" hidden></div>
+          <div class="org-actions">
+            <button class="btn-primary" id="btnCabRagCreate" type="button">Создать RAG-систему</button>
+          </div>
+        </div>
+
+        <!-- 3–5. В разработке -->
+        <div class="cab-subsec">
+          <div class="cab-subsec-title">Модели <span class="cab-wip">в разработке</span></div>
+        </div>
+        <div class="cab-subsec">
+          <div class="cab-subsec-title">Агенты <span class="cab-wip">в разработке</span></div>
+        </div>
+        <div class="cab-subsec">
+          <div class="cab-subsec-title">Полигоны <span class="cab-wip">в разработке</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- моя команда: участники проектов пользователя и права (сворачиваемый) -->
+    <div class="org-card cab-card" id="cabTeamCard" hidden>
+      <button class="cab-sec-head" id="cabTeamHead" type="button" aria-controls="cabTeamBody" aria-expanded="true">
+        <span class="org-h3 cab-sec-title">Моя команда</span>
+        <span class="org-updated" id="cabTeamCount"></span>
+        <span class="cab-sec-chev" aria-hidden="true"></span>
+      </button>
+      <div class="cab-sec-body" id="cabTeamBody">
+        <p class="cab-note">Зарегистрированные пользователи из карточек проектов, в которых вы состоите. Право даёт редактирование (но не удаление) проектов, онтологий и RAG-систем.</p>
+        <p class="login-msg" id="cabTeamMsg" hidden></p>
+        <div class="admin-table-wrap" id="cabTeamWrap" hidden>
+          <table class="admin-table cab-team-table">
+            <thead>
+              <tr>
+                <th class="at-num">№</th>
+                <th>ФИО</th>
+                <th>Должность</th>
+                <th>Статус</th>
+                <th class="cab-team-perms-h">Права на редактирование</th>
+              </tr>
+            </thead>
+            <tbody id="cabTeamRows"></tbody>
+          </table>
+        </div>
+      </div>
     </div>
 
   </div>
 
 </div>
 </div>
-<script src="js/api.js?v=20260912"></script>
-<script src="js/auth.js?v=20260912"></script>
-<script src="js/workspace.js?v=20260912"></script>
-<script src="js/cabinet.js?v=20260912"></script>
+<script src="js/api.js?v=20260919"></script>
+<script src="js/auth.js?v=20260917"></script>
+<script src="js/workspace.js?v=20260927"></script>
+<script src="js/cabinet.js?v=20260925"></script>
 </body>
 </html>

@@ -15,6 +15,7 @@
   var access = document.getElementById('adminAccess');
   var accessMsg = document.getElementById('adminAccessMsg');
   var countEl = document.getElementById('adminCount');
+  var spendEl = document.getElementById('adminSpend');
   var refreshBtn = document.getElementById('btnRefresh');
   var msg = document.getElementById('adminMsg');
 
@@ -74,8 +75,42 @@
     if (msg) msg.hidden = true;
   }
 
-  function render(users) {
+  function fmtNum(n) {
+    var v = Math.round(Number(n) || 0);
+    return String(v).replace(/\B(?=(\d{3})+(?!\d))/g, '\u2009');
+  }
+
+  function fmtTokens(u) {
+    var total = (Number(u.tokens_prompt) || 0) + (Number(u.tokens_completion) || 0);
+    if (!total) return '<span class="at-tokens-zero">0</span>';
+    return '<span title="Вход: ' + fmtNum(u.tokens_prompt) +
+      ' · Выход: ' + fmtNum(u.tokens_completion) +
+      ' · Запросов: ' + fmtNum(u.tokens_requests || 0) + '">' +
+      fmtNum(total) + '</span>';
+  }
+
+  function ctxCell(u) {
+    if (!u.hidden_context) return '<span class="at-ctx-empty">—</span>';
+    return '<button class="adm-btn adm-btn--ctx" type="button" data-act="ctx" data-id="' + esc(u.id) +
+      '">Показать</button>';
+  }
+
+  function renderTotals(t) {
+    if (!spendEl) return;
+    if (!t) { spendEl.hidden = true; return; }
+    var usersTotal = (Number(t.prompt) || 0) + (Number(t.completion) || 0);
+    var bg = t.background || {};
+    var bgTotal = (Number(bg.prompt) || 0) + (Number(bg.completion) || 0);
+    spendEl.textContent = 'Расход токенов платформой: ' + fmtNum(usersTotal + bgTotal) +
+      ' — пользователи: ' + fmtNum(usersTotal) +
+      ' · фоновые агенты: ' + fmtNum(bgTotal) +
+      ' (запросов к LLM: ' + fmtNum((Number(t.requests) || 0) + (Number(bg.requests) || 0)) + ')';
+    spendEl.hidden = false;
+  }
+
+  function render(users, totals) {
     hideMsg();
+    renderTotals(totals);
     if (countEl) countEl.textContent = String(users.length);
     var rows = users.map(function (u, i) {
       var self = !!(session && session.login && u.login === session.login);
@@ -98,8 +133,18 @@
         '<td>' + rolePill + '</td>' +
         '<td class="at-date">' + fmtDate(u.created_at) + '</td>' +
         '<td class="at-date">' + fmtDate(u.last_login) + '</td>' +
+        '<td class="at-tokens">' + fmtTokens(u) + '</td>' +
+        '<td class="at-ctx">' + ctxCell(u) + '</td>' +
         '<td class="at-actions"><div class="adm-actions">' + actions + '</div></td>' +
-        '</tr>';
+        '</tr>' +
+        (u.hidden_context
+          ? '<tr class="ctx-row" data-ctx-for="' + esc(u.id) + '" hidden><td colspan="9">' +
+            '<div class="ctx-row-head">Скрытый контекст о пользователе (собран платформой автоматически' +
+            (u.context_generated_at ? ', обновлён ' + fmtDate(u.context_generated_at) : '') +
+            '):</div>' +
+            '<div class="ctx-row-text">' + esc(u.hidden_context) + '</div>' +
+            '</td></tr>'
+          : '');
     });
     body.innerHTML = rows.join('');
   }
@@ -110,7 +155,7 @@
       return;
     }
     API.adminListUsers(session.token)
-      .then(function (res) { render(res.items || []); })
+      .then(function (res) { render(res.items || [], res.platform_totals || null); })
       .catch(function (err) {
         if (err && err.status === 401) {
           try { localStorage.removeItem(AUTH_KEY); } catch (e) {}
@@ -129,6 +174,15 @@
     if (!btnEl) return;
     var act = btnEl.getAttribute('data-act');
     var id = btnEl.getAttribute('data-id');
+
+    if (act === 'ctx') {
+      var row = body.querySelector('tr[data-ctx-for="' + id + '"]');
+      if (row) {
+        row.hidden = !row.hidden;
+        btnEl.textContent = row.hidden ? 'Показать' : 'Скрыть';
+      }
+      return;
+    }
 
     if (act === 'role') {
       var nextRole = btnEl.getAttribute('data-role');
@@ -289,4 +343,18 @@
   if (llmWrap) llmWrap.hidden = false;
   llmLoad();
   load();
+
+  /* сворачиваемые разделы: кнопка-заголовок прячет/показывает тело
+     («Настройки внешних API», «Об организации», «Основные документы») */
+  [['llmToggle', 'llmBody'], ['orgToggle', 'orgBody'], ['orgDocsToggle', 'orgDocsGroups']]
+    .forEach(function (pair) {
+      var toggle = document.getElementById(pair[0]);
+      var target = document.getElementById(pair[1]);
+      if (!toggle || !target) return;
+      toggle.addEventListener('click', function () {
+        var open = toggle.getAttribute('aria-expanded') !== 'false';
+        toggle.setAttribute('aria-expanded', open ? 'false' : 'true');
+        target.hidden = open;
+      });
+    });
 })();

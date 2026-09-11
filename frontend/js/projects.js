@@ -1,11 +1,13 @@
 /* ============================================================
-   «Мои проекты»: карточки проектов текущего пользователя.
+   «Проекты»: карточки проектов всех команд.
 
-   Данные — GET /api/projects (только собственные карточки, идентификатор
-   берётся из Bearer-токена). Карточки создаёт навык «Онбординг проекта»
-   в рабочем чате; здесь их читают, правит руководитель проекта
-   (PATCH /api/projects/{id}) и удаляет администратор (DELETE — роль
-   «Администратор»). Гость видит предложение войти.
+   Данные — GET /api/projects (активные карточки всех владельцев
+   плюс свои черновики; каждая карточка помечена owner — ФИО
+   руководителя — и is_own). Карточки создаёт навык «Онбординг
+   проекта» в рабочем чате; здесь их читают все вошедшие
+   пользователи, правит руководитель проекта (PATCH
+   /api/projects/{id}, только is_own) и удаляет администратор
+   (DELETE — роль «Администратор»). Гость видит предложение войти.
    ============================================================ */
 (function () {
   var API = window.AIOS_API;
@@ -17,7 +19,6 @@
   var wrap = document.getElementById('prjWrap');
   var grid = document.getElementById('prjGrid');
   var msg = document.getElementById('prjMsg');
-  var emptyActions = document.getElementById('prjEmptyActions');
   if (!guest || !wrap || !grid) return;
 
   function getSession() {
@@ -47,11 +48,11 @@
   /* ---------- карточка в сетке ---------- */
 
   var FIELD_TITLES = {
-    title: 'Название',
+    /* название не дублируем — оно уже в заголовке модалки */
     goal: 'Цель',
     description: 'Описание',
     team_size: 'Участников',
-    participants: 'Участники (ФИО)',
+    participants: 'Состав команды (ФИО)',
     departments: 'Подразделения',
     budget: 'Бюджет',
     groundwork: 'Задел',
@@ -62,6 +63,38 @@
     groundwork_links: 'Ссылки задела',
     groundwork_files: 'Файлы задела (.pdf)',
     presentation_files: 'Файлы презентации (.pdf)'
+  };
+
+  var ARTIFACT_NAMES = {
+    rag: 'RAG и онтология',
+    models: 'Модели',
+    agents: 'Агенты',
+    polygon: 'Виртуальный полигон',
+    social: 'Социальная сеть агентов'
+  };
+
+  /* разделы JSON-карточки гипотез (data/hypotheses/hyp-{id}.json) */
+  var HYP_SECTIONS = {
+    ontology: 'Онтология',
+    rag: 'RAG и поиск',
+    models: 'Модели',
+    agents: 'Агенты',
+    polygons: 'Виртуальный полигон',
+    dashboards: 'Дашборды'
+  };
+
+  /* у гипотезы видны заголовок, краткое пояснение и спойлер с деталями */
+  var HYP_TEASER_LEN = 220;
+  var HYP_DETAILS_FIELDS = {
+    statement: 'Формулировка (если–то–проверим)',
+    metric: 'Метрика подтверждения',
+    deadline: 'Срок проверки',
+    decision: 'Решение по итогам',
+    as_is: 'Как есть',
+    verification: 'Способ проверки',
+    falsification: 'Условия опровержения',
+    users: 'Для кого',
+    groundwork: 'Задел'
   };
 
   function makeCard(p) {
@@ -81,6 +114,7 @@
     var sub = document.createElement('span');
     sub.className = 'prj-card-sub';
     var bits = [];
+    if (p.owner) bits.push('руководитель: ' + p.owner);
     if (p.goal) bits.push(p.goal.length > 60 ? p.goal.slice(0, 60) + '…' : p.goal);
     if (p.team_size) bits.push('участников: ' + p.team_size);
     if (p.budget) bits.push('бюджет: ' + p.budget);
@@ -110,17 +144,191 @@
     return !!session && session.role === 'Администратор';
   }
 
-  function appendListRow(fields, title, items) {
+  function appendListRow(fields, title, items, opts) {
     if (!items || !items.length) return;
     var row = document.createElement('div');
     row.className = 'skill-meta-row';
     var dt = document.createElement('dt');
     dt.textContent = title;
     var dd = document.createElement('dd');
-    dd.textContent = items.join('; ');
+    opts = opts || {};
+    items.forEach(function (item, idx) {
+      if (idx) dd.appendChild(document.createTextNode('; '));
+      /* файлы, прикреплённые онбордингом через attach_project_file, —
+         ссылки на скачивание; имена-заглушки (файла нет на сервере)
+         ведут на 404, но остаются читаемым текстом */
+      if (opts.projectId && opts.downloadable) {
+        var link = document.createElement('a');
+        link.href = '/api/projects/' + encodeURIComponent(opts.projectId) +
+          '/files/' + encodeURIComponent(item);
+        link.target = '_blank';
+        link.textContent = item;
+        dd.appendChild(link);
+      } else {
+        dd.appendChild(document.createTextNode(item));
+      }
+    });
     row.appendChild(dt);
     row.appendChild(dd);
     fields.appendChild(row);
+  }
+
+  function appendHypotheses(fields, artifacts) {
+    if (!artifacts) return;
+    var entries = Object.keys(ARTIFACT_NAMES).filter(function (key) {
+      return artifacts[key] && artifacts[key].hypothesis;
+    });
+    if (!entries.length) return;
+    var row = makeHypContainer('Гипотезы проекта (' + entries.length + ')');
+    row.id = 'prjModalShortHyp';
+    var dd = document.createElement('dd');
+    dd.className = 'prj-hyp-list';
+    /* тот же вид, что у полной карточки гипотез: группа на артефакт */
+    entries.forEach(function (key) {
+      var group = document.createElement('div');
+      group.className = 'prj-hyp-group';
+      var groupTitle = document.createElement('div');
+      groupTitle.className = 'prj-hyp-group-title';
+      groupTitle.textContent = ARTIFACT_NAMES[key];
+      group.appendChild(groupTitle);
+      group.appendChild(makeHypItem({
+        title: ARTIFACT_NAMES[key],
+        statement: artifacts[key].hypothesis
+      }, {}));
+      dd.appendChild(group);
+    });
+    row.appendChild(dd);
+    fields.appendChild(row);
+  }
+
+  /* ---------- гипотезы из JSON-карточки (data/hypotheses) ---------- */
+
+  var hypReqSeq = 0; /* защита от гонки: открыт другой проект */
+
+  function hypRow(dt, ddText) {
+    var row = document.createElement('div');
+    row.className = 'skill-meta-row';
+    var term = document.createElement('dt');
+    term.textContent = dt;
+    var dd = document.createElement('dd');
+    dd.textContent = ddText;
+    row.appendChild(term);
+    row.appendChild(dd);
+    return row;
+  }
+
+  function makeHypItem(hyp, allTitles) {
+    var item = document.createElement('div');
+    item.className = 'prj-hyp';
+    var head = document.createElement('div');
+    head.className = 'prj-hyp-head';
+    var name = document.createElement('span');
+    name.className = 'prj-hyp-title';
+    name.textContent = hyp.title || hyp.id || 'Гипотеза';
+    head.appendChild(name);
+    if (hyp.skipped) {
+      var skip = document.createElement('span');
+      skip.className = 'prj-status prj-status--draft';
+      skip.textContent = 'пропущена';
+      head.appendChild(skip);
+    }
+    item.appendChild(head);
+    /* краткое пояснение — начало формулировки гипотезы */
+    var teaserText = String(hyp.statement || '').trim();
+    if (teaserText) {
+      if (teaserText.length > HYP_TEASER_LEN) teaserText = teaserText.slice(0, HYP_TEASER_LEN) + '…';
+      var teaser = document.createElement('div');
+      teaser.className = 'prj-hyp-teaser';
+      teaser.textContent = teaserText;
+      item.appendChild(teaser);
+    }
+    var extras = [];
+    Object.keys(HYP_DETAILS_FIELDS).forEach(function (key) {
+      if (hyp[key]) extras.push([HYP_DETAILS_FIELDS[key], hyp[key]]);
+    });
+    if (Array.isArray(hyp.depends_on) && hyp.depends_on.length) {
+      var names = hyp.depends_on.map(function (id) {
+        return allTitles[id] || id;
+      });
+      extras.push(['Зависит от', names.join('; ')]);
+    }
+    if (extras.length) {
+      var details = document.createElement('details');
+      details.className = 'prj-hyp-details';
+      var summary = document.createElement('summary');
+      summary.textContent = 'Подробнее';
+      details.appendChild(summary);
+      extras.forEach(function (pair) {
+        details.appendChild(hypRow(pair[0], pair[1]));
+      });
+      item.appendChild(details);
+    }
+    return item;
+  }
+
+  function makeHypContainer(captionText) {
+    var row = document.createElement('div');
+    row.className = 'skill-meta-row';
+    var term = document.createElement('dt');
+    term.textContent = captionText;
+    row.appendChild(term);
+    return row;
+  }
+
+  function renderHypotheses(container, data) {
+    container.innerHTML = '';
+    var allTitles = {};
+    var total = 0;
+    Object.keys(HYP_SECTIONS).forEach(function (section) {
+      (Array.isArray(data[section]) ? data[section] : []).forEach(function (h) {
+        if (h && h.id) allTitles[h.id] = h.title || h.id;
+        total += 1;
+      });
+    });
+    if (!total) {
+      container.hidden = true;
+      return;
+    }
+    container.appendChild(makeHypContainer('Гипотезы проекта (' + total + ')'));
+    var dd = document.createElement('dd');
+    dd.className = 'prj-hyp-list';
+    Object.keys(HYP_SECTIONS).forEach(function (section) {
+      var items = Array.isArray(data[section]) ? data[section] : [];
+      if (!items.length) return;
+      var group = document.createElement('div');
+      group.className = 'prj-hyp-group';
+      var groupTitle = document.createElement('div');
+      groupTitle.className = 'prj-hyp-group-title';
+      groupTitle.textContent = HYP_SECTIONS[section];
+      group.appendChild(groupTitle);
+      items.forEach(function (h) {
+        group.appendChild(makeHypItem(h || {}, allTitles));
+      });
+      dd.appendChild(group);
+    });
+    container.appendChild(dd);
+    container.hidden = false;
+  }
+
+  function loadHypotheses(p) {
+    var container = document.getElementById('prjModalHyp');
+    if (!container) return;
+    container.hidden = true;
+    container.innerHTML = '';
+    if (!API || !API.projectsHypotheses) return;
+    var seq = ++hypReqSeq;
+    API.projectsHypotheses(getSession().token, p.id)
+      .then(function (data) {
+        if (seq !== hypReqSeq || !data) return;
+        /* полная карточка есть — краткий блок artifacts не показываем */
+        var shortRow = document.getElementById('prjModalShortHyp');
+        if (shortRow) shortRow.hidden = true;
+        renderHypotheses(container, data);
+      })
+      .catch(function () {
+        if (seq !== hypReqSeq) return;
+        container.hidden = true; /* карточки гипотез нет — остаётся краткий блок */
+      });
   }
 
   function ensureModal() {
@@ -193,6 +401,18 @@
     title.textContent = p.title || 'Карточка проекта';
     fields.innerHTML = '';
     Object.keys(FIELD_TITLES).forEach(function (key) {
+      /* руководитель — непосредственно перед составом команды */
+      if (key === 'participants' && p.owner) {
+        var ownerRow = document.createElement('div');
+        ownerRow.className = 'skill-meta-row';
+        var ownerDt = document.createElement('dt');
+        ownerDt.textContent = 'Руководитель проекта';
+        var ownerDd = document.createElement('dd');
+        ownerDd.textContent = p.owner;
+        ownerRow.appendChild(ownerDt);
+        ownerRow.appendChild(ownerDd);
+        fields.appendChild(ownerRow);
+      }
       var value = p[key];
       var row = document.createElement('div');
       row.className = 'skill-meta-row';
@@ -209,10 +429,22 @@
       fields.appendChild(row);
     });
     Object.keys(LIST_TITLES).forEach(function (key) {
-      appendListRow(fields, LIST_TITLES[key], p[key]);
+      appendListRow(fields, LIST_TITLES[key], p[key], {
+        projectId: p.id,
+        downloadable: key !== 'groundwork_links'
+      });
     });
+    appendHypotheses(fields, p.artifacts);
+    var hyp = document.createElement('div');
+    hyp.className = 'skill-meta-row';
+    hyp.id = 'prjModalHyp';
+    hyp.hidden = true;
+    fields.appendChild(hyp);
+    loadHypotheses(p);
     var delBtn = document.getElementById('prjModalDelete');
     if (delBtn) delBtn.hidden = !isAdmin();
+    var editBtn = document.getElementById('prjModalEdit');
+    if (editBtn) editBtn.hidden = !p.is_own; /* правит только руководитель своей карточки */
     overlay.hidden = false;
     document.body.classList.add('modal-open');
   }
@@ -230,9 +462,13 @@
     ['departments', 'Структурные подразделения', 'input'],
     ['budget', 'Бюджет запуска', 'input'],
     ['groundwork', 'Задел (публикации, патенты и т.п.)', 'textarea'],
-    ['groundwork_links', 'Ссылки задела (по одной на строку)', 'textarea'],
-    ['groundwork_files', 'Файлы задела .pdf (по одному названию на строку)', 'textarea'],
-    ['presentation_files', 'Файлы презентации .pdf (по одному названию на строку)', 'textarea']
+    ['groundwork_links', 'Ссылки задела (по одной на строку)', 'textarea']
+  ];
+
+  /* файлы прикрепляются вложениями (multipart), а не названиями */
+  var EDIT_FILE_FIELDS = [
+    ['groundwork_files', 'Файлы задела (.pdf)'],
+    ['presentation_files', 'Файлы презентации (.pdf)']
   ];
 
   function ensureEditModal() {
@@ -251,6 +487,10 @@
           ? '<textarea rows="3" name="' + f[0] + '"></textarea>'
           : '<input type="text" name="' + f[0] + '">') +
         '</label>';
+    });
+    EDIT_FILE_FIELDS.forEach(function (f) {
+      html += '    <label><span>' + f[1] + '</span>' +
+        '<input type="file" name="' + f[0] + '" multiple accept=".pdf,application/pdf"></label>';
     });
     html +=
       '    <label class="prj-edit-check"><input type="checkbox" name="presentation"> Нужна презентация проекта</label>' +
@@ -310,7 +550,21 @@
     patch.presentation = form.elements.presentation.checked;
     var btn = document.getElementById('prjEditSave');
     if (btn) btn.disabled = true;
+    var files = [];
+    EDIT_FILE_FIELDS.forEach(function (f) {
+      Array.prototype.forEach.call(form.elements[f[0]].files || [], function (file) {
+        files.push({ kind: f[0], file: file });
+      });
+    });
     API.projectsUpdate(getSession().token, currentCard.id, patch)
+      .then(function () {
+        /* новые файлы прикрепляются к сохранённой карточке по одному */
+        return files.reduce(function (chain, item) {
+          return chain.then(function () {
+            return API.projectsUploadFile(getSession().token, currentCard.id, item.kind, item.file);
+          });
+        }, Promise.resolve());
+      })
       .then(function () {
         closeEditModal();
         load();
@@ -343,7 +597,6 @@
       .then(function (data) {
         var items = (data && data.items) || [];
         grid.innerHTML = '';
-        if (emptyActions) emptyActions.hidden = items.length > 0;
         if (!items.length) {
           var empty = document.createElement('div');
           empty.className = 'models-empty';
@@ -354,6 +607,13 @@
         items.forEach(function (p) {
           grid.appendChild(makeCard(p));
         });
+        /* глубокая ссылка из каталогов (knowledge.html и др.):
+           projects.html?id=prj-… открывает карточку этого проекта */
+        var wanted = new URLSearchParams(window.location.search).get('id');
+        if (wanted) {
+          var target = items.find(function (p) { return p.id === wanted; });
+          if (target) openDetails(target);
+        }
       })
       .catch(function (err) {
         if (err && err.status === 401) {
@@ -369,23 +629,6 @@
     guestLogin.addEventListener('click', function () {
       var btnLogin = document.getElementById('btnLogin');
       if (btnLogin) btnLogin.click(); /* модалку входа показывает auth.js */
-    });
-  }
-
-  /* «Запустить онбординг»: навык активируется в рабочем чате
-     (тот же механизм, что и кнопка в модалке навыка на «Агентах») */
-  var startBtn = document.getElementById('prjStartOnboarding');
-  if (startBtn) {
-    startBtn.addEventListener('click', function () {
-      try {
-        localStorage.setItem('aios-workspace-skill-v1', JSON.stringify({
-          skill_id: 'project-onboarding',
-          name: 'Онбординг проекта',
-          open: true
-        }));
-      } catch (e) { /* приватный режим */ }
-      var btn = document.getElementById('btnNavWorkspace') || document.getElementById('btnWorkspace');
-      if (btn) btn.click();
     });
   }
 

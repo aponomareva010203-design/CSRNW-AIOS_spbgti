@@ -6,7 +6,7 @@
 
     «Об организации» — при упоминании организации/показателей/документов
                        (публичные данные, читаются и анонимом);
-    «Мои проекты»    — при упоминании проектов/карточек (только для
+    «Проекты»    — при упоминании проектов/карточек (только для
                        авторизованных: список активных карточек владельца).
 
 Детекция намеренно дешёвая: поиск подстрок по нижнему регистру в последнем
@@ -94,7 +94,7 @@ def projects_block(user_id: str | None) -> str:
     ]
     if not cards:
         return ""
-    lines = ["### Карточки проектов пользователя («Мои проекты»)"]
+    lines = ["### Карточки проектов пользователя («Проекты»)"]
     for card in cards[:PROJECTS_LIMIT]:
         title = card.get("title") or card["id"]
         bits = [f"«{title}»", f"id: {card['id']}"]
@@ -108,6 +108,41 @@ def projects_block(user_id: str | None) -> str:
         lines.append("- " + " — ".join(bits))
     lines.append(
         "Детали карточки — инструмент get_projects; изменения — save_project_card."
+    )
+    return "\n".join(lines)
+
+
+def connected_rag_block(session: dict) -> str:
+    """RAG-базы, явно подключённые пользователем кнопкой в рабочем чате.
+
+    В отличие от organization_block/projects_block, добавляется безусловно
+    (не по упоминанию в тексте вопроса) — раз пользователь явно выбрал базу
+    в интерфейсе, модель должна знать о ней в каждом сообщении сессии.
+    """
+    rag_ids = session.get("rag_ids") if isinstance(session, dict) else None
+    if not rag_ids:
+        return ""
+    from . import rag as rag_module
+
+    store = rag_module.get_store()
+    lines = ["### Подключённые пользователем RAG-базы (кнопка в рабочем чате)"]
+    found_any = False
+    for rag_id in list(rag_ids)[:3]:
+        card = store.find(rag_id)
+        if not card or card.get("status") != rag_module.STATUS_ACTIVE:
+            continue
+        found_any = True
+        name = card.get("name") or rag_id
+        desc = (card.get("description") or "").strip()
+        if len(desc) > 300:
+            desc = desc[:300] + "…"
+        lines.append(f"- id: {rag_id} — «{name}». {desc}")
+    if not found_any:
+        return ""
+    lines.append(
+        "Пользователь явно подключил эти базы в интерфейсе рабочего чата — "
+        "используйте инструмент search_corpus с указанным rag_id, чтобы "
+        "ответить на вопрос по их содержимому, не спрашивая разрешения."
     )
     return "\n".join(lines)
 

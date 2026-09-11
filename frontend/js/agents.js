@@ -186,19 +186,19 @@
     } else {
       dl.style.display = 'none';
     }
-    /* «Запустить в рабочем чате»: workspace.js на следующей странице
-       (или на этой же) подхватит флаг, откроет панель и повесит чип навыка */
+    /* «Запустить в рабочем чате»: панель workspace.js уже подключена
+       на этой же странице (плавающая панель, есть на любой странице AIOS) —
+       поэтому не нужен localStorage-флаг «на следующую загрузку», как было
+       раньше (баг: чат не открывался сам, пока страницу не перезагрузят).
+       Диспатчим aios-launch-skill — тот же путь, что и кнопка «Запустить
+       онбординг проекта» в cabinet.js: чат откроется и стартует сразу. */
     var launch = document.getElementById('skillModalLaunch');
     if (launch) {
       launch.onclick = function () {
-        try {
-          localStorage.setItem('aios-workspace-skill-v1', JSON.stringify({
-            skill_id: skill.id,
-            name: skill.name || '',
-            open: true
-          }));
-        } catch (e) { /* приватный режим */ }
         skillModal.close();
+        document.dispatchEvent(new CustomEvent('aios-launch-skill', {
+          detail: { skill_id: skill.id, name: skill.name || '' }
+        }));
       };
     }
     skillModal.open();

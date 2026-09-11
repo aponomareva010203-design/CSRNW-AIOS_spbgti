@@ -62,7 +62,7 @@
   function showMsg(text) {
     if (!msg) return;
     msg.textContent = text;
-    msg.hidden = false;
+    msg.hidden = !text; /* пустой текст не должен оставлять красную полосу-заглушку */
   }
 
   function showStatus(text) {

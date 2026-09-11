@@ -70,6 +70,20 @@
     '      <span>После смены пароля другие сессии будут завершены.</span>',
     '    </div>',
     '  </div>',
+    '</div>',
+    '<div class="modal-overlay" id="suggestModal" hidden>',
+    '  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="suggestTitle">',
+    '    <button class="modal-close" id="suggestClose" type="button" aria-label="Закрыть">✕</button>',
+    '    <h2 id="suggestTitle">Предложить изменения</h2>',
+    '    <form class="login-form" id="suggestForm">',
+    '      <label>',
+    '        <span>Что вы предлагаете улучшить на платформе?</span>',
+    '        <textarea name="message" rows="6" required placeholder="Здесь можно описать найденные ошибки, функции, которые хотелось бы иметь на платформе, или другую обратную связь. Чем подробнее, тем быстрее мы всё рассмотрим."></textarea>',
+    '      </label>',
+    '      <p class="login-msg" id="suggestMsg" hidden></p>',
+    '      <button class="btn-primary" id="suggestSubmit" type="submit">Отправить предложение</button>',
+    '    </form>',
+    '  </div>',
     '</div>'
   ].join('\n');
 
@@ -102,6 +116,64 @@
   var passMsg = document.getElementById('passMsg');
   var passSubmit = document.getElementById('passSubmit');
 
+  /* ---------- «Предложить изменения»: модалка и отправка ---------- */
+  var suggestModal = document.getElementById('suggestModal');
+  var suggestClose = document.getElementById('suggestClose');
+  var suggestForm = document.getElementById('suggestForm');
+  var suggestMsg = document.getElementById('suggestMsg');
+  var suggestSubmit = document.getElementById('suggestSubmit');
+  var btnSuggest = document.getElementById('btnSuggest');
+
+  function showSuggestMsg(text, cls) {
+    if (!suggestMsg) return;
+    suggestMsg.textContent = text;
+    suggestMsg.className = 'login-msg' + (cls ? ' ' + cls : '');
+    suggestMsg.hidden = false;
+  }
+
+  function openSuggestModal() {
+    if (!suggestModal) return;
+    if (suggestMsg) suggestMsg.hidden = true;
+    if (suggestForm) suggestForm.reset();
+    suggestModal.hidden = false;
+    var area = suggestForm && suggestForm.elements.message;
+    if (area) area.focus();
+  }
+
+  function closeSuggestModal() { if (suggestModal) suggestModal.hidden = true; }
+
+  if (suggestForm) {
+    suggestForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (suggestMsg) suggestMsg.hidden = true;
+      var API = window.AIOS_API;
+      var message = suggestForm.elements.message.value.trim();
+      if (!message) return;
+      if (!API || !API.sendSuggestion) {
+        showSuggestMsg('API недоступен: запустите бэкенд (uvicorn api.main:app)', 'error');
+        return;
+      }
+      var session = getSession();
+      if (suggestSubmit) suggestSubmit.disabled = true;
+      API.sendSuggestion({ message: message, login: session ? session.login : null }, session ? session.token : null)
+        .then(function () {
+          if (suggestSubmit) suggestSubmit.disabled = false;
+          closeSuggestModal();
+        })
+        .catch(function (err) {
+          if (suggestSubmit) suggestSubmit.disabled = false;
+          showSuggestMsg('Не удалось отправить предложение: ' + (err && err.message ? err.message : 'ошибка сети'), 'error');
+        });
+    });
+  }
+  if (btnSuggest) btnSuggest.addEventListener('click', openSuggestModal);
+  if (suggestClose) suggestClose.addEventListener('click', closeSuggestModal);
+  if (suggestModal) {
+    suggestModal.addEventListener('click', function (e) {
+      if (e.target === suggestModal) closeSuggestModal();
+    });
+  }
+
   var STORAGE_KEY = 'aios-auth-v1';
 
   function getSession() {
@@ -115,12 +187,25 @@
     }
   }
 
-  function saveSession(token, user) {
+  function saveSession(token, user, profileFilled) {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
-        token: token, login: user.login, name: user.name, role: user.role
+        token: token, login: user.login, name: user.name, role: user.role,
+        profile_filled: !!profileFilled
       }));
     } catch (e) { /* приватный режим — живём без сохранения */ }
+  }
+
+  /* Онбординг: профиль не заполнен — ведём в «Кабинет», где нужно
+     заполнить «Данные пользователя» (cabinet.html после сохранения
+     сам откроет рабочий чат с навыком «Онбординг проекта»). */
+  function needsOnboarding() {
+    try {
+      var session = getSession();
+      return !!(session && !session.profile_filled);
+    } catch (e) {
+      return false;
+    }
   }
 
   function clearSession() {
@@ -268,6 +353,7 @@
     if (e.key === 'Escape') {
       if (!modal.hidden) closeModal();
       if (passModal && !passModal.hidden) closePassModal();
+      if (suggestModal && !suggestModal.hidden) closeSuggestModal();
       closeUserMenu();
     }
   });
@@ -316,9 +402,13 @@
         submitBtn.disabled = true;
         API.login(login, password)
           .then(function (res) {
-            saveSession(res.token, res.user);
+            saveSession(res.token, res.user, res.profile_filled);
             renderAuthState();
             closeModal();
+            /* незаполненный профиль — сначала «Кабинет» (онбординг) */
+            if (needsOnboarding()) {
+              location.href = 'cabinet.html?onboarding=1';
+            }
           })
           .catch(function (err) {
             if (err && err.status === 403) {

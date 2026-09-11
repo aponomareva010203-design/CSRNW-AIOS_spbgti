@@ -77,12 +77,18 @@ class SessionStore:
         session["updated_at"] = time.time()
         self.save(session)
 
-    def summaries(self, limit: int = 100) -> list:
+    def summaries(self, limit: int = 100, user_id: str | None = None) -> list:
+        """Сводки свежих сессий; с user_id — только сессии этого владельца
+        (раздел «История сессий» в «Кабинете»). Анонимные сессии (без
+        user_id) при фильтрации по владельцу не показываются.
+        """
         items = []
         for path in self.root.glob("*.json"):
             try:
                 data = json.loads(path.read_text(encoding="utf-8"))
             except (OSError, ValueError):
+                continue
+            if user_id is not None and data.get("user_id") != user_id:
                 continue
             items.append(
                 {

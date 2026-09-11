@@ -12,6 +12,7 @@ OpenAICompatProvider работает с любым OpenAI-совместимы�
 LLM /api/chat отвечает 503, а не mock-ответами.
 """
 
+import asyncio
 import json
 from dataclasses import dataclass
 
@@ -19,9 +20,29 @@ import httpx
 
 from .llm_settings import LLMConfig
 
+# Временные ошибки ретраятся: 1 начальная попытка + до 3 повторов с задержками.
+RETRY_DELAYS = (1.0, 2.0, 4.0)
+# 400 ретраится только для upstream-ошибок шлюза; остальные 4xx — на нашей стороне.
+_TRANSIENT_STATUSES = {408, 429}
+
 
 class ProviderError(RuntimeError):
     """Ошибка транспорта или ответа провайдера — уходит клиенту событием error."""
+
+    def __init__(self, message: str, status_code: int | None = None) -> None:
+        super().__init__(message)
+        self.status_code = status_code
+
+    @property
+    def transient(self) -> bool:
+        """Временная ли ошибка: стоит ли автоматически повторить запрос."""
+        if self.status_code is None:
+            return True  # таймаут или обрыв транспорта
+        if self.status_code in _TRANSIENT_STATUSES or self.status_code >= 500:
+            return True
+        if self.status_code == 400:
+            return "upstream provider error" in str(self).lower()
+        return False
 
 
 @dataclass
@@ -36,10 +57,16 @@ class ToolCall:
 class OpenAICompatProvider:
     """Стриминговый клиент chat/completions OpenAI-совместимого API."""
 
-    def __init__(self, cfg: LLMConfig, read_timeout: float = 120.0) -> None:
+    def __init__(
+        self,
+        cfg: LLMConfig,
+        read_timeout: float = 120.0,
+        transport: httpx.AsyncBaseTransport | None = None,
+    ) -> None:
         self.base_url = cfg.base_url
         self.api_key = cfg.api_key
         self.default_model = cfg.model
+        self._transport = transport  # для тестов (httpx.MockTransport)
         self.timeout = httpx.Timeout(
             connect=10.0,
             read=read_timeout,
@@ -48,11 +75,48 @@ class OpenAICompatProvider:
         )
 
     async def stream_chat(self, messages: list, tools: list | None = None, model: str | None = None):
+        """stream_chat с ретраями: до 3 повторов временных ошибок (1/2/4 сек).
+
+        Повтор возможен только пока стрим ещё ничего не выдал клиенту —
+        иначе частичный ответ задублировался бы. Пользователь видит ошибку
+        лишь после того, как все повторы исчерпаны.
+
+        События: ("text", …), ("tool_calls", …) и ("usage", {prompt_tokens,
+        completion_tokens, …}) — usage приходит последним, если провайдер
+        поддерживает stream_options.include_usage; иначе его оценивает цикл.
+        Строгие провайдеры, не знающие stream_options, отвечают 400 — тогда
+        одна повторная попытка без этого поля.
+        """
+        for attempt, delay in enumerate((0.0, *RETRY_DELAYS)):
+            if delay:
+                await asyncio.sleep(delay)
+            produced = False
+            try:
+                try:
+                    async for event in self._stream_once(messages, tools, model, include_usage=True):
+                        produced = True
+                        yield event
+                except ProviderError as exc:
+                    if produced or exc.status_code != 400 or "stream_options" not in str(exc).lower():
+                        raise
+                    async for event in self._stream_once(messages, tools, model, include_usage=False):
+                        produced = True
+                        yield event
+                return
+            except ProviderError as exc:
+                if produced or not exc.transient or attempt == len(RETRY_DELAYS):
+                    raise
+
+    async def _stream_once(self, messages: list, tools: list | None = None, model: str | None = None,
+                           include_usage: bool = True):
+        """Одна попытка стрима chat/completions без ретраев."""
         payload = {
             "model": model or self.default_model,
             "messages": messages,
             "stream": True,
         }
+        if include_usage:
+            payload["stream_options"] = {"include_usage": True}
         if tools:
             payload["tools"] = tools
             payload["tool_choice"] = "auto"
@@ -62,8 +126,9 @@ class OpenAICompatProvider:
             headers["Authorization"] = f"Bearer {self.api_key}"
 
         calls: dict = {}
+        usage: dict | None = None
         try:
-            async with httpx.AsyncClient(timeout=self.timeout) as client:
+            async with httpx.AsyncClient(timeout=self.timeout, transport=self._transport) as client:
                 async with client.stream(
                     "POST",
                     f"{self.base_url}/chat/completions",
@@ -72,7 +137,9 @@ class OpenAICompatProvider:
                 ) as resp:
                     if resp.status_code != 200:
                         body = (await resp.aread()).decode("utf-8", "replace")
-                        raise ProviderError(f"LLM HTTP {resp.status_code}: {body[:400]}")
+                        raise ProviderError(
+                            f"LLM HTTP {resp.status_code}: {body[:400]}", status_code=resp.status_code
+                        )
                     async for line in resp.aiter_lines():
                         line = line.strip()
                         if not line.startswith("data:"):
@@ -84,6 +151,10 @@ class OpenAICompatProvider:
                             chunk = json.loads(data)
                         except ValueError:
                             continue
+                        # финальный chunk с usage может прийти с пустым choices
+                        usage_chunk = chunk.get("usage")
+                        if isinstance(usage_chunk, dict) and usage_chunk:
+                            usage = usage_chunk
                         choices = chunk.get("choices") or []
                         if not choices:
                             continue
@@ -102,8 +173,17 @@ class OpenAICompatProvider:
                                 slot["name"] = fn["name"]
                             if fn.get("arguments"):
                                 slot["arguments"] += fn["arguments"]
+        except httpx.TimeoutException as exc:
+            raise ProviderError(
+                f"Модель не ответила за {int(self.timeout.read)} сек — превышен таймаут "
+                "чтения. Соединение с LLM нестабильно или модель перегружена; "
+                "попробуйте повторить запрос позже."
+            ) from exc
         except httpx.HTTPError as exc:
             raise ProviderError(f"Ошибка транспорта LLM: {exc}") from exc
+
+        if usage:
+            yield ("usage", usage)
 
         if calls:
             parsed = []

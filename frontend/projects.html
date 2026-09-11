@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Мои проекты — AIOS Технологического института</title>
-<link rel="stylesheet" href="css/style.css?v=20260913">
+<title>Проекты — AIOS Технологического института</title>
+<link rel="stylesheet" href="css/style.css?v=20260923">
 </head>
 <body>
 <div class="layout">
@@ -28,11 +28,12 @@
         <span class="side-group-title">Рабочее пространство</span>
         <button class="side-link side-link--chat" id="btnNavWorkspace" type="button" hidden>Рабочий чат</button>
         <a class="side-link" id="menuCabinet" href="cabinet.html">Кабинет</a>
-        <a class="side-link active" id="menuProjects" href="projects.html">Мои проекты</a>
+        <a class="side-link active" id="menuProjects" href="projects.html">Проекты</a>
       </div>
     </nav>
     <div class="sidebar-footer">
       <button class="side-link" id="btnSettings" type="button" hidden>Настройки</button>
+      <button class="side-link" id="btnSuggest" type="button">Предложить изменения</button>
       <a class="side-link" id="menuAdmin" href="admin.html" hidden>Админ-панель</a>
       <div class="sidebar-user">
         <button class="btn-login" id="btnLogin" type="button" aria-haspopup="dialog" aria-controls="loginModal">Войти</button>
@@ -53,7 +54,7 @@
 
   <section class="section-head">
     <a class="backlink" href="index.html">← AIOS Технологического института</a>
-    <h1>Мои проекты</h1>
+    <h1>Проекты</h1>
     <div class="rule"></div>
   </section>
 
@@ -66,17 +67,14 @@
 
   <div id="prjWrap" hidden>
     <div class="projects-grid" id="prjGrid"></div>
-    <div class="prj-empty-actions" id="prjEmptyActions" hidden>
-      <button class="btn-primary" id="prjStartOnboarding" type="button">Запустить онбординг проекта</button>
-    </div>
   </div>
 
 </div>
 </div>
-<script src="js/api.js?v=20260913"></script>
+<script src="js/api.js?v=20260919"></script>
 <script src="js/auth.js?v=20260912"></script>
 <script src="js/agents.js?v=20260912"></script>
-<script src="js/projects.js?v=20260913"></script>
-<script src="js/workspace.js?v=20260912"></script>
+<script src="js/projects.js?v=20260919"></script>
+<script src="js/workspace.js?v=20260927"></script>
 </body>
 </html>

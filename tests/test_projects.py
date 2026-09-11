@@ -1,4 +1,4 @@
-"""Смоук-тесты страницы «Мои проекты» и инструментов карточек проектов.
+"""Смоук-тесты страницы «Проекты» и инструментов карточек проектов.
 
 Хранилище (ProjectStore): upsert по project_id, статусная модель
 draft → active (только после явного подтверждения), изоляция
@@ -153,6 +153,41 @@ def test_api_projects_requires_auth_and_scopes():
     assert client.get("/api/projects/prj-deadbeef", headers=auth(token)).status_code == 404
 
 
+def test_api_projects_visible_across_teams():
+    """Раздел «Проекты»: активные карточки видны всем командам, черновики — только владельцу."""
+    client = _client()
+    admin_token = _login_admin(client)
+    uid = _admin_id()
+
+    users = UserStore(get_settings().runtime_dir / "users")
+    users.create("petrov@csr-nw.ru", "pass1234", name="Петров П.", confirmed=True)
+    other_token = client.post(
+        "/api/auth/login", json={"login": "petrov@csr-nw.ru", "password": "pass1234"}
+    ).json()["token"]
+    other_id = users.get_by_login("petrov@csr-nw.ru")["id"]
+
+    active = projects.get_store().save(uid, dict(CARD))
+    projects.get_store().save(uid, dict(active, status=projects.STATUS_ACTIVE))
+    draft = projects.get_store().save(other_id, dict(CARD, title="Черновик Петрова"))
+
+    # активная карточка админа видна другому пользователю, с руководителем и is_own=false
+    items = client.get("/api/projects", headers=auth(other_token)).json()["items"]
+    titles = {c["title"]: c for c in items}
+    card = titles[CARD["title"]]
+    assert card["is_own"] is False
+    assert card["owner"]  # имя руководителя подставлено
+    assert "user_id" not in card
+
+    # чужой черновик админу не виден
+    admin_items = client.get("/api/projects", headers=auth(admin_token)).json()["items"]
+    assert "Черновик Петрова" not in {c["title"] for c in admin_items}
+
+    # свой черновик виден только владельцу, помечен is_own=true
+    own = {c["title"]: c for c in client.get("/api/projects", headers=auth(other_token)).json()["items"]}
+    assert own[draft["title"]]["is_own"] is True
+    assert own[draft["title"]]["owner"] == "Петров П."
+
+
 def test_tools_projects_flow():
     registry = build_default_registry(get_settings().tools_root)
     assert "get_projects" in registry.names()
@@ -232,3 +267,122 @@ def test_api_patch_owner_and_delete_admin():
     # повторное удаление и неизвестный id — 404
     assert client.delete(url, headers=auth(token)).status_code == 404
     assert client.delete("/api/projects/prj-deadbeef", headers=auth(token)).status_code == 404
+
+
+def test_api_post_creates_draft():
+    """POST /api/projects — пустая карточка-черновик владельца токена.
+
+    Источник — пустая карточка в панели «Проекты», когда проектов ещё
+    нет: первое сохранение формы создаёт черновик, PATCH дальше правит.
+    """
+    client = _client()
+    assert client.post("/api/projects", json={}).status_code == 401
+
+    token = _login_admin(client)
+    resp = client.post("/api/projects", headers=auth(token), json={})
+    assert resp.status_code == 200, resp.text
+    card = resp.json()
+    assert card["id"].startswith("prj-")
+    assert card["status"] == projects.STATUS_DRAFT
+
+    # черновик виден владельцу в списке; правится обычным PATCH
+    items = client.get("/api/projects", headers=auth(token)).json()["items"]
+    assert len(items) == 1 and items[0]["id"] == card["id"]
+    patch = client.patch(
+        f"/api/projects/{card['id']}",
+        headers=auth(token),
+        json={"title": "Мой проект", "presentation": True},
+    )
+    assert patch.status_code == 200 and patch.json()["title"] == "Мой проект"
+
+    # сразу активной карточка не создаётся — нужно подтверждение
+    assert client.post(
+        "/api/projects", headers=auth(token), json={"title": "x", "status": "active"}
+    ).status_code == 422
+
+
+def test_api_upload_project_file():
+    """POST /api/projects/{id}/files — прикрепление файла к своей карточке.
+
+    Файл ложится в files/ карточки, имя дописывается в groundwork_files;
+    карточку правит только владелец, чужой получает 404.
+    """
+    client = _client()
+    token = _login_admin(client)
+    uid = _admin_id()
+    saved = projects.get_store().save(uid, dict(CARD))
+    url = f"/api/projects/{saved['id']}/files"
+
+    # чужой пользователь карточку не найдёт — 404
+    users = UserStore(get_settings().runtime_dir / "users")
+    users.create("petrov@csr-nw.ru", "pass1234", name="Петров П.", confirmed=True)
+    other_token = client.post(
+        "/api/auth/login", json={"login": "petrov@csr-nw.ru", "password": "pass1234"}
+    ).json()["token"]
+    assert client.post(
+        url, headers=auth(other_token),
+        data={"kind": "groundwork_files"},
+        files={"file": ("zad.pdf", b"x", "application/pdf")},
+    ).status_code == 404
+
+    # некорректный kind — 422
+    assert client.post(
+        url, headers=auth(token),
+        data={"kind": "мусор"},
+        files={"file": ("zad.pdf", b"x", "application/pdf")},
+    ).status_code == 422
+
+    # владелец прикрепляет файл — имя попадает в groundwork_files
+    resp = client.post(
+        url, headers=auth(token),
+        data={"kind": "groundwork_files"},
+        files={"file": ("обзор.pdf", b"%PDF-1.4 test", "application/pdf")},
+    )
+    assert resp.status_code == 200, resp.text
+    body = resp.json()
+    assert body["ok"] is True and body["filename"].endswith(".pdf")
+    assert body["filename"] in body["files"]
+
+    # файл скачивается с тем же содержимым
+    down = client.get(f"/api/projects/{saved['id']}/files/{body['filename']}", headers=auth(token))
+    assert down.status_code == 200 and down.content == b"%PDF-1.4 test"
+
+
+def test_api_project_hypotheses(monkeypatch, tmp_path):
+    """GET /api/projects/{id}/hypotheses — JSON-карточка гипотез по проекту."""
+    from api.routers import auth as auth_router
+
+    monkeypatch.setenv("AIOS_TOOLS_ROOT", str(tmp_path / "data"))
+    get_settings.cache_clear()
+    try:
+        client = _client()
+        assert client.get("/api/projects/prj-00000000/hypotheses").status_code == 401
+
+        token = _login_admin(client)
+        uid = _admin_id()
+        saved = projects.get_store().save(uid, dict(CARD))
+        pid = saved["id"]
+
+        # карточка есть, гипотез нет — 404 (клиент показывает только artifacts)
+        assert client.get(
+            f"/api/projects/{pid}/hypotheses", headers=auth(token)
+        ).status_code == 404
+
+        hyp_dir = get_settings().tools_root / "hypotheses"
+        hyp_dir.mkdir(parents=True)
+        card = {"project_id": pid, "rag": [{"id": "rag-1", "title": "RAG", "skipped": False}]}
+        (hyp_dir / f"hyp-{pid}.json").write_text(
+            __import__("json").dumps(card, ensure_ascii=False), encoding="utf-8"
+        )
+
+        resp = client.get(f"/api/projects/{pid}/hypotheses", headers=auth(token))
+        assert resp.status_code == 200
+        assert resp.json()["rag"][0]["id"] == "rag-1"
+
+        # неизвестный проект — 404 даже при наличии файла
+        assert client.get(
+            "/api/projects/prj-deadbeef/hypotheses", headers=auth(token)
+        ).status_code == 404
+    finally:
+        get_settings.cache_clear()
+        auth_router.get_user_store.cache_clear()

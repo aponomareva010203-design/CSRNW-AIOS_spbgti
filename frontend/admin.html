@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Админ-панель — AIOS Технологического института</title>
-<link rel="stylesheet" href="css/style.css?v=20260914">
+<link rel="stylesheet" href="css/style.css?v=20260925">
 </head>
 <body>
 <div class="layout">
@@ -28,11 +28,12 @@
         <span class="side-group-title">Рабочее пространство</span>
         <button class="side-link side-link--chat" id="btnNavWorkspace" type="button" hidden>Рабочий чат</button>
         <a class="side-link" id="menuCabinet" href="cabinet.html">Кабинет</a>
-        <a class="side-link" id="menuProjects" href="projects.html">Мои проекты</a>
+        <a class="side-link" id="menuProjects" href="projects.html">Проекты</a>
       </div>
     </nav>
     <div class="sidebar-footer">
       <button class="side-link" id="btnSettings" type="button" hidden>Настройки</button>
+      <button class="side-link" id="btnSuggest" type="button">Предложить изменения</button>
       <a class="side-link" id="menuAdmin" href="admin.html" hidden>Админ-панель</a>
       <div class="sidebar-user">
         <button class="btn-login" id="btnLogin" type="button" aria-haspopup="dialog" aria-controls="loginModal">Войти</button>
@@ -66,9 +67,12 @@
 
   <section class="admin-wrap admin-wrap--llm" id="llmWrap" hidden>
     <div class="admin-toolbar">
-      <h2 class="admin-h2">Настройки внешних API (LLM)</h2>
+      <button class="admin-collapse-toggle" id="llmToggle" type="button" aria-expanded="true" aria-controls="llmBody">
+        <h2 class="admin-h2">Настройки внешних API (LLM)</h2>
+      </button>
       <p class="admin-count" id="llmCurrent">Модель рабочего чата для всех пользователей</p>
     </div>
+    <div class="admin-collapse-body" id="llmBody">
     <form class="llm-form" id="llmForm">
       <label>
         <span>Endpoint (Base URL)</span>
@@ -93,14 +97,18 @@
         <button class="btn-primary llm-save" type="submit">Сохранить</button>
       </div>
     </form>
+    </div>
   </section>
 
   <!-- Элемент 2 плана: раздел «Об организации» — профиль, показатели и документы -->
   <section class="admin-wrap admin-wrap--org" id="orgWrap" hidden>
     <div class="admin-toolbar">
-      <h2 class="admin-h2">Об организации</h2>
+      <button class="admin-collapse-toggle" id="orgToggle" type="button" aria-expanded="true" aria-controls="orgBody">
+        <h2 class="admin-h2">Об организации</h2>
+      </button>
       <p class="admin-count">Профиль, показатели деятельности и основные документы организации</p>
     </div>
+    <div class="admin-collapse-body" id="orgBody">
     <p class="login-msg login-msg--error admin-msg" id="orgMsg" hidden></p>
     <p class="login-msg login-msg--note admin-msg" id="orgStatus" hidden></p>
 
@@ -141,16 +149,20 @@
     <!-- Элемент 2: Основные документы организации -->
     <div class="org-card" id="orgDocsCard" hidden>
       <div class="org-card-head">
-        <h3 class="org-h3">Основные документы</h3>
+        <button class="admin-collapse-toggle" id="orgDocsToggle" type="button" aria-expanded="true" aria-controls="orgDocsGroups">
+          <span class="org-h3">Основные документы</span>
+        </button>
         <span class="org-updated">Скачивание — по клику на карточку</span>
       </div>
       <div id="orgDocsGroups"></div>
+    </div>
     </div>
   </section>
 
   <section class="admin-wrap" id="adminWrap" hidden>
     <div class="admin-toolbar">
       <p class="admin-count">Всего регистраций: <span id="adminCount">…</span></p>
+      <p class="admin-count admin-spend" id="adminSpend" hidden></p>
       <button class="adm-btn" id="btnRefresh" type="button">Обновить список</button>
     </div>
     <p class="login-msg login-msg--error admin-msg" id="adminMsg" hidden></p>
@@ -164,6 +176,8 @@
             <th>Роль</th>
             <th>Регистрация</th>
             <th>Последний вход</th>
+            <th class="at-tokens">Токены</th>
+            <th class="at-ctx">Скрытый контекст</th>
             <th class="at-actions">Действия</th>
           </tr>
         </thead>
@@ -176,8 +190,8 @@
 </div>
 <script src="js/api.js?v=20260914"></script>
 <script src="js/auth.js?v=20260914"></script>
-<script src="js/admin.js?v=20260914"></script>
-<script src="js/organization.js?v=20260914"></script>
-<script src="js/workspace.js?v=20260914"></script>
+<script src="js/admin.js?v=20260925"></script>
+<script src="js/organization.js?v=20260925"></script>
+<script src="js/workspace.js?v=20260927"></script>
 </body>
 </html>

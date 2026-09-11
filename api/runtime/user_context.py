@@ -17,30 +17,32 @@
     без изменений планировщик лишь обновляет отметку checked_at.
 
 Планировщик — фоновая asyncio-задача (запускается lifespan-ом приложения):
-первый проход через 30 секунд после старта, далее каждые
-AIOS_USER_CONTEXT_INTERVAL секунд (по умолчанию 3600 — раз в час проверка,
-итого для каждого пользователя — не чаще раза в сутки). Без настроенной
-LLM проходы пропускаются. При нескольких воркерах uvicorn задача дублируется,
-но атомарная запись файлов делает конкуренцию безвредной.
+один проход в сутки по московскому времени в AIOS_USER_CONTEXT_RUN_AT
+(по умолчанию «23:00»). Без настроенной LLM проходы пропускаются.
+При нескольких воркерах uvicorn задача дублируется, но атомарная запись
+файлов делает конкуренцию безвредной.
 """
 
 import asyncio
 import contextlib
+import datetime as dt
 import hashlib
 import json
 import logging
 import time
+import zoneinfo
 
 from .cabinet import CONTEXT_MAX_CHARS, get_store
 from .config import get_settings
 from .llm_settings import effective_config
 from .providers import build_provider
 from .sessions import SessionStore
+from .usage import SYSTEM_USER_ID, get_store as get_usage_store
 from .users import UserStore
 
 logger = logging.getLogger("aios.user_context")
 
-DAY_SECONDS = 24 * 60 * 60
+MSK = zoneinfo.ZoneInfo("Europe/Moscow")
 STARTUP_DELAY = 30.0  # первый проход планировщика после старта, сек
 
 # бюджеты материала, чтобы промпт не разрастался
@@ -206,16 +208,39 @@ def _render_task(user: dict, profile: dict, material: dict) -> str:
 
 
 async def generate_context(provider, user: dict, profile: dict, material: dict) -> str:
-    """Один вызов LLM: контекст по материалу, обрезанный до лимита блока."""
+    """Один вызов LLM: контекст по материалу, обрезанный до лимита блока.
+
+    Расход токенов записывается на фонового агента платформы (SYSTEM_USER_ID),
+    а не на пользователя: контекст формирует сама платформа.
+    """
     messages = [
         {"role": "system", "content": SYSTEM_PROMPT},
         {"role": "user", "content": _render_task(user, profile, material)},
     ]
     chunks: list[str] = []
+    usage: dict | None = None
     async for kind, payload in provider.stream_chat(messages, tools=None):
         if kind == "text":
             chunks.append(payload)
-    return _truncate("".join(chunks), CONTEXT_MAX_CHARS)
+        elif kind == "usage" and isinstance(payload, dict):
+            usage = payload
+    text = _truncate("".join(chunks), CONTEXT_MAX_CHARS)
+
+    if usage:
+        get_usage_store().record(
+            SYSTEM_USER_ID,
+            int(usage.get("prompt_tokens") or 0),
+            int(usage.get("completion_tokens") or 0),
+        )
+    else:
+        # провайдер usage не прислал — оценка по длине (~4 символа на токен)
+        prompt_chars = sum(len(m.get("content") or "") for m in messages)
+        get_usage_store().record(
+            SYSTEM_USER_ID,
+            max(1, prompt_chars // 4),
+            max(1, len("".join(chunks)) // 4),
+        )
+    return text
 
 
 def _current_provider():
@@ -251,7 +276,7 @@ async def run_user_context_job(provider=None) -> dict:
 
         ctx = cabinet.get_context(uid)
         checked = float(ctx.get("checked_at") or ctx.get("generated_at") or 0) if ctx else 0.0
-        if ctx is not None and now - checked < DAY_SECONDS:
+        if ctx is not None and _msk_date(checked) == _msk_date(now):
             stats["skipped_fresh"] += 1
             continue  # расписание: этому пользователю сегодня уже проверяли
 
@@ -281,17 +306,43 @@ async def run_user_context_job(provider=None) -> dict:
     return stats
 
 
+def _msk_date(ts: float) -> dt.date:
+    """Календарная дата отметки времени по московскому времени."""
+    return dt.datetime.fromtimestamp(ts, tz=MSK).date()
+
+
+def _next_run_delay() -> float:
+    """Секунды до ближайшего запуска по расписанию (МСК, из AIOS_USER_CONTEXT_RUN_AT)."""
+    hh, _, mm = get_settings().user_context_run_at.partition(":")
+    hour = min(23, max(0, int(hh or 0)))
+    minute = min(59, max(0, int(mm or 0)))
+    now_msk = dt.datetime.now(MSK)
+    run = now_msk.replace(hour=hour, minute=minute, second=0, microsecond=0)
+    if run <= now_msk:
+        run += dt.timedelta(days=1)
+    return (run - now_msk).total_seconds()
+
+
 async def scheduler_loop() -> None:
-    """Фоновый цикл приложения: периодические проходы run_user_context_job."""
+    """Фоновый цикл приложения: ежедневный проход run_user_context_job в 23:00 МСК.
+
+    Первый проход — по ближайшему срабатыванию расписания после старта
+    (через STARTUP_DELAY даём приложению доугрузиться).
+    """
     await asyncio.sleep(STARTUP_DELAY)
     while True:
-        interval = max(60.0, get_settings().user_context_interval)
+        delay = _next_run_delay()
+        logger.info(
+            "Следующее обновление контекстов пользователей — %s МСК (через %.0f с)",
+            get_settings().user_context_run_at,
+            delay,
+        )
+        with contextlib.suppress(asyncio.CancelledError):
+            await asyncio.sleep(delay)
         try:
             await run_user_context_job()
         except asyncio.CancelledError:
             raise
         except Exception:  # noqa: BLE001 — планировщик живёт дальше любого сбоя
             logger.exception("Сбой прохода формирования контекстов")
-        with contextlib.suppress(asyncio.CancelledError):
-            await asyncio.sleep(interval)
 

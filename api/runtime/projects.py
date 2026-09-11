@@ -1,4 +1,4 @@
-"""Хранилище карточек проектов («Мои проекты», api/runtime/projects.py).
+"""Хранилище карточек проектов («Проекты», api/runtime/projects.py).
 
 Каталог AIOS_RUNTIME_DIR/projects/{user_id}/ — по одному JSON-файлу на
 карточку (id вида prj-…), запись атомарная: временный файл + replace.
@@ -62,9 +62,83 @@ LIST_FIELD_LIMITS = {
     "presentation_files": (5, 300),
 }
 
+# артефакты пилота (таблица «Статус пилотного проекта», pilot.js) и лимит
+# гипотезы на артефакт. Блок artifacts пишут навык «Онбординг проекта»
+# (save_project_card) и владелец карточки (PATCH /api/projects/{id});
+# читает его публичный эндпоинт GET /api/pilot/projects.
+ARTIFACT_KEYS = ("rag", "models", "agents", "polygon", "social")
+ARTIFACT_STATUS_MIN = 0  # не начато
+ARTIFACT_STATUS_MAX = 3  # завершено (1 — гипотеза сформулирована, 2 — в процессе создания)
+ARTIFACT_HYPOTHESIS_MAX_CHARS = 2_000
+
+
+def clean_artifacts(raw) -> dict:
+    """Нормализует блок artifacts карточки к фиксированной схеме.
+
+    Принимает None или словарь {ключ артефакта: {"status": 0..3,
+    "hypothesis": str} | str}. Возвращает словарь со всеми пятью ключами
+    ARTIFACT_KEYS в виде {"status": int, "hypothesis": str}. Строка вместо
+    словаря трактуется как гипотеза. Статус, не указанный явно, выводится
+    из наличия гипотезы: текст есть — «гипотеза сформулирована» (1), иначе
+    «не начато» (0). Неизвестные ключи игнорируются, статус вне диапазона
+    0–3 (или не число) — ProjectError.
+    """
+    raw_map = raw if isinstance(raw, dict) else {}
+    result: dict[str, dict] = {}
+    for key in ARTIFACT_KEYS:
+        entry = raw_map.get(key)
+        hypothesis = ""
+        status = None
+        if isinstance(entry, dict):
+            hypothesis = _clean_text(entry.get("hypothesis"), ARTIFACT_HYPOTHESIS_MAX_CHARS)
+            status = entry.get("status")
+        elif isinstance(entry, str):
+            hypothesis = _clean_text(entry, ARTIFACT_HYPOTHESIS_MAX_CHARS)
+        if status is None:
+            status = 1 if hypothesis else 0
+        else:
+            if isinstance(status, str) and status.strip().isdigit():
+                status = int(status.strip())
+            if isinstance(status, bool) or not isinstance(status, int):
+                raise ProjectError(
+                    f"Статус артефакта «{key}» должен быть числом от "
+                    f"{ARTIFACT_STATUS_MIN} до {ARTIFACT_STATUS_MAX}"
+                )
+            if not ARTIFACT_STATUS_MIN <= status <= ARTIFACT_STATUS_MAX:
+                raise ProjectError(
+                    f"Статус артефакта «{key}» должен быть числом от "
+                    f"{ARTIFACT_STATUS_MIN} до {ARTIFACT_STATUS_MAX}"
+                )
+        result[key] = {"status": status, "hypothesis": hypothesis}
+    return result
+
 
 class ProjectError(ValueError):
     """Некорректные данные карточки проекта."""
+
+
+def bump_artifact_status(project_id: str, key: str, min_status: int) -> bool:
+    """Поднимает статус артефакта карточки проекта до min_status (только вперёд).
+
+    Синхронизация таблицы «Статус пилотного проекта» с реальной работой:
+    онтология и RAG-база, привязанные к проекту (save_ontology / save_rag,
+    включая публикацию), сами двигают колонку rag — участие администратора
+    не требуется. Статус, уже выставленный владельцем или администратором
+    выше min_status, не понижается. False — карточки с таким id нет (проект
+    ещё черновик или удалён), синхронизировать нечего.
+    """
+    if key not in ARTIFACT_KEYS or not PROJECT_ID_RE.match(project_id or ""):
+        return False
+    store = get_store()
+    card = store.find(project_id)
+    if card is None:
+        return False
+    artifacts = clean_artifacts(card.get("artifacts"))
+    if min_status <= artifacts[key]["status"]:
+        return False
+    artifacts[key]["status"] = min_status
+    store.save(card["user_id"], {"project_id": project_id, "artifacts": artifacts})
+    return True
 
 
 def _clean_text(value, limit: int) -> str:
@@ -149,6 +223,40 @@ class ProjectStore:
             return None
         return card
 
+    def find_participant_cards(self, needles) -> list:
+        """Карточки любых владельцев, где в поле participants упомянут
+        кто-то из needles (варианты ФИО пользователя).
+
+        Раздел «Результаты работы» в «Кабинете»: проекты, где пользователь
+        является участником. Ищем по всем карточкам, включая черновики.
+        ФИО в карточке может быть записано иначе, чем в учётной записи
+        («Иванов И.И.» против «Иванов Иван Иванович»), поэтому сравниваем
+        по токенам с учётом инициалов (_name_matches), а не подстрокой.
+        """
+        needle_tokens = [
+            tokens for tokens in (_name_tokens(n) for n in needles or [])
+            if tokens and len(tokens[0]) >= 4  # фамилия в эталоне не короче 4 букв
+        ]
+        if not needle_tokens or not self.root.is_dir():
+            return []
+        items = []
+        for path in self.root.glob("*/*.json"):
+            card = self._read(path)
+            if not card or not card.get("id"):
+                continue
+            participants = str(card.get("participants") or "")
+            # участники разделяются запятыми, точками с запятой и переносами строк
+            for entry in re.split(r"[;,\n\r]+", participants):
+                entry_tokens = _name_tokens(entry)
+                # в записи участника нужна фамилия (иначе «И.» матчиться на всех)
+                if len(entry_tokens) < 2 or len(entry_tokens[0]) < 4:
+                    continue
+                if any(_name_matches(entry_tokens, tokens) for tokens in needle_tokens):
+                    items.append(card)
+                    break
+        items.sort(key=lambda c: c.get("updated_at") or 0, reverse=True)
+        return items
+
     # ----- запись -----
 
     def save(self, user_id: str, card: dict) -> dict:
@@ -180,7 +288,10 @@ class ProjectStore:
         for field, (max_items, item_limit) in LIST_FIELD_LIMITS.items():
             if field in raw:
                 data[field] = _clean_list(raw.get(field), max_items, item_limit)
-        data["presentation"] = bool(raw.get("presentation"))
+        if "artifacts" in raw:
+            data["artifacts"] = clean_artifacts(raw.get("artifacts"))
+        if "presentation" in raw:
+            data["presentation"] = bool(raw.get("presentation"))
 
         status = _clean_text(raw.get("status"), 20)
         if status:
@@ -219,9 +330,121 @@ class ProjectStore:
                 return card
         return None
 
+    # ----- файлы карточки (вложения чата, прикреплённые онбордингом) -----
+
+    def files_dir(self, user_id: str, project_id: str) -> Path:
+        """Каталог файлов карточки (создаётся при первом файле)."""
+        return self._dir(user_id) / "files" / project_id
+
+    def save_file(self, user_id: str, project_id: str, filename: str,
+                  content: bytes) -> str:
+        """Сохраняет файл карточки, возвращая безопасное имя для скачивания.
+
+        Коллизии имён разрешаются суффиксом -2, -3…: карточка ссылается на
+        файл по имени из groundwork_files/presentation_files, поэтому
+        перезаписывать существующий файл нельзя.
+        """
+        from .uploads import clean_filename
+
+        name = clean_filename(filename)
+        directory = self.files_dir(user_id, project_id)
+        directory.mkdir(parents=True, exist_ok=True)
+        candidate = directory / name
+        stem, suffix = candidate.stem, candidate.suffix
+        counter = 2
+        while candidate.exists():
+            candidate = directory / f"{stem}-{counter}{suffix}"
+            counter += 1
+        candidate.write_bytes(content)
+        return candidate.name
+
+    def file_path(self, user_id: str, project_id: str, filename: str) -> Path | None:
+        """Путь к файлу карточки по имени; None — если файла нет."""
+        try:
+            directory = self.files_dir(user_id, project_id)
+        except ProjectError:
+            return None
+        candidate = (directory / filename).resolve()
+        if not candidate.is_relative_to(directory.resolve()) or not candidate.is_file():
+            return None
+        return candidate
+
+    def list_active(self) -> "list[dict]":
+        """Активные карточки всех владельцев — источник строк таблицы пилота.
+
+        Черновики (draft) не попадают: карточка появляется на странице
+        «Статус пилотного проекта» после подтверждения пользователем.
+        Порядок стабильный: по времени создания, затем по id.
+        """
+        cards: list[dict] = []
+        if not self.root.is_dir():
+            return cards
+        for path in self.root.glob("*/*.json"):
+            card = self._read(path)
+            if card and card.get("status") == STATUS_ACTIVE:
+                cards.append(card)
+        cards.sort(key=lambda c: (c.get("created_at") or c.get("updated_at") or 0, c.get("id") or ""))
+        return cards
+
     def public_card(self, card: dict) -> dict:
         """Карточка для API/UI: без служебного user_id (он и так из токена)."""
         return {k: v for k, v in card.items() if k != "user_id"}
+
+
+def _name_tokens(text: str) -> list[str]:
+    """Слова ФИО в нижнем регистре (инициалы «И.И.» дают токены «и», «и»)."""
+    return [t for t in re.split(r"[^a-zа-яё]+", text.lower()) if t]
+
+
+def _covers(needle: list[str], entry: list[str]) -> bool:
+    """Токены needle идут подмножеством entry (в том же порядке, по префиксу)."""
+    it = iter(entry)
+    return all(
+        any(t == n or t.startswith(n) or n.startswith(t) for t in it)
+        for n in needle
+    )
+
+
+def _name_matches(entry_tokens: list[str], needle_tokens: list[str]) -> bool:
+    """Совпадение двух записей ФИО с учётом инициалов.
+
+    Фамилии (первые токены) должны совпасть целиком или по префиксу; дальше
+    достаточно, чтобы токены одной записи покрывали токены другой: «иванов и»
+    матчится и с «иванов иван», и с «иванов иван иванович», «иванов и. и.» —
+    с «иванов иван иванович», и наоборот (в карточке может быть полнее, чем
+    в учётной записи, и чем в анкете).
+    """
+    if not entry_tokens or not needle_tokens:
+        return False
+    first_e, first_n = entry_tokens[0], needle_tokens[0]
+    if not (first_e == first_n or first_e.startswith(first_n) or first_n.startswith(first_e)):
+        return False
+    return (
+        _covers(needle_tokens[1:], entry_tokens[1:])
+        or _covers(entry_tokens[1:], needle_tokens[1:])
+    )
+
+
+def participant_needles(user: dict, profile: dict) -> list[str]:
+    """Варианты написания ФИО для поиска пользователя среди участников проектов.
+
+    Тот же принцип, что и в runtime/user_context.py (_mention_needles):
+    анкета «Кабинета» важнее имени учётной записи. Поиск без учёта регистра.
+    """
+    needles: set[str] = set()
+    last = (profile.get("last_name") or "").strip()
+    first = (profile.get("first_name") or "").strip()
+    patronymic = (profile.get("patronymic") or "").strip()
+    if last and first:
+        needles.add(f"{last} {first}")
+        initial = first[0]
+        if patronymic:
+            needles.add(f"{last} {initial}.{patronymic[0]}.")
+            needles.add(f"{last} {first} {patronymic}")
+        needles.add(f"{last} {initial}.")
+    if user.get("name"):
+        needles.add(str(user["name"]).strip())
+    return sorted(n for n in needles if len(n) >= 5)
 
 
 @lru_cache(maxsize=1)

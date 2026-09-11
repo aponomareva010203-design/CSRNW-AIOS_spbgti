@@ -35,6 +35,7 @@ from ..runtime.llm_settings import (
 )
 from ..runtime.mailer import MailError, send_confirmation_email
 from ..runtime.tokens import TokenStore
+from ..runtime.usage import get_store as get_usage_store
 from ..runtime.users import (
     ROLES,
     ROLE_ADMIN,
@@ -227,6 +228,11 @@ def confirm(token: str = ""):
     return RedirectResponse(f"/index.html?confirmed={1 if ok else 0}", status_code=303)
 
 
+def _profile_filled(user_id: str) -> bool:
+    """Заполнен ли блок «Данные пользователя» (онбординг в «Кабинете»)."""
+    return bool(get_cabinet_store().get_profile(user_id).get("updated_at"))
+
+
 @router.post("/auth/login")
 def login(req: LoginRequest):
     store = get_user_store()
@@ -241,7 +247,13 @@ def login(req: LoginRequest):
     user["last_login"] = time.time()
     store.save(user)
     token = get_token_store().issue(user["id"])
-    return {"token": token, "user": store.public(user)}
+    # profile_filled — для сценария онбординга: не заполнено «Данные
+    # пользователя» — фронтенд ведёт нового пользователя в «Кабинет»
+    return {
+        "token": token,
+        "user": store.public(user),
+        "profile_filled": _profile_filled(user["id"]),
+    }
 
 
 @router.post("/auth/logout")
@@ -278,8 +290,29 @@ def change_password(
 
 @router.get("/admin/users")
 def admin_list_users(_: dict = Depends(require_admin)):
-    """Все регистрации (в порядке создания); без хешей паролей."""
-    return {"items": get_user_store().list_all()}
+    """Все регистрации (в порядке создания); без хешей паролей.
+
+    Для каждого пользователя дополнительно: скрытый контекст о пользователе,
+    сформированный платформой (CabinetStore, блок context.json — иначе в API
+    не отдаётся), и агрегаты потраченных токенов LLM (UsageStore). В ответ
+    также входит platform_totals — сводка расхода по всей платформе
+    (сумма по пользователям и расход фоновых агентов отдельно).
+    """
+    cabinet = get_cabinet_store()
+    usage = get_usage_store()
+    items = []
+    for u in get_user_store().list_all():
+        item = dict(u)
+        ctx = cabinet.get_context(u["id"]) or {}
+        item["hidden_context"] = str(ctx.get("context") or "")
+        item["context_generated_at"] = ctx.get("generated_at")
+        tokens = usage.get(u["id"])
+        item["tokens_prompt"] = tokens["prompt"]
+        item["tokens_completion"] = tokens["completion"]
+        item["tokens_requests"] = tokens["requests"]
+        items.append(item)
+    totals = usage.totals()
+    return {"items": items, "platform_totals": totals}
 
 
 @router.patch("/admin/users/{user_id}")
@@ -309,6 +342,8 @@ def admin_delete_user(user_id: str, admin: dict = Depends(require_admin)):
     get_confirmation_store().revoke_all_for_user(user_id)
     # блоки «Кабинета» (данные пользователя и скрытый контекст) удаляются вместе с учёткой
     get_cabinet_store().delete_user(user_id)
+    # вместе с ней — запись учёта токенов
+    get_usage_store().delete_user(user_id)
     return {"ok": True}
 
 

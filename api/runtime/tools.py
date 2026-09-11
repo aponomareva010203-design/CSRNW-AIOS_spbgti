@@ -20,8 +20,12 @@ from typing import Awaitable, Callable
 
 from ..catalog import CATALOG
 from . import datarepo
+from . import ontologies
 from . import organization
 from . import projects
+from . import indexer
+from . import rag
+from . import uploads
 
 MAX_READ_CHARS = 20_000
 MAX_WRITE_CHARS = 200_000
@@ -251,7 +255,7 @@ def _builtin_tools(root: Path) -> list:
             )
         return result
 
-    # ----- карточки проектов («Мои проекты») -----
+    # ----- карточки проектов («Проекты») -----
 
     def _projects_user(ctx: dict | None) -> str | None:
         """Владелец карточек — пользователь, привязанный к сессии по токену."""
@@ -260,7 +264,7 @@ def _builtin_tools(root: Path) -> list:
         return user_id or None
 
     async def get_projects(args: dict, ctx: dict | None) -> dict:
-        """Карточки проектов текущего пользователя («Мои проекты»)."""
+        """Карточки проектов текущего пользователя («Проекты»)."""
         user_id = _projects_user(ctx)
         if not user_id:
             return {
@@ -275,11 +279,18 @@ def _builtin_tools(root: Path) -> list:
             "count": len(cards),
             "items": cards,
             "note": "status: draft — черновик онбординга; active — подтверждён "
-            "пользователем и виден на странице «Мои проекты».",
+            "пользователем и виден на странице «Проекты».",
         }
 
     async def save_project_card(args: dict, ctx: dict | None) -> dict:
-        """Создаёт/обновляет карточку проекта (upsert по project_id)."""
+        """Создаёт/обновляет карточку проекта (upsert по project_id).
+
+        Подстраховка от потери project_id между шагами навыка (см. HANDOFF
+        §4.2 и предложение пользователя о множестве черновиков одного и того
+        же проекта): если модель не передала project_id в card, но текущая
+        сессия уже помнит id с предыдущего вызова — используем его, а не
+        создаём новую карточку. После сохранения id заново кладём в сессию.
+        """
         user_id = _projects_user(ctx)
         if not user_id:
             return {
@@ -290,8 +301,15 @@ def _builtin_tools(root: Path) -> list:
         card = args.get("card")
         if not isinstance(card, dict):
             card = {k: v for k, v in args.items() if k != "card"}
+        session = ctx.get("session") if isinstance(ctx, dict) else None
+        if isinstance(session, dict):
+            if not (card.get("project_id") or card.get("id")) and session.get("project_id"):
+                card = dict(card)
+                card["project_id"] = session["project_id"]
         store = projects.get_store()
         saved = store.save(user_id, card)
+        if isinstance(session, dict):
+            session["project_id"] = saved["id"]
         return {
             "ok": True,
             "project_id": saved["id"],
@@ -300,6 +318,253 @@ def _builtin_tools(root: Path) -> list:
             "note": "Карточка сохранена. При следующих вызовах передавайте этот "
             "project_id — карточка обновится, а не создастся заново. Статус "
             "active ставьте только после явного подтверждения пользователя.",
+        }
+
+    async def attach_project_file(args: dict, ctx: dict | None) -> dict:
+        """Прикрепляет вложение чата к карточке проекта (файлы задела/презентации).
+
+        Вложение (загружено пользователем кнопкой 📎 в чате) перемещается
+        в files/ карточки, имя дописывается в groundwork_files или
+        presentation_files. Карточка должна уже существовать (save_project_card).
+        """
+        user_id = _projects_user(ctx)
+        if not user_id:
+            return {
+                "ok": False,
+                "error": "Карточки проектов доступны только авторизованным "
+                "пользователям. Попросите пользователя войти в AIOS.",
+            }
+        project_id = str(args.get("project_id") or "").strip()
+        attachment_id = str(args.get("attachment_id") or "").strip()
+        field = str(args.get("field") or "").strip()
+        if field not in ("groundwork_files", "presentation_files"):
+            return {
+                "ok": False,
+                "error": "field должен быть groundwork_files (файлы задела) "
+                "или presentation_files (файлы презентации)",
+            }
+        up_store = uploads.get_store()
+        meta = up_store.get(user_id, attachment_id)
+        if meta is None:
+            return {"ok": False, "error": f"Вложение не найдено: {attachment_id}"}
+        store = projects.get_store()
+        card = store.get(user_id, project_id)
+        if card is None:
+            return {"ok": False, "error": f"Карточка не найдена: {project_id}"}
+        path = up_store.content_path(user_id, meta)
+        if not path.is_file():
+            return {"ok": False, "error": f"Файл вложения отсутствует: {attachment_id}"}
+        try:
+            stored_name = store.save_file(
+                user_id, card["id"], meta["filename"], path.read_bytes()
+            )
+            current = list(card.get(field) or [])
+            if stored_name not in current:
+                current.append(stored_name)
+            saved = store.save(user_id, {"project_id": card["id"], field: current})
+        except (projects.ProjectError, uploads.UploadError) as exc:
+            return {"ok": False, "error": str(exc)}
+        up_store.delete(user_id, attachment_id)
+        return {
+            "ok": True,
+            "project_id": saved["id"],
+            "field": field,
+            "filename": stored_name,
+            "files": saved.get(field) or [],
+            "download_url": f"/api/projects/{saved['id']}/files/{stored_name}",
+            "note": "Файл прикреплён к карточке и доступен на странице «Проекты». "
+            "Сообщите пользователю, что файл загружен.",
+        }
+
+    # ----- онтологии (навык «Конструктор онтологий») -----
+
+    def _ontology_user(ctx: dict | None) -> str | None:
+        """Владелец онтологий — пользователь, привязанный к сессии по токену."""
+        session = ctx.get("session") if isinstance(ctx, dict) else None
+        user_id = session.get("user_id") if isinstance(session, dict) else None
+        return user_id or None
+
+    def _ontology_login_error() -> dict:
+        return {
+            "ok": False,
+            "error": "Онтологии доступны только авторизованным пользователям. "
+            "Попросите пользователя войти в AIOS.",
+        }
+
+    async def get_ontologies(args: dict, ctx: dict | None) -> dict:
+        """Онтологии текущего пользователя (включая черновики) или каталог."""
+        user_id = _ontology_user(ctx)
+        if not user_id:
+            return _ontology_login_error()
+        store = ontologies.get_store()
+        scope = str(args.get("scope") or "mine")
+        if scope == "catalog":
+            items = store.catalog_items()[:MAX_CATALOG_ITEMS]
+            return {
+                "ok": True,
+                "scope": "catalog",
+                "count": len(items),
+                "items": items,
+                "note": "Каталог опубликованных онтологий раздела «Данные и знания».",
+            }
+        ontology_id = str(args.get("ontology_id") or "").strip()
+        if ontology_id:
+            card = store.get(user_id, ontology_id)
+            if card is None:
+                return {"ok": False, "error": f"Онтология не найдена: {ontology_id}"}
+            view = store.public_card(card)
+            dumped = json.dumps(view, ensure_ascii=False)
+            result = {"ok": True, "scope": "one", "ontology": view}
+            if len(dumped) > 5_500:
+                result["truncated_hint"] = (
+                    "Онтология большая: цикл общения обрежет её в истории. "
+                    "Продолжайте правки по шагам, пересобирая граф из диалога."
+                )
+            return result
+        cards = store.list(user_id)[:MAX_CATALOG_ITEMS]
+        return {
+            "ok": True,
+            "scope": "mine",
+            "count": len(cards),
+            "items": [store.summary(c) for c in cards],
+            "note": "Ваши онтологии: draft — черновик конструктора, active — "
+            "опубликована в каталоге. Для полного графа укажите ontology_id; "
+            "новый диалог начинайте с продолжения черновика, а не с нуля.",
+        }
+
+    async def save_ontology(args: dict, ctx: dict | None) -> dict:
+        """Создаёт/обновляет онтологию (upsert по ontology_id)."""
+        user_id = _ontology_user(ctx)
+        if not user_id:
+            return _ontology_login_error()
+        card = args.get("card")
+        if not isinstance(card, dict):
+            return {"ok": False, "error": "Аргумент card ожидается объектом"}
+        saved = ontologies.get_store().save(user_id, card)
+        result = {
+            "ok": True,
+            "ontology_id": saved["id"],
+            "status": saved["status"],
+            "version": saved.get("version"),
+            "classes_count": saved.get("classes_count", 0),
+            "relations_count": saved.get("relations_count", 0),
+            "competency_questions_count": len(saved.get("competency_questions") or []),
+            "project_id": saved.get("project_id", ""),
+            "note": "При следующих вызовах передавайте этот ontology_id и карточку "
+            "целиком. Статус active — только после явного подтверждения "
+            "пользователем: он публикует онтологию в каталог «Данные и знания».",
+        }
+        if saved["status"] == ontologies.STATUS_ACTIVE:
+            result["published"] = True
+            result["file_url"] = f"/data/ontologies/objects/{saved['id']}.json"
+            result["viewer_url"] = f"/ontology.html?id={saved['id']}"
+        else:
+            result["published"] = False
+        return result
+
+    # ----- RAG-базы (навык «Конструктор RAG») -----
+
+    def _rag_user(ctx: dict | None) -> str | None:
+        """Владелец RAG-баз — пользователь, привязанный к сессии по токену."""
+        session = ctx.get("session") if isinstance(ctx, dict) else None
+        user_id = session.get("user_id") if isinstance(session, dict) else None
+        return user_id or None
+
+    def _rag_login_error() -> dict:
+        return {
+            "ok": False,
+            "error": "RAG-базы доступны только авторизованным пользователям. "
+            "Попросите пользователя войти в AIOS.",
+        }
+
+    async def get_rag(args: dict, ctx: dict | None) -> dict:
+        """RAG-базы текущего пользователя (включая черновики) или каталог."""
+        user_id = _rag_user(ctx)
+        if not user_id:
+            return _rag_login_error()
+        store = rag.get_store()
+        scope = str(args.get("scope") or "mine")
+        if scope == "catalog":
+            items = store.catalog_items()[:MAX_CATALOG_ITEMS]
+            return {
+                "ok": True,
+                "scope": "catalog",
+                "count": len(items),
+                "items": items,
+                "note": "Каталог опубликованных RAG-баз раздела «Данные и знания».",
+            }
+        rag_id = str(args.get("rag_id") or "").strip()
+        if rag_id:
+            card = store.get(user_id, rag_id)
+            if card is None:
+                return {"ok": False, "error": f"RAG-база не найдена: {rag_id}"}
+            return {"ok": True, "scope": "one", "rag": store.public_card(card)}
+        cards = store.list(user_id)[:MAX_CATALOG_ITEMS]
+        return {
+            "ok": True,
+            "scope": "mine",
+            "count": len(cards),
+            "items": [store.summary(c) for c in cards],
+            "note": "Ваши RAG-базы: draft — черновик конструктора, active — "
+            "опубликована в каталоге. Для полной карточки укажите rag_id; "
+            "новый диалог начинайте с продолжения черновика, а не с нуля.",
+        }
+
+    async def save_rag(args: dict, ctx: dict | None) -> dict:
+        """Создаёт/обновляет RAG-базу (upsert по rag_id)."""
+        user_id = _rag_user(ctx)
+        if not user_id:
+            return _rag_login_error()
+        card = args.get("card")
+        if not isinstance(card, dict):
+            return {"ok": False, "error": "Аргумент card ожидается объектом"}
+        saved = rag.get_store().save(user_id, card)
+        result = {
+            "ok": True,
+            "rag_id": saved["id"],
+            "status": saved["status"],
+            "version": saved.get("version"),
+            "documents_count": saved.get("documents_count", 0),
+            "chunks_count": saved.get("chunks_count", 0),
+            "project_id": saved.get("project_id", ""),
+            "ontology_id": saved.get("ontology_id", ""),
+            "note": "При следующих вызовах передавайте этот rag_id и карточку "
+            "целиком. Статус active — только после явного подтверждения "
+            "пользователем и при наличии хотя бы одного готового документа.",
+        }
+        if saved["status"] == rag.STATUS_ACTIVE:
+            result["published"] = True
+        else:
+            result["published"] = False
+        return result
+
+    async def search_corpus(args: dict, ctx: dict | None) -> dict:
+        """Поиск по содержимому опубликованной RAG-базы (векторный поиск + опциональный фильтр по классам онтологии)."""
+        rag_id = str(args.get("rag_id") or "").strip()
+        query = str(args.get("query") or "").strip()
+        if not rag_id:
+            return {"ok": False, "error": "Не указан rag_id"}
+        if not query:
+            return {"ok": False, "error": "Пустой запрос"}
+        try:
+            limit = max(1, min(int(args.get("limit", 5)), 20))
+        except (TypeError, ValueError):
+            limit = 5
+        class_ids = args.get("class_ids")
+        if class_ids is not None and not isinstance(class_ids, list):
+            class_ids = None
+        try:
+            hits = await indexer.search(rag_id, query, limit=limit, class_ids=class_ids)
+        except indexer.SearchError as exc:
+            return {"ok": False, "error": str(exc)}
+        return {
+            "ok": True,
+            "rag_id": rag_id,
+            "query": query,
+            "count": len(hits),
+            "results": hits,
+            "note": "Отвечайте только на основе этих результатов и указывайте "
+            "источник (filename/doc_id) — не придумывайте факты сверх найденного.",
         }
 
     def _extract_pdf_pages(path: Path, args: dict) -> dict:
@@ -515,7 +780,7 @@ def _builtin_tools(root: Path) -> list:
         ),
         Tool(
             name="get_projects",
-            description="Карточки проектов текущего пользователя со страницы «Мои проекты» (id, название, категория, стадия, бюджет, «Задел» и т.д.). Работает только для авторизованных пользователей.",
+            description="Карточки проектов текущего пользователя со страницы «Проекты» (id, название, категория, стадия, бюджет, «Задел» и т.д.). Работает только для авторизованных пользователей.",
             parameters={"type": "object", "properties": {}},
             handler=get_projects,
         ),
@@ -527,11 +792,129 @@ def _builtin_tools(root: Path) -> list:
                 "properties": {
                     "card": {
                         "type": "object",
-                        "description": "Карточка: {project_id?, title?, category?, description?, outcome?, stage?, stakeholders?, budget?, presentation?, materials?, status?}",
+                        "description": "Карточка: {project_id?, title?, description?, goal?, team_size?, participants?, departments?, budget?, groundwork?, groundwork_links?, groundwork_files?, presentation_files?, presentation?, artifacts?, status?}. artifacts — статусы и гипотезы артефактов пилота {rag?, models?, agents?, polygon?, social?}: значение — {status: 0..3, hypothesis?} или строка-гипотеза (тогда статус = 1 «гипотеза сформулирована»). Статусы: 0 не начато, 1 гипотеза сформулирована, 2 в процессе создания, 3 завершено.",
                     },
                 },
                 "required": ["card"],
             },
             handler=save_project_card,
+        ),
+        Tool(
+            name="attach_project_file",
+            description="Прикрепляет файл, загруженный пользователем в чат (кнопка 📎), "
+            "к карточке проекта: имя дописывается в groundwork_files (задел) или "
+            "presentation_files (презентация), файл становится доступен для скачивания "
+            "на странице «Проекты». Вызывайте после загрузки файла пользователем; "
+            "attachment_id берите из сообщения пользователя (файл: att-…), не выдумывайте. "
+            "Карточка должна быть уже создана (save_project_card).",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "project_id": {"type": "string", "description": "id карточки (prj-…)"},
+                    "attachment_id": {"type": "string", "description": "id вложения чата (att-…) из сообщения пользователя"},
+                    "field": {"type": "string", "enum": ["groundwork_files", "presentation_files"], "description": "Куда приложить файл"},
+                },
+                "required": ["project_id", "attachment_id", "field"],
+            },
+            handler=attach_project_file,
+        ),
+        Tool(
+            name="get_ontologies",
+            description="Онтологии текущего пользователя (scope=mine — включая черновики навыка «Конструктор онтологий»; для полного графа передайте ontology_id) или каталог опубликованных онтологий (scope=catalog). Вызывайте в начале диалога: не начинайте новую онтологию, если есть незавершённый черновик.",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "scope": {
+                        "type": "string",
+                        "enum": ["mine", "catalog"],
+                        "default": "mine",
+                        "description": "Свои онтологии или каталог «Данные и знания»",
+                    },
+                    "ontology_id": {
+                        "type": "string",
+                        "description": "id онтологии (onto-…) для полного графа; работает со scope=mine",
+                    },
+                },
+            },
+            handler=get_ontologies,
+        ),
+        Tool(
+            name="save_ontology",
+            description="Создаёт или обновляет онтологию (upsert по ontology_id; карточка передаётся целиком: name, domain, description, author?, project_id?, competency_questions, classes, relations, rag_hints?, tags?, status?). ontology_id берите из результата первого вызова. Первое сохранение всегда draft; status=active публикует онтологию в каталог «Данные и знания» — только после явного подтверждения пользователя.",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "card": {
+                        "type": "object",
+                        "description": "Онтология: {ontology_id?, name?, domain?, description?, author?, project_id?, competency_questions: [{id, question, coverage?}], classes: [{id, name, description?, parent?, attributes?, synonyms?, keywords?}], relations: [{id, name, domain_class, range_class, cardinality?, description?}], rag_hints?, tags?, status?}",
+                    },
+                },
+                "required": ["card"],
+            },
+            handler=save_ontology,
+        ),
+        Tool(
+            name="get_rag",
+            description="RAG-базы текущего пользователя (scope=mine, включая черновики навыка «Конструктор RAG»; для полной карточки передайте rag_id) или каталог опубликованных баз (scope=catalog). Вызывайте в начале диалога: не начинайте новую базу, если есть незавершённый черновик.",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "scope": {
+                        "type": "string",
+                        "enum": ["mine", "catalog"],
+                        "default": "mine",
+                        "description": "Свои RAG-базы или каталог «Данные и знания»",
+                    },
+                    "rag_id": {
+                        "type": "string",
+                        "description": "id RAG-базы (rag-…) для полной карточки; работает со scope=mine",
+                    },
+                },
+            },
+            handler=get_rag,
+        ),
+        Tool(
+            name="save_rag",
+            description="Создаёт или обновляет RAG-базу (upsert по rag_id; карточка передаётся целиком: name, domain, description, author?, project_id?, ontology_id?, tags?, corpus_types?, corpus_volume?, corpus_format?, access_restrictions?, sensitive?, typical_queries?, citation_required?, owner?, update_frequency?, status?). rag_id берите из результата первого вызова. Первое сохранение всегда draft; status=active публикует базу в каталог «Данные и знания» — только после явного подтверждения пользователя и при наличии хотя бы одного проиндексированного документа.",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "card": {
+                        "type": "object",
+                        "description": "RAG-база: {rag_id?, name?, domain?, description?, author?, project_id?, ontology_id?, tags?, corpus_types?, corpus_volume?, corpus_format?, access_restrictions?, sensitive?, typical_queries?, citation_required?, owner?, update_frequency?, status?}",
+                    },
+                },
+                "required": ["card"],
+            },
+            handler=save_rag,
+        ),
+        Tool(
+            name="search_corpus",
+            description="Ищет ответы по содержимому опубликованной RAG-базы (векторный поиск, с опциональным сужением по классам онтологии). Используйте, когда пользователь подключил RAG-базу в рабочем чате или явно попросил найти информацию в конкретной базе. Отвечайте только на основе найденных результатов, всегда указывайте источник (filename/doc_id) — не придумывайте факты сверх найденного.",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "rag_id": {
+                        "type": "string",
+                        "description": "id RAG-базы (rag-…), по которой ищем",
+                    },
+                    "query": {
+                        "type": "string",
+                        "description": "поисковый запрос на естественном языке",
+                    },
+                    "limit": {
+                        "type": "integer",
+                        "default": 5,
+                        "description": "сколько фрагментов вернуть (1-20)",
+                    },
+                    "class_ids": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "опционально: сузить поиск классами онтологии",
+                    },
+                },
+                "required": ["rag_id", "query"],
+            },
+            handler=search_corpus,
         ),
     ]

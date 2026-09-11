@@ -19,7 +19,9 @@ from pathlib import Path
 
 from .. import datarepo
 
-SKILL_BODY_LIMIT = 20_000
+# Самый большой скилл («Формулировка гипотез», ~53 000 символов) должен
+# попадать в промпт целиком — усечение посреди диалоговых шагов ломает навык.
+SKILL_BODY_LIMIT = 55_000
 
 _PROMPTS_DIR = Path(__file__).resolve().parent
 
