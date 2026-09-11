@@ -1,0 +1,11 @@
+{
+ "id": "98b842663947",
+ "login": "saintreinhard@yandex.ru",
+ "name": "",
+ "role": "Пользователь",
+ "salt": "6c0d9c13af7dbd18fde38b3ff8efff9c",
+ "password_hash": "2f470e2a07b685e10e832939da6ae97fdb3accea50e213b3bfcae771e2b37844",
+ "created_at": 1789049088.5068297,
+ "last_login": 1789049304.330814,
+ "confirmed": true
+}

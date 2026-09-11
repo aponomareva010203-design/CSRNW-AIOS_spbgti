@@ -1,0 +1,19 @@
+{
+ "perms": {
+  "f9419547ea68": {
+   "projects": true,
+   "ontologies": true,
+   "rag": true
+  },
+  "5ee6969a70b6": {
+   "projects": true,
+   "ontologies": true,
+   "rag": true
+  },
+  "c54f31609203": {
+   "projects": true,
+   "ontologies": true,
+   "rag": true
+  }
+ }
+}

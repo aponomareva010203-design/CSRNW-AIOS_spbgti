@@ -1,0 +1,21 @@
+{
+ "id": "20e9b30cbddb",
+ "title": "Ответь ровно одним словом: принято",
+ "created_at": 1788943832.0077093,
+ "updated_at": 1788943835.0131428,
+ "model": "moonshotai/kimi-k3",
+ "agent_id": null,
+ "skill_ids": [],
+ "messages": [
+  {
+   "role": "user",
+   "content": "Ответь ровно одним словом: принято",
+   "ts": 1788943832.008532
+  },
+  {
+   "role": "assistant",
+   "content": "принято",
+   "ts": 1788943835.0131392
+  }
+ ]
+}

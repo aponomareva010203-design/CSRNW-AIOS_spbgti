@@ -1,0 +1,11 @@
+{
+ "id": "c54f31609203",
+ "login": "m.belyakov@csr-nw.ru",
+ "name": "",
+ "role": "Пользователь",
+ "salt": "6dff705e364eccd3d132219eef06f93c",
+ "password_hash": "34b70b49c6c84c7827a12f5b1f7fd961c1be75c798c7ad8879e13177986c2aa1",
+ "created_at": 1788963817.158441,
+ "last_login": 1788963834.2438877,
+ "confirmed": true
+}

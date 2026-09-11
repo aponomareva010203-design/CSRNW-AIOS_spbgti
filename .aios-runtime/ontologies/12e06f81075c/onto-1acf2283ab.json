@@ -1,0 +1,711 @@
+{
+  "id": "onto-1acf2283ab",
+  "user_id": "12e06f81075c",
+  "created_at": 1789028519.3551545,
+  "status": "active",
+  "version": 13,
+  "classes": [
+    {
+      "attributes": [
+        {
+          "id": "attr-vf",
+          "name": "Объёмная доля волокна",
+          "type": "float",
+          "unit": "%"
+        },
+        {
+          "id": "attr-density",
+          "name": "Плотность",
+          "type": "float",
+          "unit": "г/см³"
+        }
+      ],
+      "description": "Базальтопластиковый композит заданного состава: эпоксидная матрица, армированная базальтовым волокном, с итоговыми механическими свойствами. Центральный класс онтологии.",
+      "id": "cls-composite",
+      "keywords": [
+        "базальтопластик",
+        "ПКМ",
+        "BFRP"
+      ],
+      "name": "Композит",
+      "synonyms": [
+        "базальтопластик",
+        "композит на основе базальтового волокна",
+        "BFRP (basalt fiber reinforced polymer)"
+      ]
+    },
+    {
+      "attributes": [
+        {
+          "description": "Соотношение смола:отвердитель:добавки в рецептуре",
+          "id": "attr-mix-ratio",
+          "name": "Соотношение компонентов",
+          "type": "string",
+          "unit": "пбв"
+        },
+        {
+          "description": "Вязкость связующего при 25 °C",
+          "id": "attr-viscosity",
+          "name": "Вязкость при 25 °C",
+          "type": "float",
+          "unit": "мПа·с"
+        },
+        {
+          "description": "Жизнеспособность связующего при рабочей температуре",
+          "id": "attr-pot-life",
+          "name": "Жизнеспособность",
+          "type": "float",
+          "unit": "ч"
+        }
+      ],
+      "description": "Рецептура эпоксидного связующего: смола, отвердитель, добавки и их массовые доли.",
+      "id": "cls-binder-formulation",
+      "keywords": [
+        "рецептура",
+        "матрица",
+        "binder",
+        "epoxy matrix"
+      ],
+      "name": "Состав связующего",
+      "parent": null,
+      "synonyms": [
+        "рецептура связующего",
+        "состав матрицы",
+        "связующее",
+        "binder",
+        "epoxy matrix"
+      ]
+    },
+    {
+      "attributes": [],
+      "description": "Ингредиент рецептуры связующего (смола, отвердитель, добавка). Родительский класс.",
+      "id": "cls-binder-component",
+      "name": "Компонент связующего",
+      "parent": null,
+      "synonyms": [
+        "ингредиент связующего"
+      ]
+    },
+    {
+      "attributes": [
+        {
+          "id": "attr-epoxy-number",
+          "name": "Эпоксидное число",
+          "type": "float",
+          "unit": "%"
+        },
+        {
+          "id": "attr-resin-type",
+          "name": "Тип смолы",
+          "type": "enum"
+        }
+      ],
+      "description": "Ди- или полифункциональная эпоксидная смола — основа полимерной матрицы.",
+      "id": "cls-epoxy-resin",
+      "keywords": [
+        "ДГЭБА",
+        "эпоксидно-диановая смола",
+        "epoxy resin"
+      ],
+      "name": "Эпоксидная смола",
+      "parent": "cls-binder-component",
+      "synonyms": [
+        "смола",
+        "эпоксидная основа"
+      ]
+    },
+    {
+      "attributes": [
+        {
+          "description": "Химический тип отвердителя: аминный, ангидридный, дициандиамид и др.",
+          "id": "attr-hardener-type",
+          "name": "Тип отвердителя",
+          "type": "enum"
+        },
+        {
+          "description": "Температура начала экзотермической реакции отверждения",
+          "id": "attr-cure-onset",
+          "name": "Температура начала отверждения",
+          "type": "float",
+          "unit": "°C"
+        }
+      ],
+      "description": "Отвердитель эпоксидной смолы (аминный, ангидридный и др.); определяет кинетику и режим отверждения.",
+      "id": "cls-hardener",
+      "keywords": [
+        "аминный отвердитель",
+        "ангидридный отвердитель",
+        "hardener",
+        "curing agent"
+      ],
+      "name": "Отвердитель",
+      "parent": "cls-binder-component",
+      "synonyms": [
+        "отверждающий агент"
+      ]
+    },
+    {
+      "attributes": [],
+      "description": "Функциональная добавка к связующему: каучуковый модификатор, пластификатор, нанонаполнитель; повышает ударную вязкость и технологичность.",
+      "id": "cls-additive",
+      "keywords": [
+        "нанонаполнитель",
+        "пластификатор",
+        "творог",
+        "additive",
+        "toughener"
+      ],
+      "name": "Добавка/модификатор",
+      "parent": "cls-binder-component",
+      "synonyms": [
+        "модификатор",
+        "функциональная добавка"
+      ]
+    },
+    {
+      "attributes": [
+        {
+          "description": "Средний диаметр моноволокна",
+          "id": "attr-fiber-diameter",
+          "name": "Диаметр моноволокна",
+          "type": "float",
+          "unit": "мкм"
+        },
+        {
+          "description": "Линейная плотность ровинга/жгута",
+          "id": "attr-linear-density",
+          "name": "Линейная плотность",
+          "type": "float",
+          "unit": "текс"
+        },
+        {
+          "description": "Тип пропитки (замасливателя) на поверхности волокна",
+          "id": "attr-sizing-type",
+          "name": "Тип пропитки (замасливателя)",
+          "type": "string"
+        },
+        {
+          "description": "Форма армирования: ровинг, ткань, жгут, мат",
+          "id": "attr-textile-structure",
+          "name": "Текстильная структура",
+          "type": "enum"
+        }
+      ],
+      "description": "Базальтовые волокна, ровинги и ткани — армирующий наполнитель композита.",
+      "id": "cls-basalt-reinforcement",
+      "keywords": [
+        "базальтовое волокно",
+        "ровинг",
+        "базальтовая ткань",
+        "basalt fiber",
+        "basalt roving"
+      ],
+      "name": "Базальтовое армирование",
+      "parent": null,
+      "synonyms": [
+        "базальтовое волокно",
+        "армирующий наполнитель",
+        "базальт",
+        "basalt fiber",
+        "basalt roving"
+      ]
+    },
+    {
+      "attributes": [
+        {
+          "description": "Температура отверждения (диапазон)",
+          "id": "attr-cure-temp",
+          "name": "Температура",
+          "type": "range",
+          "unit": "°C"
+        },
+        {
+          "description": "Время выдержки на основной ступени",
+          "id": "attr-cure-time",
+          "name": "Время выдержки",
+          "type": "float",
+          "unit": "ч"
+        },
+        {
+          "description": "Давление при отверждении",
+          "id": "attr-cure-pressure",
+          "name": "Давление",
+          "type": "float",
+          "unit": "МПа"
+        },
+        {
+          "description": "Число ступеней режима отверждения",
+          "id": "attr-steps",
+          "name": "Число ступеней",
+          "type": "int"
+        }
+      ],
+      "description": "Режим отверждения композита: температура, время выдержки, давление, число ступеней.",
+      "id": "cls-curing-regime",
+      "keywords": [
+        "температура отверждения",
+        "цикл отверждения",
+        "curing cycle",
+        "cure schedule"
+      ],
+      "name": "Режим отверждения",
+      "parent": null,
+      "synonyms": [
+        "температурно-временной режим",
+        "цикл отверждения",
+        "curing cycle",
+        "cure schedule"
+      ]
+    },
+    {
+      "attributes": [
+        {
+          "description": "Показатель: прочность на разрыв, ударная вязкость, модуль упругости, межслойный сдвиг и др.",
+          "id": "attr-prop-name",
+          "name": "Наименование показателя",
+          "type": "enum"
+        },
+        {
+          "description": "Численное значение показателя",
+          "id": "attr-prop-value",
+          "name": "Значение",
+          "type": "float"
+        },
+        {
+          "description": "Единицы измерения: МПа, кДж/м², ГПа",
+          "id": "attr-prop-unit",
+          "name": "Единицы",
+          "type": "string"
+        }
+      ],
+      "description": "Измеряемое механическое свойство композита: прочность на разрыв, ударная вязкость, модуль упругости и др.",
+      "id": "cls-mechanical-property",
+      "keywords": [
+        "прочность на разрыв",
+        "ударная вязкость",
+        "модуль упругости",
+        "tensile strength",
+        "impact toughness",
+        "elastic modulus"
+      ],
+      "name": "Механическое свойство",
+      "parent": null,
+      "synonyms": [
+        "механическая характеристика",
+        "mechanical property"
+      ]
+    },
+    {
+      "attributes": [
+        {
+          "description": "Прочность при межслойном сдвиге (interfacial shear strength)",
+          "id": "attr-ifss",
+          "name": "IFSS — прочность при межслойном сдвиге",
+          "type": "float",
+          "unit": "МПа"
+        }
+      ],
+      "description": "Сцепление на границе волокно–матрица; определяет эффективность армирования и зависит от пропитки и компонентов связующего.",
+      "id": "cls-interfacial-adhesion",
+      "keywords": [
+        "адгезия",
+        "IFSS",
+        "interfacial adhesion",
+        "fiber-matrix bonding"
+      ],
+      "name": "Межфазное сцепление",
+      "parent": null,
+      "synonyms": [
+        "адгезия волокна к матрице",
+        "межфазная адгезия",
+        "interfacial adhesion",
+        "fiber-matrix bonding"
+      ]
+    },
+    {
+      "attributes": [],
+      "description": "Технология изготовления изделия из композита: RTM, вакуумная инфузия, прессование, намотка и др.",
+      "id": "cls-forming-technology",
+      "keywords": [
+        "RTM",
+        "инфузия",
+        "прессование",
+        "намотка",
+        "resin transfer molding",
+        "vacuum infusion"
+      ],
+      "name": "Технология формования",
+      "parent": null,
+      "synonyms": [
+        "технология переработки",
+        "метод формования"
+      ]
+    },
+    {
+      "attributes": [],
+      "description": "Конкретная деталь/конструкция из композита с заданной геометрией и требованиями.",
+      "id": "cls-product",
+      "name": "Изделие",
+      "parent": null,
+      "synonyms": [
+        "деталь",
+        "конструкция"
+      ]
+    },
+    {
+      "attributes": [
+        {
+          "description": "Тип конструкционного элемента: шасси, кузовная панель, силовой элемент, обшивка",
+          "id": "attr-element-type",
+          "name": "Тип конструкционного элемента",
+          "type": "enum"
+        }
+      ],
+      "description": "Конструкционное применение композита: элемент шасси, кузовная панель, силовой элемент и т.п.",
+      "id": "cls-application",
+      "name": "Применение",
+      "parent": null,
+      "synonyms": [
+        "конструкционное применение"
+      ]
+    },
+    {
+      "attributes": [],
+      "description": "Целевые требования к свойствам композита для заданного применения (минимальные/максимальные значения).",
+      "id": "cls-property-requirements",
+      "name": "Требования к свойствам",
+      "synonyms": [
+        "целевые показатели"
+      ]
+    },
+    {
+      "attributes": [
+        {
+          "description": "Удельная стоимость материала-аналога",
+          "id": "attr-cost",
+          "name": "Стоимость",
+          "type": "float",
+          "unit": "у.е./кг"
+        }
+      ],
+      "description": "Композит-аналог для сравнения по свойствам и стоимости: стеклопластик, углепластик.",
+      "id": "cls-reference-composite",
+      "keywords": [
+        "стеклопластик",
+        "углепластик",
+        "GFRP",
+        "CFRP"
+      ],
+      "name": "Композит-аналог",
+      "parent": null,
+      "synonyms": [
+        "аналог",
+        "референсный композит"
+      ]
+    },
+    {
+      "attributes": [],
+      "description": "Источник данных об экземплярах классов: статья, патент, протокол испытаний. Мост к будущей RAG-базе.",
+      "id": "cls-data-source",
+      "name": "Источник данных",
+      "parent": null,
+      "synonyms": [
+        "источник",
+        "документ"
+      ]
+    },
+    {
+      "attributes": [
+        {
+          "description": "Обозначение стандарта: ГОСТ 32656-2014, ASTM D3039 и др.",
+          "id": "attr-standard-code",
+          "name": "Обозначение стандарта",
+          "type": "string"
+        },
+        {
+          "description": "Вид нагружения: растяжение, удар, изгиб, сдвиг",
+          "id": "attr-loading-type",
+          "name": "Вид нагружения",
+          "type": "enum"
+        }
+      ],
+      "description": "Стандартизированный метод испытания механических свойств (ГОСТ, ASTM, ISO): растяжение, удар, межслойный сдвиг и др.",
+      "id": "cls-test-method",
+      "keywords": [
+        "ГОСТ",
+        "ASTM",
+        "ISO",
+        "test method"
+      ],
+      "name": "Метод испытания",
+      "parent": null,
+      "synonyms": [
+        "методика испытания",
+        "стандарт испытаний"
+      ]
+    }
+  ],
+  "relations": [
+    {
+      "cardinality": "N:1",
+      "description": "Композит изготовлен по рецептуре связующего.",
+      "domain_class": "cls-composite",
+      "id": "rel-has-formulation",
+      "name": "имеет состав",
+      "range_class": "cls-binder-formulation"
+    },
+    {
+      "cardinality": "N:1",
+      "description": "Композит армирован базальтовым волокном/тканью/ровингом.",
+      "domain_class": "cls-composite",
+      "id": "rel-reinforced-with",
+      "name": "армирован",
+      "range_class": "cls-basalt-reinforcement"
+    },
+    {
+      "cardinality": "1:N",
+      "description": "Рецептура связующего состоит из компонентов: смолы, отвердителя, добавок.",
+      "domain_class": "cls-binder-formulation",
+      "id": "rel-includes",
+      "name": "включает",
+      "range_class": "cls-binder-component"
+    },
+    {
+      "cardinality": "N:1",
+      "description": "Композит отверждён по заданному температурно-временному режиму.",
+      "domain_class": "cls-composite",
+      "id": "rel-cured-by",
+      "name": "отверждён по",
+      "range_class": "cls-curing-regime"
+    },
+    {
+      "cardinality": "1:N",
+      "description": "Режим отверждения (T, t, P) влияет на механические свойства композита (cq-3, cq-4).",
+      "domain_class": "cls-curing-regime",
+      "id": "rel-regime-affects",
+      "name": "влияет на",
+      "range_class": "cls-mechanical-property"
+    },
+    {
+      "cardinality": "1:N",
+      "description": "Композит обладает набором измеренных механических свойств.",
+      "domain_class": "cls-composite",
+      "id": "rel-has-property",
+      "name": "имеет свойство",
+      "range_class": "cls-mechanical-property"
+    },
+    {
+      "cardinality": "N:1",
+      "description": "Механическое свойство измеряется по стандартизированному методу (ГОСТ/ASTM/ISO).",
+      "domain_class": "cls-mechanical-property",
+      "id": "rel-measured-by",
+      "name": "измеряется по",
+      "range_class": "cls-test-method"
+    },
+    {
+      "cardinality": "1:N",
+      "description": "Характеристики волокна (диаметр, пропитка) влияют на межфазное сцепление (cq-2, cq-5).",
+      "domain_class": "cls-basalt-reinforcement",
+      "id": "rel-fiber-affects-adhesion",
+      "name": "влияет на",
+      "range_class": "cls-interfacial-adhesion"
+    },
+    {
+      "cardinality": "1:N",
+      "description": "Компоненты связующего (смола, отвердитель) влияют на адгезию к волокну (cq-5).",
+      "domain_class": "cls-binder-component",
+      "id": "rel-component-affects-adhesion",
+      "name": "влияет на",
+      "range_class": "cls-interfacial-adhesion"
+    },
+    {
+      "cardinality": "N:1",
+      "description": "Композит изготовлен по технологии формования (RTM, инфузия и др.) (cq-6).",
+      "domain_class": "cls-composite",
+      "id": "rel-manufactured-by",
+      "name": "изготовлен по",
+      "range_class": "cls-forming-technology"
+    },
+    {
+      "cardinality": "1:N",
+      "description": "Технология формования применена для изготовления конкретного изделия.",
+      "domain_class": "cls-forming-technology",
+      "id": "rel-applied-to",
+      "name": "применена к",
+      "range_class": "cls-product"
+    },
+    {
+      "cardinality": "N:N",
+      "description": "Композит с данными свойствами подходит для конструкционных применений (cq-9).",
+      "domain_class": "cls-composite",
+      "id": "rel-suitable-for",
+      "name": "подходит для",
+      "range_class": "cls-application"
+    },
+    {
+      "cardinality": "1:N",
+      "description": "Применение задаёт наборы требований к свойствам (для разных изделий могут различаться).",
+      "domain_class": "cls-application",
+      "id": "rel-defines-requirements",
+      "name": "задаёт",
+      "range_class": "cls-property-requirements"
+    },
+    {
+      "cardinality": "N:N",
+      "description": "Требования нормируют конкретные механические показатели.",
+      "domain_class": "cls-property-requirements",
+      "id": "rel-requires-property",
+      "name": "ссылаются на",
+      "range_class": "cls-mechanical-property"
+    },
+    {
+      "cardinality": "N:N",
+      "description": "Композит сравнивается с аналогами (стекло-/углепластик) по свойствам и стоимости (cq-8).",
+      "domain_class": "cls-composite",
+      "id": "rel-compared-with",
+      "name": "сравнивается с",
+      "range_class": "cls-reference-composite"
+    },
+    {
+      "cardinality": "N:N",
+      "description": "Экземпляры композита описаны в статьях, патентах, протоколах испытаний (мост к RAG-базе).",
+      "domain_class": "cls-composite",
+      "id": "rel-described-in",
+      "name": "описан в",
+      "range_class": "cls-data-source"
+    },
+    {
+      "cardinality": "N:N",
+      "description": "Добавки и модификаторы повышают ударную вязкость и другие свойства (cq-7).",
+      "domain_class": "cls-additive",
+      "id": "rel-improves",
+      "name": "улучшает",
+      "range_class": "cls-mechanical-property"
+    },
+    {
+      "cardinality": "N:1",
+      "description": "Конкретное изделие используется как конструкционный элемент данного применения (мост деталь → назначение).",
+      "domain_class": "cls-product",
+      "id": "rel-used-as",
+      "name": "используется как",
+      "range_class": "cls-application"
+    },
+    {
+      "id": "rel",
+      "name": "Поиск данных",
+      "domain_class": "cls-test-method",
+      "range_class": "cls-data-source"
+    }
+  ],
+  "competency_questions": [
+    {
+      "coverage": [
+        "cls-binder-formulation →rel-includes→ cls-binder-component (cls-epoxy-resin / cls-hardener / cls-additive)"
+      ],
+      "id": "cq-1",
+      "question": "Из каких компонентов состоит эпоксидное связующее данного состава?"
+    },
+    {
+      "coverage": [
+        "cls-composite →rel-reinforced-with→ cls-basalt-reinforcement (attr: диаметр, пропитка, текстильная структура)",
+        "cls-basalt-reinforcement →rel-fiber-affects-adhesion→ cls-interfacial-adhesion",
+        "cls-composite →rel-has-property→ cls-mechanical-property"
+      ],
+      "id": "cq-2",
+      "question": "Какие характеристики базальтового волокна (диаметр, тип пропитки, вид текстильной структуры) влияют на свойства композита?"
+    },
+    {
+      "coverage": [
+        "cls-curing-regime (attr: температура, время, давление) →rel-regime-affects→ cls-mechanical-property"
+      ],
+      "id": "cq-3",
+      "question": "Как режим отверждения (температура, время, давление) влияет на прочность на разрыв и ударную вязкость?"
+    },
+    {
+      "coverage": [
+        "cls-composite →rel-has-formulation→ cls-binder-formulation →rel-includes→ cls-binder-component",
+        "cls-composite →rel-cured-by→ cls-curing-regime →rel-regime-affects→ cls-mechanical-property (значение ≥ 420 МПа)"
+      ],
+      "id": "cq-4",
+      "question": "При каких составах связующего и режимах отверждения достигается прочность на разрыв ≥ 420 МПа?"
+    },
+    {
+      "coverage": [
+        "cls-basalt-reinforcement →rel-fiber-affects-adhesion→ cls-interfacial-adhesion",
+        "cls-binder-component →rel-component-affects-adhesion→ cls-interfacial-adhesion"
+      ],
+      "id": "cq-5",
+      "question": "От чего зависит межслойное сцепление волокна с матрицей?"
+    },
+    {
+      "coverage": [
+        "cls-composite →rel-manufactured-by→ cls-forming-technology →rel-applied-to→ cls-product"
+      ],
+      "id": "cq-6",
+      "question": "Какую технологию формования выбрать для заданного состава и геометрии изделия?"
+    },
+    {
+      "coverage": [
+        "cls-additive →rel-improves→ cls-mechanical-property (ударная вязкость)"
+      ],
+      "id": "cq-7",
+      "question": "Какие добавки и модификаторы повышают ударную вязкость без потери прочности?"
+    },
+    {
+      "coverage": [
+        "cls-composite →rel-compared-with→ cls-reference-composite (attr: стоимость)",
+        "cls-composite →rel-has-property→ cls-mechanical-property"
+      ],
+      "id": "cq-8",
+      "question": "Как базальтопластик данного состава соотносится по свойствам и стоимости со стекло- и углепластиками?"
+    },
+    {
+      "coverage": [
+        "cls-composite →rel-suitable-for→ cls-application (attr: тип конструкционного элемента) →rel-defines-requirements→ cls-property-requirements →rel-requires-property→ cls-mechanical-property",
+        "cls-product →rel-used-as→ cls-application"
+      ],
+      "id": "cq-9",
+      "question": "Для каких конструкционных применений (элемент шасси, кузовная панель и т.п.) подходит данный состав базальтопластика по заданным требованиям к свойствам?"
+    }
+  ],
+  "rag_hints": {
+    "extraction_targets": [
+      "cls-binder-formulation",
+      "cls-epoxy-resin",
+      "cls-hardener",
+      "cls-additive",
+      "cls-basalt-reinforcement",
+      "cls-curing-regime",
+      "cls-mechanical-property",
+      "cls-test-method",
+      "cls-composite",
+      "cls-reference-composite",
+      "cls-application",
+      "cls-data-source"
+    ],
+    "retrieval_paths": [
+      "cls-composite →rel-has-formulation→ cls-binder-formulation →rel-includes→ cls-binder-component",
+      "cls-composite →rel-cured-by→ cls-curing-regime →rel-regime-affects→ cls-mechanical-property",
+      "cls-basalt-reinforcement →rel-fiber-affects-adhesion→ cls-interfacial-adhesion",
+      "cls-composite →rel-suitable-for→ cls-application →rel-defines-requirements→ cls-property-requirements",
+      "cls-composite →rel-compared-with→ cls-reference-composite"
+    ],
+    "sources": []
+  },
+  "name": "Онтология базальтопластиковых композитов",
+  "domain": "Базальтопластики: эпоксидные композиты для облегчённых конструкций",
+  "description": "Онтология предметной области базальтопластиковых композитов: составы эпоксидного связующего, базальтовое армирование, режимы отверждения, технологии переработки и механические свойства композита для прогнозного моделирования.",
+  "author": "Аксенов Даниил Дмитриевич",
+  "project_id": "prj-a85bf2c3cb",
+  "tags": [
+    "базальтопластики",
+    "эпоксидные композиты",
+    "армирование",
+    "режимы отверждения",
+    "механические свойства"
+  ],
+  "classes_count": 17,
+  "relations_count": 19,
+  "updated_at": 1789043140.4392483,
+  "status_changed_at": 1789030113.6147907
+}

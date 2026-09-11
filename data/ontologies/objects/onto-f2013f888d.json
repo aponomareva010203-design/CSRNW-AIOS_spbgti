@@ -1,0 +1,623 @@
+{
+  "id": "onto-f2013f888d",
+  "created_at": 1789120156.7563555,
+  "status": "active",
+  "version": 8,
+  "classes": [
+    {
+      "attributes": [],
+      "description": "Самостоятельное структурное подразделение СПбГТИ(ТУ), объединяющее исследования, разработку технологий, пилотирование и инженерную подготовку внедрения.",
+      "id": "cls-center",
+      "keywords": [
+        "ЦИР",
+        "центр инженерных разработок",
+        "инженерный центр"
+      ],
+      "name": "Центр",
+      "parent": null,
+      "synonyms": [
+        "ЦИР",
+        "инженерный центр"
+      ]
+    },
+    {
+      "attributes": [
+        {
+          "description": "Название отдела",
+          "id": "attr-dept-name",
+          "name": "Название",
+          "type": "string"
+        },
+        {
+          "description": "Руководитель отдела",
+          "id": "attr-dept-head",
+          "name": "Руководитель",
+          "type": "string"
+        },
+        {
+          "description": "Фокус деятельности",
+          "id": "attr-dept-focus",
+          "name": "Фокус",
+          "type": "string"
+        }
+      ],
+      "description": "Структурное подразделение Центра, отвечающее за определённое направление работ.",
+      "id": "cls-department",
+      "keywords": [
+        "отдел",
+        "подразделение",
+        "лаборатория",
+        "группа"
+      ],
+      "name": "Отдел",
+      "parent": "cls-center",
+      "synonyms": [
+        "подразделение",
+        "лаборатория",
+        "группа"
+      ]
+    },
+    {
+      "attributes": [],
+      "description": "Одно из трёх взаимосвязанных направлений деятельности Центра: биомономеры, биополимеры, глубокая переработка биосырья.",
+      "id": "cls-direction",
+      "keywords": [
+        "направление",
+        "деятельность",
+        "вектор"
+      ],
+      "name": "Направление деятельности",
+      "parent": null,
+      "synonyms": [
+        "направление работ",
+        "вектор развития"
+      ]
+    },
+    {
+      "attributes": [
+        {
+          "description": "Уровень готовности по шкале TRL (1–9)",
+          "id": "attr-tech-trl",
+          "name": "Уровень TRL",
+          "type": "int"
+        },
+        {
+          "description": "Стадия зрелости",
+          "id": "attr-tech-maturity",
+          "name": "Стадия зрелости",
+          "type": "enum"
+        }
+      ],
+      "description": "Разрабатываемый или внедряемый технологический процесс в области биополимеров и биосырья.",
+      "id": "cls-technology",
+      "keywords": [
+        "технология",
+        "процесс",
+        "метод",
+        "способ получения"
+      ],
+      "name": "Технология",
+      "parent": null,
+      "synonyms": [
+        "технологический процесс",
+        "метод",
+        "способ получения"
+      ]
+    },
+    {
+      "attributes": [],
+      "description": "Отдельная стадия или операция внутри технологии.",
+      "id": "cls-process",
+      "keywords": [
+        "стадия",
+        "операция",
+        "процесс"
+      ],
+      "name": "Процесс",
+      "parent": "cls-technology",
+      "synonyms": [
+        "стадия",
+        "операция"
+      ]
+    },
+    {
+      "attributes": [
+        {
+          "description": "Состав сырья",
+          "id": "attr-feedstock-composition",
+          "name": "Состав",
+          "type": "string"
+        },
+        {
+          "description": "Происхождение сырья",
+          "id": "attr-feedstock-origin",
+          "name": "Происхождение",
+          "type": "string"
+        }
+      ],
+      "description": "Биологическое сырьё и отходы, перерабатываемые для получения целевых продуктов.",
+      "id": "cls-feedstock",
+      "keywords": [
+        "сырьё",
+        "биосырьё",
+        "отходы",
+        "биоресурсы",
+        "растительное сырьё"
+      ],
+      "name": "Сырьё",
+      "parent": null,
+      "synonyms": [
+        "биоресурсы",
+        "растительное сырьё",
+        "биосырьё",
+        "отходы"
+      ]
+    },
+    {
+      "attributes": [],
+      "description": "Продукт первичной переработки биосырья, мономер для синтеза биополимеров.",
+      "id": "cls-biomonomer",
+      "keywords": [
+        "биомономер",
+        "мономер"
+      ],
+      "name": "Биомономер",
+      "parent": null,
+      "synonyms": [
+        "мономер",
+        "биосинтетический мономер"
+      ]
+    },
+    {
+      "attributes": [],
+      "description": "Конечный полимерный продукт на биологической основе.",
+      "id": "cls-biopolymer",
+      "keywords": [
+        "биополимер",
+        "полимер",
+        "биопластик",
+        "биосовместимый полимер"
+      ],
+      "name": "Биополимер",
+      "parent": null,
+      "synonyms": [
+        "биопластик",
+        "биосовместимый полимер",
+        "полимер на биологической основе"
+      ]
+    },
+    {
+      "attributes": [],
+      "description": "Продукция с высокой добавленной стоимостью, получаемая в результате переработки биосырья.",
+      "id": "cls-product",
+      "keywords": [
+        "продукт",
+        "продукция"
+      ],
+      "name": "Продукт",
+      "parent": null,
+      "synonyms": [
+        "продукция",
+        "целевой продукт"
+      ]
+    },
+    {
+      "attributes": [
+        {
+          "description": "Масштаб апробации",
+          "id": "attr-pilot-scale",
+          "name": "Масштаб",
+          "type": "string"
+        },
+        {
+          "description": "Длительность, месяцы",
+          "id": "attr-pilot-duration",
+          "name": "Длительность",
+          "type": "int"
+        }
+      ],
+      "description": "Этап масштабирования технологии от лабораторного к промышленному уровню.",
+      "id": "cls-pilot",
+      "keywords": [
+        "пилот",
+        "апробация",
+        "масштабирование",
+        "пилотирование",
+        "пилотная проверка"
+      ],
+      "name": "Пилотная апробация",
+      "parent": null,
+      "synonyms": [
+        "пилотирование",
+        "пилотная проверка",
+        "масштабирование"
+      ]
+    },
+    {
+      "attributes": [],
+      "description": "Аппараты и установки для проведения пилотных и лабораторных работ.",
+      "id": "cls-equipment",
+      "keywords": [
+        "оборудование",
+        "аппарат",
+        "установка"
+      ],
+      "name": "Оборудование",
+      "parent": null,
+      "synonyms": [
+        "аппаратура",
+        "установки"
+      ]
+    },
+    {
+      "attributes": [
+        {
+          "description": "Температура, °C",
+          "id": "attr-regime-temp",
+          "name": "Температура",
+          "type": "float",
+          "unit": "°C"
+        },
+        {
+          "description": "Давление, МПа",
+          "id": "attr-regime-pressure",
+          "name": "Давление",
+          "type": "float",
+          "unit": "МПа"
+        }
+      ],
+      "description": "Параметры проведения процесса: температура, давление, скорость и др.",
+      "id": "cls-regime",
+      "keywords": [
+        "режим",
+        "параметры",
+        "условия"
+      ],
+      "name": "Режим",
+      "parent": null,
+      "synonyms": [
+        "условия проведения",
+        "технологические параметры"
+      ]
+    },
+    {
+      "attributes": [],
+      "description": "Результат работы Центра: комплект документации, опытная партия продукции.",
+      "id": "cls-eng-product",
+      "keywords": [
+        "инженерный продукт",
+        "результат",
+        "выход"
+      ],
+      "name": "Инженерный продукт",
+      "parent": null,
+      "synonyms": [
+        "результат работ",
+        "выход центра"
+      ]
+    },
+    {
+      "attributes": [
+        {
+          "description": "Тип документа (регламент / ТЭО / РКД / исходные данные)",
+          "id": "attr-doc-type",
+          "name": "Тип документа",
+          "type": "enum"
+        },
+        {
+          "description": "Статус документа",
+          "id": "attr-doc-status",
+          "name": "Статус",
+          "type": "enum"
+        }
+      ],
+      "description": "Технологический регламент, ТЭО, рабочая конструкторская документация и др.",
+      "id": "cls-document",
+      "keywords": [
+        "документ",
+        "регламент",
+        "ТЭО",
+        "КД",
+        "НИОКР-документация",
+        "комплект документов"
+      ],
+      "name": "Документ",
+      "parent": "cls-eng-product",
+      "synonyms": [
+        "техническая документация",
+        "комплект документов",
+        "НИОКР-документация"
+      ]
+    },
+    {
+      "attributes": [],
+      "description": "Уровень готовности технологии к промышленному внедрению по шкале TRL.",
+      "id": "cls-trl",
+      "keywords": [
+        "TRL",
+        "готовность",
+        "зрелость",
+        "уровень готовности",
+        "зрелость технологии"
+      ],
+      "name": "Стадия зрелости (TRL)",
+      "parent": null,
+      "synonyms": [
+        "уровень готовности",
+        "TRL",
+        "зрелость технологии"
+      ]
+    },
+    {
+      "attributes": [
+        {
+          "description": "Значение показателя",
+          "id": "attr-kpi-value",
+          "name": "Значение",
+          "type": "float"
+        },
+        {
+          "description": "Единица измерения",
+          "id": "attr-kpi-unit",
+          "name": "Единица измерения",
+          "type": "string"
+        },
+        {
+          "description": "Срок достижения",
+          "id": "attr-kpi-deadline",
+          "name": "Срок",
+          "type": "datetime"
+        }
+      ],
+      "description": "Ключевой показатель эффективности Центра: объём продукции, количество комплектов документации.",
+      "id": "cls-kpi",
+      "keywords": [
+        "показатель",
+        "KPI",
+        "метрика"
+      ],
+      "name": "Показатель",
+      "parent": null,
+      "synonyms": [
+        "KPI",
+        "ключевой показатель"
+      ]
+    }
+  ],
+  "relations": [
+    {
+      "cardinality": "1..N",
+      "description": "Центр включает в себя отделы",
+      "domain_class": "cls-center",
+      "id": "rel-consists-of",
+      "name": "состоит из",
+      "range_class": "cls-department"
+    },
+    {
+      "cardinality": "1..N",
+      "description": "Отдел выпускает инженерные продукты",
+      "domain_class": "cls-department",
+      "id": "rel-produces",
+      "name": "выпускает",
+      "range_class": "cls-eng-product"
+    },
+    {
+      "cardinality": "1..N",
+      "description": "Отдел работает по направлению деятельности",
+      "domain_class": "cls-department",
+      "id": "rel-works-on",
+      "name": "работает по направлению",
+      "range_class": "cls-direction"
+    },
+    {
+      "cardinality": "1..N",
+      "description": "Направление деятельности включает технологии",
+      "domain_class": "cls-direction",
+      "id": "rel-includes",
+      "name": "включает",
+      "range_class": "cls-technology"
+    },
+    {
+      "cardinality": "1..N",
+      "description": "Технология состоит из процессов",
+      "domain_class": "cls-technology",
+      "id": "rel-consists-of-process",
+      "name": "состоит из",
+      "range_class": "cls-process"
+    },
+    {
+      "cardinality": "1..N",
+      "description": "Технология перерабатывает сырьё",
+      "domain_class": "cls-technology",
+      "id": "rel-processes",
+      "name": "перерабатывает",
+      "range_class": "cls-feedstock"
+    },
+    {
+      "cardinality": "1..N",
+      "description": "Технология производит биомономеры",
+      "domain_class": "cls-technology",
+      "id": "rel-produces-biomonomer",
+      "name": "производит",
+      "range_class": "cls-biomonomer"
+    },
+    {
+      "cardinality": "1..N",
+      "description": "Технология производит биополимеры",
+      "domain_class": "cls-technology",
+      "id": "rel-produces-biopolymer",
+      "name": "производит",
+      "range_class": "cls-biopolymer"
+    },
+    {
+      "cardinality": "1..N",
+      "description": "Технология производит продукты",
+      "domain_class": "cls-technology",
+      "id": "rel-produces-product",
+      "name": "производит",
+      "range_class": "cls-product"
+    },
+    {
+      "cardinality": "1..1",
+      "description": "Технология проходит пилотную апробацию",
+      "domain_class": "cls-technology",
+      "id": "rel-undergoes-pilot",
+      "name": "проходит",
+      "range_class": "cls-pilot"
+    },
+    {
+      "cardinality": "1..N",
+      "description": "Пилотная апробация проводится на оборудовании",
+      "domain_class": "cls-pilot",
+      "id": "rel-conducted-on",
+      "name": "проводится на",
+      "range_class": "cls-equipment"
+    },
+    {
+      "cardinality": "1..N",
+      "description": "Пилотная апробация проводится при режиме",
+      "domain_class": "cls-pilot",
+      "id": "rel-conducted-at",
+      "name": "проводится при",
+      "range_class": "cls-regime"
+    },
+    {
+      "cardinality": "1..1",
+      "description": "Технология имеет стадию зрелости",
+      "domain_class": "cls-technology",
+      "id": "rel-has-trl",
+      "name": "имеет",
+      "range_class": "cls-trl"
+    },
+    {
+      "cardinality": "1..N",
+      "description": "Центр имеет показатели",
+      "domain_class": "cls-center",
+      "id": "rel-has-kpi",
+      "name": "имеет",
+      "range_class": "cls-kpi"
+    },
+    {
+      "cardinality": "1..N",
+      "description": "Инженерный продукт включает документы",
+      "domain_class": "cls-eng-product",
+      "id": "rel-includes-doc",
+      "name": "включает",
+      "range_class": "cls-document"
+    },
+    {
+      "cardinality": "1..N",
+      "description": "Биомономер используется для синтеза биополимеров",
+      "domain_class": "cls-biomonomer",
+      "id": "rel-used-for",
+      "name": "используется для синтеза",
+      "range_class": "cls-biopolymer"
+    }
+  ],
+  "competency_questions": [
+    {
+      "coverage": [
+        "cls-center →rel-consists-of→ cls-department"
+      ],
+      "id": "cq-1",
+      "question": "Из каких подразделений и отделов состоит Центр?"
+    },
+    {
+      "coverage": [
+        "cls-department →rel-produces→ cls-eng-product",
+        "cls-eng-product →rel-includes-doc→ cls-document"
+      ],
+      "id": "cq-2",
+      "question": "Какие инженерные продукты и документы выпускает каждый отдел (технологические регламенты, ТЭО, рабочая КД)?"
+    },
+    {
+      "coverage": [
+        "cls-direction →rel-includes→ cls-technology",
+        "cls-technology →rel-consists-of-process→ cls-process"
+      ],
+      "id": "cq-3",
+      "question": "Какие технологии и процессы относятся к каждому из трёх направлений деятельности Центра?"
+    },
+    {
+      "coverage": [
+        "cls-technology →rel-undergoes-pilot→ cls-pilot",
+        "cls-pilot →rel-conducted-on→ cls-equipment",
+        "cls-pilot →rel-conducted-at→ cls-regime"
+      ],
+      "id": "cq-4",
+      "question": "При каких условиях и на каком оборудовании проводится пилотная апробация технологии?"
+    },
+    {
+      "coverage": [
+        "cls-technology →rel-has-trl→ cls-trl"
+      ],
+      "id": "cq-5",
+      "question": "От чего зависит готовность технологии к промышленному внедрению (стадии зрелости, TRL)?"
+    },
+    {
+      "coverage": [
+        "cls-technology →rel-processes→ cls-feedstock",
+        "cls-technology →rel-produces-biomonomer→ cls-biomonomer",
+        "cls-technology →rel-produces-biopolymer→ cls-biopolymer"
+      ],
+      "id": "cq-6",
+      "question": "Какое сырьё и биоресурсы перерабатываются для получения биомономеров и биополимеров?"
+    },
+    {
+      "coverage": [
+        "cls-center →rel-has-kpi→ cls-kpi"
+      ],
+      "id": "cq-7",
+      "question": "Какие ключевые показатели (объём продукции, комплекты документации) должны быть достигнуты к 2031 году?"
+    }
+  ],
+  "rag_hints": {
+    "extraction_targets": [
+      "cls-center",
+      "cls-department",
+      "cls-direction",
+      "cls-technology",
+      "cls-feedstock",
+      "cls-biomonomer",
+      "cls-biopolymer",
+      "cls-product",
+      "cls-pilot",
+      "cls-equipment",
+      "cls-document",
+      "cls-trl",
+      "cls-kpi"
+    ],
+    "retrieval_paths": [
+      "cls-center →rel-consists-of→ cls-department",
+      "cls-department →rel-produces→ cls-eng-product",
+      "cls-eng-product →rel-includes-doc→ cls-document",
+      "cls-direction →rel-includes→ cls-technology",
+      "cls-technology →rel-consists-of-process→ cls-process",
+      "cls-technology →rel-processes→ cls-feedstock",
+      "cls-technology →rel-produces-biomonomer→ cls-biomonomer",
+      "cls-technology →rel-produces-biopolymer→ cls-biopolymer",
+      "cls-technology →rel-undergoes-pilot→ cls-pilot",
+      "cls-pilot →rel-conducted-on→ cls-equipment",
+      "cls-pilot →rel-conducted-at→ cls-regime",
+      "cls-technology →rel-has-trl→ cls-trl",
+      "cls-center →rel-has-kpi→ cls-kpi",
+      "cls-biomonomer →rel-used-for→ cls-biopolymer"
+    ],
+    "sources": []
+  },
+  "name": "Онтология Центра инженерных разработок технологий получения биополимеров",
+  "domain": "Создание Центра инженерных разработок технологий получения биополимеров и продуктов глубокой переработки биосырья",
+  "description": "Онтология предметной области Центра инженерных разработок технологий получения биополимеров, функциональных материалов и продуктов глубокой переработки биосырья.",
+  "author": "Семикин Кирилл Вадимович",
+  "project_id": "prj-da65ca080a",
+  "tags": [
+    "биополимеры",
+    "биотехнология",
+    "инжиниринг",
+    "глубокая переработка биосырья"
+  ],
+  "classes_count": 16,
+  "relations_count": 16,
+  "updated_at": 1789121191.9229965,
+  "status_changed_at": 1789121191.922893
+}

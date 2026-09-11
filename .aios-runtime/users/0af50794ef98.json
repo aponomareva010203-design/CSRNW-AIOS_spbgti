@@ -1,0 +1,11 @@
+{
+ "id": "0af50794ef98",
+ "login": "ism4gilovadarya@yandex.ru",
+ "name": "",
+ "role": "Пользователь",
+ "salt": "cc28efd58c6e6a68e91ffd9da96155d6",
+ "password_hash": "7778a4af27bfff3263a0e2c670d5077da3318c675110e5c5e75b25af9f0f3b05",
+ "created_at": 1789049161.8828442,
+ "last_login": 1789049179.0167322,
+ "confirmed": true
+}

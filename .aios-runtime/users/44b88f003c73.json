@@ -1,0 +1,11 @@
+{
+ "id": "44b88f003c73",
+ "login": "sasharyabinina2003@mail.ru",
+ "name": "",
+ "role": "Пользователь",
+ "salt": "808123c088a94cf62ab844a86be3a9a9",
+ "password_hash": "f92656016c04741a0498328a67b657df0cebb3d40915715f9079023a68e3c484",
+ "created_at": 1789050143.167544,
+ "last_login": 1789050250.405251,
+ "confirmed": true
+}

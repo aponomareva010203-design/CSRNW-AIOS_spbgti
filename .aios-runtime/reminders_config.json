@@ -1,0 +1,38 @@
+{
+ "display_mode": "sequential",
+ "steps": {
+  "onboarding": {
+   "label": "Пройдите онбординг проекта",
+   "enabled_global": true
+  },
+  "hypotheses": {
+   "label": "Сформулируйте гипотезы",
+   "enabled_global": true
+  },
+  "ontology": {
+   "label": "Постройте онтологию",
+   "enabled_global": true
+  },
+  "rag": {
+   "label": "Соберите RAG-базу",
+   "enabled_global": true
+  },
+  "models": {
+   "label": "Настройте модели",
+   "enabled_global": false
+  },
+  "agents": {
+   "label": "Соберите агентов",
+   "enabled_global": false
+  },
+  "polygon": {
+   "label": "Настройте виртуальный полигон",
+   "enabled_global": false
+  },
+  "social": {
+   "label": "Подключите агента в социальную сеть агентов",
+   "enabled_global": false
+  }
+ },
+ "updated_at": 1789132494.0169842
+}

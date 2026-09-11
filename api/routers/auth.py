@@ -36,6 +36,8 @@ from ..runtime.llm_settings import (
 from ..runtime.mailer import MailError, send_confirmation_email
 from ..runtime.tokens import TokenStore
 from ..runtime.usage import get_store as get_usage_store
+from ..runtime.projects import get_store as get_project_store
+from ..runtime import reminders
 from ..runtime.users import (
     ROLES,
     ROLE_ADMIN,
@@ -117,6 +119,22 @@ class LLMModelsRequest(BaseModel):
 
     base_url: str = Field(min_length=1, max_length=500)
     api_key: str = Field(default="", max_length=500)
+
+
+class ReminderConfigUpdate(BaseModel):
+    """Тело PUT /api/admin/reminders (частичное обновление)."""
+
+    steps: dict[str, dict] | None = None
+
+
+class ReminderOverrideUpdate(BaseModel):
+    """Тело PATCH /api/admin/reminders/self.
+
+    overrides — {step_id: "on" | "off" | null}; null убирает оверрайд шага
+    (возврат к обычному поведению — глобальный тумблер + статус выполнения).
+    """
+
+    overrides: dict[str, str | None] = Field(default_factory=dict)
 
 
 def _bearer(authorization: str | None) -> str | None:
@@ -463,3 +481,68 @@ async def admin_list_llm_models(req: LLMModelsRequest, _: dict = Depends(require
     if not ids:
         raise HTTPException(status_code=502, detail="Эндпоинт не вернул список моделей — введите имя вручную")
     return {"items": [{"id": i} for i in ids]}
+
+
+# ---------------------------------------------------------------------------
+# Напоминания по шагам пайплайна (api/runtime/reminders.py)
+# ---------------------------------------------------------------------------
+
+
+@router.get("/admin/reminders")
+def admin_get_reminders(_: dict = Depends(require_admin)):
+    """Текущая конфигурация напоминаний (глобальные тумблеры + режим показа)."""
+    return reminders.load_config()
+
+
+@router.put("/admin/reminders")
+def admin_set_reminders(req: ReminderConfigUpdate, _: dict = Depends(require_admin)):
+    """Обновить глобальные тумблеры шагов и/или режим показа (sequential/all)."""
+    try:
+        return reminders.update_config(steps=req.steps)
+    except reminders.ReminderError as exc:
+        raise HTTPException(status_code=422, detail=str(exc))
+
+
+@router.get("/admin/reminders/self")
+def admin_get_own_reminder_overrides(user: dict = Depends(require_admin)):
+    """Личные оверрайды напоминаний вызывающего администратора (для тестирования)."""
+    return {"reminder_overrides": user.get("reminder_overrides") or {}}
+
+
+@router.patch("/admin/reminders/self")
+def admin_set_own_reminder_overrides(
+    req: ReminderOverrideUpdate, user: dict = Depends(require_admin)
+):
+    """Личный оверрайд напоминаний вызывающего администратора (для тестирования).
+
+    Действует только на аккаунт самого вызывающего и не зависит от
+    enabled_global/реального прогресса. "on" — показать шаг всегда, "off" —
+    всегда скрыть, null — вернуть обычное поведение.
+    """
+    store = get_user_store()
+    current = store.get(user["id"])
+    if current is None:
+        raise HTTPException(status_code=404, detail="Пользователь не найден")
+    overrides = dict(current.get("reminder_overrides") or {})
+    for step_id, value in req.overrides.items():
+        if step_id not in reminders.STEP_IDS:
+            raise HTTPException(status_code=422, detail=f"Неизвестный шаг: {step_id}")
+        if value is None:
+            overrides.pop(step_id, None)
+        elif value in reminders.OVERRIDE_VALUES:
+            overrides[step_id] = value
+        else:
+            raise HTTPException(
+                status_code=422,
+                detail=f"Значение должно быть 'on', 'off' или null: {step_id}",
+            )
+    current["reminder_overrides"] = overrides
+    store.save(current)
+    return {"reminder_overrides": overrides}
+
+
+@router.get("/reminders")
+def list_reminders(user: dict = Depends(get_current_user)):
+    """Активные напоминания текущего пользователя (список [{id, label}])."""
+    project = reminders.latest_active_project(get_project_store(), user["id"])
+    return {"items": reminders.compute_reminders(user, project)}

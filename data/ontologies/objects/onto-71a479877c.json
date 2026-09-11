@@ -1,0 +1,657 @@
+{
+  "id": "onto-71a479877c",
+  "created_at": 1789053286.3093526,
+  "status": "active",
+  "version": 8,
+  "classes": [
+    {
+      "attributes": [
+        {
+          "description": "Роль катализатора в процессе: крекинг, гидрирование, алкилирование",
+          "id": "attr-function",
+          "name": "Функция",
+          "type": "string"
+        },
+        {
+          "description": "Тип катализатора в технологии",
+          "id": "attr-cat-type",
+          "name": "Тип",
+          "type": "enum"
+        }
+      ],
+      "description": "Катализатор любой стадии технологии переработки полимерных отходов.",
+      "id": "cls-catalyst",
+      "keywords": [
+        "катализатор",
+        "катализ",
+        "catalyst"
+      ],
+      "name": "Катализатор",
+      "parent": null,
+      "synonyms": [
+        "каталитическая система"
+      ]
+    },
+    {
+      "attributes": [
+        {
+          "description": "Позиция стадии в технологической цепочке (1–6)",
+          "id": "attr-order",
+          "name": "Порядковый номер",
+          "type": "int"
+        },
+        {
+          "description": "Температурный интервал проведения стадии",
+          "id": "attr-temp",
+          "name": "Температура",
+          "type": "range",
+          "unit": "°C"
+        },
+        {
+          "description": "Рабочее давление стадии",
+          "id": "attr-pressure",
+          "name": "Давление",
+          "type": "float",
+          "unit": "МПа"
+        },
+        {
+          "description": "Объёмная скорость подачи сырья",
+          "id": "attr-lhsv",
+          "name": "Объёмная скорость",
+          "type": "float",
+          "unit": "ч⁻¹"
+        }
+      ],
+      "description": "Стадия технологической цепочки переработки смесевых полимерных отходов с собственной задачей, аппаратурным оформлением и режимами.",
+      "id": "cls-stage",
+      "keywords": [
+        "стадия",
+        "процесс",
+        "операция",
+        "этап"
+      ],
+      "name": "Технологическая стадия",
+      "parent": null,
+      "synonyms": [
+        "стадия процесса",
+        "технологическая операция"
+      ]
+    },
+    {
+      "description": "Устройство или аппарат, в котором проводится технологическая стадия: расплавитель, каталитическая камера, ректификационная колонна и т.д.",
+      "id": "cls-apparatus",
+      "keywords": [
+        "реактор",
+        "колонна",
+        "камера",
+        "аппарат"
+      ],
+      "name": "Аппарат",
+      "parent": null,
+      "synonyms": [
+        "реактор",
+        "устройство",
+        "машина"
+      ]
+    },
+    {
+      "description": "Низкоактивный отработанный катализатор первичного термокаталитического крекинга; крекирует продукты термического распада до углеводородов с температурой кипения до 360 °C.",
+      "id": "cls-sacrificial-cat",
+      "keywords": [
+        "жертвенный катализатор",
+        "первичный крекинг",
+        "термокрекинг",
+        "spent catalyst",
+        "sacrificial catalyst"
+      ],
+      "name": "Жертвенный катализатор",
+      "parent": "cls-catalyst",
+      "synonyms": [
+        "отработанный катализатор",
+        "низкоактивный катализатор",
+        "sacrificial catalyst"
+      ]
+    },
+    {
+      "attributes": [
+        {
+          "description": "Селективность по олефинам C3–C5",
+          "id": "attr-sel-olefins",
+          "name": "Селективность по олефинам C3–C5",
+          "type": "float",
+          "unit": "%"
+        },
+        {
+          "description": "Чем модифицирован цеолит",
+          "id": "attr-modifier",
+          "name": "Модификатор",
+          "type": "string"
+        },
+        {
+          "description": "Температура регенерации катализатора",
+          "id": "attr-regen-temp",
+          "name": "Температура регенерации",
+          "type": "float",
+          "unit": "°C"
+        }
+      ],
+      "description": "Высокоактивный модифицированный цеолит вторичного каталитического крекинга под давлением; модифицирован для повышения селективности по олефинам C3–C5.",
+      "id": "cls-zeolite-cat",
+      "keywords": [
+        "цеолит",
+        "вторичный крекинг",
+        "олефины C3-C5",
+        "ZSM-5",
+        "FCC catalyst",
+        "селективность"
+      ],
+      "name": "Цеолитный катализатор",
+      "parent": "cls-catalyst",
+      "synonyms": [
+        "модифицированный цеолит",
+        "цеолитный катализатор крекинга",
+        "zeolite catalyst"
+      ]
+    },
+    {
+      "attributes": [
+        {
+          "description": "Тип кислотных центров катализатора (Brønsted/Lewis)",
+          "id": "attr-acidity",
+          "name": "Кислотность",
+          "type": "string"
+        },
+        {
+          "description": "Режим работы: полупериодический или непрерывный",
+          "id": "attr-work-mode",
+          "name": "Режим работы",
+          "type": "enum"
+        },
+        {
+          "description": "Период между регенерациями",
+          "id": "attr-regen-period",
+          "name": "Период между регенерациями",
+          "type": "float",
+          "unit": "час"
+        }
+      ],
+      "description": "Твёрдокислотный катализатор алкилирования для получения высокооктанового бензина из олефинсодержащей фракции; работает в полупериодическом режиме с регенерацией.",
+      "id": "cls-acid-cat",
+      "keywords": [
+        "алкилирование",
+        "твёрдая кислота",
+        "высокооктановый бензин",
+        "solid acid catalyst",
+        "полупериодический"
+      ],
+      "name": "Твёрдокислотный катализатор",
+      "parent": "cls-catalyst",
+      "synonyms": [
+        "катализатор алкилирования",
+        "solid acid catalyst"
+      ]
+    },
+    {
+      "description": "Катализатор селективной гидроочистки бензиновой фракции: насыщает диеновые углеводороды, ускоряющие дезактивацию последующих каталитических стадий.",
+      "id": "cls-hydro-cat",
+      "keywords": [
+        "гидроочистка",
+        "гидрирование",
+        "диены",
+        "hydrotreating catalyst",
+        "селективное гидрирование"
+      ],
+      "name": "Катализатор гидроочистки",
+      "parent": "cls-catalyst",
+      "synonyms": [
+        "катализатор гидрирования",
+        "катализатор селективной гидроочистки",
+        "hydrotreating catalyst"
+      ]
+    },
+    {
+      "description": "Любое вещество, циркулирующее в технологии: сырьё, промежуточные потоки, фракции, продукты, рециклы.",
+      "id": "cls-stream",
+      "keywords": [
+        "поток",
+        "сырьё",
+        "продукт",
+        "stream"
+      ],
+      "name": "Материальный поток",
+      "parent": null,
+      "synonyms": [
+        "поток",
+        "материальный балансовый поток"
+      ]
+    },
+    {
+      "attributes": [
+        {
+          "description": "Состав отходов: доли ПЭ, ПП, ПС и других полимеров",
+          "id": "attr-composition",
+          "name": "Состав",
+          "type": "string"
+        },
+        {
+          "description": "Производительность переработки сырья",
+          "id": "attr-capacity",
+          "name": "Производительность переработки",
+          "type": "float",
+          "unit": "кг/час"
+        }
+      ],
+      "description": "Смесевые полимерные отходы без раздельного сбора мусора; входное сырьё технологии.",
+      "id": "cls-polymer-waste",
+      "keywords": [
+        "пластиковые отходы",
+        "смесевые отходы",
+        "полимеры",
+        "ПЭ",
+        "ПП",
+        "ПС",
+        "ПВХ",
+        "полиолефины",
+        "mixed plastic waste",
+        "municipal waste"
+      ],
+      "name": "Полимерные отходы",
+      "parent": "cls-stream",
+      "synonyms": [
+        "смесевые полимерные отходы",
+        "отходы пластика",
+        "mixed plastic waste"
+      ]
+    },
+    {
+      "description": "Расслоённая расплавленная полимерная масса после двухзонного расплавления, пригодная для термокаталитического превращения.",
+      "id": "cls-melt",
+      "keywords": [
+        "расплав",
+        "расплавление",
+        "расслоение",
+        "melt"
+      ],
+      "name": "Полимерный расплав",
+      "parent": "cls-stream",
+      "synonyms": [
+        "лёгкий расплав",
+        "расплавленная масса"
+      ]
+    },
+    {
+      "description": "Термолизат смесевого пластика: продукт первичного термокаталитического крекинга, углеводороды с температурой кипения до 360 °C.",
+      "id": "cls-pyrolyzate",
+      "keywords": [
+        "пиролизат",
+        "термолизат",
+        "пиролиз",
+        "pyrolysis oil",
+        "жидкие продукты пиролиза"
+      ],
+      "name": "Пиролизат",
+      "parent": "cls-stream",
+      "synonyms": [
+        "термолизат",
+        "продукт термокрекинга",
+        "pyrolysis oil"
+      ]
+    },
+    {
+      "attributes": [
+        {
+          "description": "Пределы кипения фракции (например, НК–180 °C)",
+          "id": "attr-boiling-range",
+          "name": "Пределы кипения",
+          "type": "range",
+          "unit": "°C"
+        },
+        {
+          "description": "Содержание олефинов во фракции",
+          "id": "attr-olefin-content",
+          "name": "Содержание олефинов",
+          "type": "float",
+          "unit": "% масс."
+        },
+        {
+          "description": "Содержание диеновых углеводородов во фракции",
+          "id": "attr-diene-content",
+          "name": "Содержание диенов",
+          "type": "float",
+          "unit": "% масс."
+        }
+      ],
+      "description": "Фракция пиролизата или продукта крекинга с заданными пределами кипения: бензиновая фракция, фракция НК–180 °C, олефинсодержащая фракция, средний дистиллят.",
+      "id": "cls-fraction",
+      "keywords": [
+        "фракция",
+        "дистиллят",
+        "бензиновая фракция",
+        "НК-180",
+        "cut",
+        "light naphtha",
+        "олефинсодержащая фракция",
+        "средний дистиллят"
+      ],
+      "name": "Углеводородная фракция",
+      "parent": "cls-stream",
+      "synonyms": [
+        "фракция",
+        "углеводородный дистиллят",
+        "cut"
+      ]
+    },
+    {
+      "description": "Конечный товарный продукт технологии: высокооктановый бензин, синтетический керосин, олефины и изоалканы C4–C5.",
+      "id": "cls-target-product",
+      "keywords": [
+        "высокооктановый бензин",
+        "керосин",
+        "олефины",
+        "изоалканы",
+        "C4-C5",
+        "high-octane gasoline",
+        "synthetic kerosene"
+      ],
+      "name": "Целевой продукт",
+      "parent": "cls-stream",
+      "synonyms": [
+        "товарный продукт",
+        "конечный продукт"
+      ]
+    },
+    {
+      "description": "Набор параметров проведения технологической стадии: температура, давление, объёмная скорость подачи сырья.",
+      "id": "cls-regime",
+      "keywords": [
+        "режим",
+        "температура",
+        "давление",
+        "объёмная скорость",
+        "LHSV",
+        "параметры процесса"
+      ],
+      "name": "Режим процесса",
+      "parent": null,
+      "synonyms": [
+        "технологический режим",
+        "параметры процесса"
+      ]
+    },
+    {
+      "description": "Компонент сырья, ускоряющий дезактивацию катализаторов последующих стадий; типичный представитель — диеновые углеводороды.",
+      "id": "cls-deactivator",
+      "keywords": [
+        "диены",
+        "дезактивация",
+        "закоксовывание",
+        "deactivator",
+        "coking"
+      ],
+      "name": "Примесь-дезактиватор",
+      "parent": null,
+      "synonyms": [
+        "дезактиватор",
+        "коксообразующий компонент"
+      ]
+    },
+    {
+      "description": "Пилотная установка производительностью до 100 кг/час по сырью для отработки технологии к концу 2028 года.",
+      "id": "cls-pilot-plant",
+      "keywords": [
+        "пилот",
+        "пилотная установка",
+        "100 кг/час",
+        "pilot plant"
+      ],
+      "name": "Пилотная установка",
+      "parent": null,
+      "synonyms": [
+        "пилот",
+        "опытная установка",
+        "pilot plant"
+      ]
+    }
+  ],
+  "relations": [
+    {
+      "cardinality": "1..N",
+      "description": "Входное сырьё поступает на первую стадию технологической цепочки.",
+      "domain_class": "cls-polymer-waste",
+      "id": "rel-fed-to",
+      "name": "подаётся на",
+      "range_class": "cls-stage"
+    },
+    {
+      "cardinality": "1..N",
+      "description": "Каждая стадия производит выходной материальный поток.",
+      "domain_class": "cls-stage",
+      "id": "rel-produces",
+      "name": "выдаёт",
+      "range_class": "cls-stream"
+    },
+    {
+      "cardinality": "1..1",
+      "description": "Порядок следования стадий в технологической цепочке.",
+      "domain_class": "cls-stage",
+      "id": "rel-follows",
+      "name": "следует за",
+      "range_class": "cls-stage"
+    },
+    {
+      "cardinality": "1..1",
+      "description": "Аппаратурное оформление стадии.",
+      "domain_class": "cls-stage",
+      "id": "rel-conducted-in",
+      "name": "проводится в",
+      "range_class": "cls-apparatus"
+    },
+    {
+      "cardinality": "1..N",
+      "description": "Режимы проведения стадии: температура, давление, объёмная скорость.",
+      "domain_class": "cls-stage",
+      "id": "rel-conducted-at",
+      "name": "проводится при",
+      "range_class": "cls-regime"
+    },
+    {
+      "cardinality": "0..N",
+      "description": "Катализатор, применяемый на данной стадии.",
+      "domain_class": "cls-stage",
+      "id": "rel-uses",
+      "name": "использует",
+      "range_class": "cls-catalyst"
+    },
+    {
+      "cardinality": "1..1",
+      "description": "Расплавление и расслоение полимерных отходов в расплав.",
+      "domain_class": "cls-polymer-waste",
+      "id": "rel-melts-to",
+      "name": "превращается в",
+      "range_class": "cls-melt"
+    },
+    {
+      "cardinality": "1..1",
+      "description": "Термокаталитический крекинг расплава в пиролизат.",
+      "domain_class": "cls-melt",
+      "id": "rel-cracks-to",
+      "name": "превращается в",
+      "range_class": "cls-pyrolyzate"
+    },
+    {
+      "cardinality": "1..N",
+      "description": "Ректификация пиролизата на углеводородные фракции.",
+      "domain_class": "cls-pyrolyzate",
+      "id": "rel-separates-into",
+      "name": "разделяется на",
+      "range_class": "cls-fraction"
+    },
+    {
+      "cardinality": "1..N",
+      "description": "Гидроочистка фракции от диеновых углеводородов.",
+      "domain_class": "cls-fraction",
+      "id": "rel-cleaned-from",
+      "name": "очищается от",
+      "range_class": "cls-deactivator"
+    },
+    {
+      "cardinality": "1..N",
+      "description": "Превращение фракции в целевой продукт (алкилирование в высокооктановый бензин).",
+      "domain_class": "cls-fraction",
+      "id": "rel-converted-to",
+      "name": "превращается в",
+      "range_class": "cls-target-product"
+    },
+    {
+      "cardinality": "N..N",
+      "description": "Диеновые углеводороды закоксовывают катализаторы последующих стадий.",
+      "domain_class": "cls-deactivator",
+      "id": "rel-deactivates",
+      "name": "дезактивирует",
+      "range_class": "cls-catalyst"
+    },
+    {
+      "cardinality": "N..N",
+      "description": "Дезактивация катализатора происходит на данной стадии.",
+      "domain_class": "cls-catalyst",
+      "id": "rel-deactivated-at",
+      "name": "дезактивируется на",
+      "range_class": "cls-stage"
+    },
+    {
+      "cardinality": "N..N",
+      "description": "Режимы процесса определяют состав и выход продуктовых фракций.",
+      "domain_class": "cls-regime",
+      "id": "rel-affects",
+      "name": "влияет на",
+      "range_class": "cls-fraction"
+    },
+    {
+      "cardinality": "1..N",
+      "description": "Селективность цеолитного катализатора по целевым олефинам C3–C5.",
+      "domain_class": "cls-zeolite-cat",
+      "id": "rel-selective-to",
+      "name": "селективен по",
+      "range_class": "cls-target-product"
+    },
+    {
+      "cardinality": "1..1",
+      "description": "Отработка стадии на пилотной установке.",
+      "domain_class": "cls-stage",
+      "id": "rel-tested-on",
+      "name": "отрабатывается на",
+      "range_class": "cls-pilot-plant"
+    }
+  ],
+  "competency_questions": [
+    {
+      "coverage": [
+        "cls-stage →rel-follows→ cls-stage"
+      ],
+      "id": "cq-1",
+      "question": "Из каких стадий состоит технология переработки смесевых полимерных отходов?"
+    },
+    {
+      "coverage": [
+        "cls-stage →rel-uses→ cls-catalyst",
+        "cls-catalyst: attr-function"
+      ],
+      "id": "cq-2",
+      "question": "Какие катализаторы используются на каждой стадии и какова их функция?"
+    },
+    {
+      "coverage": [
+        "cls-stage →rel-conducted-at→ cls-regime"
+      ],
+      "id": "cq-3",
+      "question": "При каких режимах (температура, давление, объёмная скорость) проводится каждая стадия?"
+    },
+    {
+      "coverage": [
+        "cls-stage →rel-produces→ cls-stream",
+        "cls-pyrolyzate →rel-separates-into→ cls-fraction",
+        "cls-fraction →rel-converted-to→ cls-target-product"
+      ],
+      "id": "cq-4",
+      "question": "Какие продукты и промежуточные фракции получаются на выходе каждой стадии?"
+    },
+    {
+      "coverage": [
+        "cls-zeolite-cat →rel-selective-to→ cls-target-product",
+        "cls-regime →rel-affects→ cls-fraction"
+      ],
+      "id": "cq-5",
+      "question": "От чего зависит селективность вторичного крекинга по олефинам C3–C5?"
+    },
+    {
+      "coverage": [
+        "cls-stage →rel-uses→ cls-acid-cat",
+        "cls-fraction →rel-converted-to→ cls-target-product"
+      ],
+      "id": "cq-6",
+      "question": "Какой катализатор алкилирования выбрать для получения высокооктанового бензина?"
+    },
+    {
+      "coverage": [
+        "cls-polymer-waste: attr-composition →rel-melts-to→ cls-melt →rel-cracks-to→ cls-pyrolyzate →rel-separates-into→ cls-fraction: attr-boiling-range",
+        "cls-regime →rel-affects→ cls-fraction"
+      ],
+      "id": "cq-7",
+      "question": "Как варьирование фракционного состава сырья и параметров влияет на получение фракции НК–180 °C для пиролиза?"
+    },
+    {
+      "coverage": [
+        "cls-deactivator →rel-deactivates→ cls-catalyst",
+        "cls-catalyst →rel-deactivated-at→ cls-stage",
+        "cls-fraction →rel-cleaned-from→ cls-deactivator"
+      ],
+      "id": "cq-8",
+      "question": "Какие процессы ускоряют дезактивацию катализаторов и какие стадии её предотвращают?"
+    }
+  ],
+  "rag_hints": {
+    "extraction_targets": [
+      "cls-polymer-waste",
+      "cls-stage",
+      "cls-catalyst",
+      "cls-sacrificial-cat",
+      "cls-zeolite-cat",
+      "cls-acid-cat",
+      "cls-hydro-cat",
+      "cls-fraction",
+      "cls-target-product",
+      "cls-regime",
+      "cls-pilot-plant"
+    ],
+    "retrieval_paths": [
+      "cls-polymer-waste →rel-fed-to→ cls-stage",
+      "cls-stage →rel-uses→ cls-catalyst",
+      "cls-stage →rel-conducted-at→ cls-regime",
+      "cls-stage →rel-produces→ cls-stream",
+      "cls-pyrolyzate →rel-separates-into→ cls-fraction",
+      "cls-fraction →rel-cleaned-from→ cls-deactivator",
+      "cls-fraction →rel-converted-to→ cls-target-product",
+      "cls-deactivator →rel-deactivates→ cls-catalyst",
+      "cls-zeolite-cat →rel-selective-to→ cls-target-product",
+      "cls-regime →rel-affects→ cls-fraction"
+    ],
+    "sources": []
+  },
+  "name": "Онтология переработки смесевых полимерных отходов в высокооктановый бензин",
+  "domain": "Переработка смесевых полимерных отходов в высокооктановый бензин и синтетический керосин",
+  "description": "Онтология технологической цепочки переработки смесевых полимерных отходов: стадии процесса (расплавление, термокаталитический крекинг, ректификация, гидроочистка, вторичный крекинг на цеолитах, алкилирование), аппараты, катализаторы, режимы и продукты.",
+  "author": "Семикин Кирилл Вадимович",
+  "project_id": "prj-5022ee302a",
+  "tags": [
+    "переработка полимеров",
+    "пиролиз",
+    "каталитический крекинг",
+    "алкилирование",
+    "цеолиты",
+    "высокооктановый бензин"
+  ],
+  "classes_count": 16,
+  "relations_count": 16,
+  "updated_at": 1789054067.4391816,
+  "status_changed_at": 1789054067.4389997
+}

@@ -1,0 +1,15 @@
+{
+  "id": "onto-9895bd2225",
+  "user_id": "067fc1123ebb",
+  "created_at": 1789025491.1762614,
+  "status": "draft",
+  "version": 1,
+  "classes": [],
+  "relations": [],
+  "competency_questions": [],
+  "rag_hints": {},
+  "name": "Тестовая онтология",
+  "classes_count": 0,
+  "relations_count": 0,
+  "updated_at": 1789025491.1762753
+}

@@ -100,6 +100,38 @@
     </div>
   </section>
 
+  <!-- Раздел «Напоминания»: тумблеры шагов пайплайна + личный тестовый режим -->
+  <section class="admin-wrap admin-wrap--reminders" id="remWrap" hidden>
+    <div class="admin-toolbar">
+      <button class="admin-collapse-toggle" id="remToggle" type="button" aria-expanded="true" aria-controls="remBody">
+        <h2 class="admin-h2">Напоминания по шагам пайплайна</h2>
+      </button>
+      <p class="admin-count">Подсказки участникам, что доделать: онбординг → гипотезы → онтология → RAG</p>
+    </div>
+    <div class="admin-collapse-body" id="remBody">
+      <p class="admin-note">Включённый шаг виден всем участникам, пока они его не выполнят; сам участник выключить его не может. Личный тестовый режим ниже действует только на ваш аккаунт.</p>
+
+      <div class="admin-table-wrap">
+        <table class="admin-table rem-table">
+          <thead>
+            <tr>
+              <th>Шаг</th>
+              <th>Всем участникам</th>
+              <th>Только мне (тест)</th>
+            </tr>
+          </thead>
+          <tbody id="remRows"></tbody>
+        </table>
+      </div>
+
+      <p class="login-msg login-msg--note admin-msg" id="remStatus" hidden></p>
+      <p class="login-msg login-msg--error admin-msg" id="remMsg" hidden></p>
+      <div class="llm-actions">
+        <button class="btn-primary" id="btnRemSave" type="button">Сохранить</button>
+      </div>
+    </div>
+  </section>
+
   <!-- Элемент 2 плана: раздел «Об организации» — профиль, показатели и документы -->
   <section class="admin-wrap admin-wrap--org" id="orgWrap" hidden>
     <div class="admin-toolbar">

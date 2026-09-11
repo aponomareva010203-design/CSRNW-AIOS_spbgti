@@ -28,6 +28,11 @@
   var llmKeyHint = document.getElementById('llmKeyHint');
   var btnLoadModels = document.getElementById('btnLoadModels');
   var btnTestLLM = document.getElementById('btnTestLLM');
+  var remWrap = document.getElementById('remWrap');
+  var remRows = document.getElementById('remRows');
+  var remStatus = document.getElementById('remStatus');
+  var remMsg = document.getElementById('remMsg');
+  var btnRemSave = document.getElementById('btnRemSave');
 
   var AUTH_KEY = 'aios-auth-v1';
   var API = window.AIOS_API;
@@ -330,6 +335,105 @@
     });
   }
 
+  /* ---------- напоминания по шагам пайплайна ---------- */
+
+  var REM_STEP_ORDER = ['onboarding', 'hypotheses', 'ontology', 'rag', 'models', 'agents', 'polygon', 'social'];
+
+  function remShowMsg(text) {
+    if (!remMsg) return;
+    remMsg.textContent = text;
+    remMsg.hidden = false;
+  }
+
+  function remHideMsg() {
+    if (remMsg) remMsg.hidden = true;
+  }
+
+  function remShowStatus(text) {
+    if (!remStatus) return;
+    remStatus.textContent = text;
+    remStatus.hidden = !text;
+  }
+
+  function remRenderRows(cfg, overrides) {
+    if (!remRows) return;
+    var steps = (cfg && cfg.steps) || {};
+    overrides = overrides || {};
+    remRows.innerHTML = REM_STEP_ORDER.map(function (stepId) {
+      var step = steps[stepId] || {};
+      var checked = step.enabled_global ? ' checked' : '';
+      var ov = overrides[stepId] || '';
+      var optOn = ov === 'on' ? ' selected' : '';
+      var optOff = ov === 'off' ? ' selected' : '';
+      var optDefault = ov ? '' : ' selected';
+      return '<tr data-step="' + stepId + '">' +
+        '<td>' + esc(step.label || stepId) + '</td>' +
+        '<td><input type="checkbox" class="rem-global"' + checked + '></td>' +
+        '<td><select class="rem-self">' +
+          '<option value=""' + optDefault + '>обычно</option>' +
+          '<option value="on"' + optOn + '>вкл (тест)</option>' +
+          '<option value="off"' + optOff + '>выкл (тест)</option>' +
+        '</select></td>' +
+      '</tr>';
+    }).join('');
+  }
+
+  function remLoad() {
+    if (!API || !API.adminGetReminders) return;
+    var overridesCall = API.adminGetOwnReminderOverrides
+      ? API.adminGetOwnReminderOverrides(session.token)
+      : Promise.resolve({ reminder_overrides: {} });
+    Promise.all([API.adminGetReminders(session.token), overridesCall])
+      .then(function (results) {
+        var cfg = results[0];
+        var overrides = (results[1] && results[1].reminder_overrides) || {};
+        remRenderRows(cfg, overrides);
+      })
+      .catch(function (err) {
+        remShowMsg(err && err.message ? err.message : 'Не удалось загрузить напоминания');
+      });
+  }
+
+  if (btnRemSave) {
+    btnRemSave.addEventListener('click', function () {
+      if (!API || !API.adminSetReminders || !remRows) return;
+      remHideMsg();
+      var steps = {};
+      remRows.querySelectorAll('tr[data-step]').forEach(function (row) {
+        var stepId = row.getAttribute('data-step');
+        var checkbox = row.querySelector('.rem-global');
+        steps[stepId] = { enabled_global: !!(checkbox && checkbox.checked) };
+      });
+      btnRemSave.disabled = true;
+      API.adminSetReminders(session.token, { steps: steps })
+        .then(function () {
+          remShowStatus('✓ Настройки сохранены — применяются ко всем пользователям');
+          remLoad();
+        })
+        .catch(function (err) {
+          remShowStatus('');
+          remShowMsg(err && err.message ? err.message : 'Не удалось сохранить настройки');
+        })
+        .then(function () { btnRemSave.disabled = false; });
+    });
+  }
+
+  if (remRows) {
+    remRows.addEventListener('change', function (e) {
+      var select = e.target && e.target.closest ? e.target.closest('.rem-self') : null;
+      if (!select) return;
+      var row = select.closest('tr[data-step]');
+      var stepId = row && row.getAttribute('data-step');
+      if (!stepId || !API || !API.adminSetOwnReminderOverrides) return;
+      var patch = {};
+      patch[stepId] = select.value || null;
+      API.adminSetOwnReminderOverrides(session.token, patch)
+        .catch(function (err) {
+          remShowMsg(err && err.message ? err.message : 'Не удалось сохранить личную настройку');
+        });
+    });
+  }
+
   /* контроль доступа */
   if (!session) {
     deny('Доступ только для администраторов. Войдите на главной странице.');
@@ -341,12 +445,14 @@
   }
   if (wrap) wrap.hidden = false;
   if (llmWrap) llmWrap.hidden = false;
+  if (remWrap) remWrap.hidden = false;
   llmLoad();
+  remLoad();
   load();
 
   /* сворачиваемые разделы: кнопка-заголовок прячет/показывает тело
      («Настройки внешних API», «Об организации», «Основные документы») */
-  [['llmToggle', 'llmBody'], ['orgToggle', 'orgBody'], ['orgDocsToggle', 'orgDocsGroups']]
+  [['llmToggle', 'llmBody'], ['remToggle', 'remBody'], ['orgToggle', 'orgBody'], ['orgDocsToggle', 'orgDocsGroups']]
     .forEach(function (pair) {
       var toggle = document.getElementById(pair[0]);
       var target = document.getElementById(pair[1]);

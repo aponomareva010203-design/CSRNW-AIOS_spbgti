@@ -1,0 +1,21 @@
+{
+ "id": "1ba3f50e1c19",
+ "title": "скажи ок",
+ "created_at": 1788855069.5709965,
+ "updated_at": 1788855072.1849086,
+ "model": "z-ai/glm-5.3-flash",
+ "agent_id": null,
+ "skill_ids": [],
+ "messages": [
+  {
+   "role": "user",
+   "content": "скажи ок",
+   "ts": 1788855069.5716321
+  },
+  {
+   "role": "assistant",
+   "content": "Ок.",
+   "ts": 1788855072.1849058
+  }
+ ]
+}

@@ -1,0 +1,16 @@
+{
+ "id": "977b43f24a8c",
+ "title": "тест",
+ "created_at": 1788855035.7221644,
+ "updated_at": 1788855035.7253504,
+ "model": "z-ai/glm-5.3-flash",
+ "agent_id": null,
+ "skill_ids": [],
+ "messages": [
+  {
+   "role": "user",
+   "content": "тест",
+   "ts": 1788855035.725348
+  }
+ ]
+}

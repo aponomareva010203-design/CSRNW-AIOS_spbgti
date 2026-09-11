@@ -1,0 +1,43 @@
+{
+ "type": "university",
+ "title": "Показатели деятельности",
+ "items": [
+  {
+   "id": "rd_income",
+   "title": "Объем доходов от НИОКР",
+   "unit": "тыс. руб",
+   "type": "number",
+   "value": 130991.5
+  },
+  {
+   "id": "faculty_count",
+   "title": "Число профессорско-преподавательского состава",
+   "unit": "чел.",
+   "type": "integer",
+   "value": 397
+  },
+  {
+   "id": "researchers_count",
+   "title": "Число научных работников",
+   "unit": "чел.",
+   "type": "integer",
+   "value": 27
+  },
+  {
+   "id": "students_count",
+   "title": "Численность студентов",
+   "unit": "чел.",
+   "type": "integer",
+   "value": 9460
+  },
+  {
+   "id": "ege_avg",
+   "title": "Средний балл ЕГЭ",
+   "unit": "баллов",
+   "type": "number",
+   "value": 67.53
+  }
+ ],
+ "source": "Мониторинг ВО, 2025 г. по данным 2024 г.",
+ "updated_at": "08.09.2026"
+}

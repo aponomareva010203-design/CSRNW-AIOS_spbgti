@@ -1,0 +1,686 @@
+{
+  "id": "onto-5ca2cad0a4",
+  "created_at": 1789054851.190651,
+  "status": "active",
+  "version": 18,
+  "classes": [
+    {
+      "attributes": [
+        {
+          "description": "Обозначение материала",
+          "id": "attr-mat-name",
+          "name": "Название/тип",
+          "type": "string"
+        },
+        {
+          "description": "Краткое химическое описание",
+          "id": "attr-composition",
+          "name": "Состав (краткий)",
+          "type": "string"
+        }
+      ],
+      "description": "Базовый класс любого полимерного материала школы.",
+      "id": "cls-material",
+      "keywords": [
+        "полимер",
+        "материал"
+      ],
+      "name": "Материал",
+      "parent": null,
+      "synonyms": [
+        "material",
+        "polymer"
+      ]
+    },
+    {
+      "attributes": [
+        {
+          "description": "Тип связи в основе",
+          "id": "attr-si-bond",
+          "name": "Тип Si-связи",
+          "type": "enum"
+        },
+        {
+          "description": "Молекулярная масса",
+          "id": "attr-mw",
+          "name": "Молекулярная масса",
+          "type": "float",
+          "unit": "г/моль"
+        }
+      ],
+      "description": "Материал на основе Si–O/Si–C соединений: силоксаны, силаны, герметики, покрытия, смолы.",
+      "id": "cls-silicone",
+      "keywords": [
+        "silicone",
+        "siloxane",
+        "silane"
+      ],
+      "name": "Кремнийорганический материал",
+      "parent": "cls-material",
+      "synonyms": [
+        "силикон",
+        "кремнийорганика"
+      ]
+    },
+    {
+      "attributes": [
+        {
+          "description": "Доля дисперсной фазы",
+          "id": "attr-phase-content",
+          "name": "Содержание дисперсной фазы",
+          "type": "float",
+          "unit": "%"
+        }
+      ],
+      "description": "Материал в виде дисперсной системы: эмульсия, суспензия, паста, золь, латекс.",
+      "id": "cls-dispersion",
+      "keywords": [
+        "emulsion",
+        "latex",
+        "suspension",
+        "colloid"
+      ],
+      "name": "Дисперсионный материал",
+      "parent": "cls-material",
+      "synonyms": [
+        "дисперсия",
+        "коллоидная система"
+      ]
+    },
+    {
+      "attributes": [
+        {
+          "description": "Модуль упругости",
+          "id": "attr-modulus",
+          "name": "Модуль упругости",
+          "type": "float",
+          "unit": "ГПа"
+        },
+        {
+          "description": "Прочность",
+          "id": "attr-strength",
+          "name": "Прочность",
+          "type": "float",
+          "unit": "МПа"
+        },
+        {
+          "description": "Доля армирующего компонента",
+          "id": "attr-reinforce-content",
+          "name": "Содержание армирующего компонента",
+          "type": "float",
+          "unit": "%"
+        }
+      ],
+      "description": "Материал для несущих конструкций: композит, связующее, армированная система.",
+      "id": "cls-structural",
+      "keywords": [
+        "composite",
+        "binder",
+        "reinforced"
+      ],
+      "name": "Конструкционный материал",
+      "parent": "cls-material",
+      "synonyms": [
+        "композит",
+        "конструкционный"
+      ]
+    },
+    {
+      "attributes": [
+        {
+          "description": "Название компонента",
+          "id": "attr-comp-name",
+          "name": "Название",
+          "type": "string"
+        },
+        {
+          "description": "Химическая формула или тип",
+          "id": "attr-chem-type",
+          "name": "Тип/формула",
+          "type": "string"
+        }
+      ],
+      "description": "Вещество или состав, входящий в рецептуру.",
+      "id": "cls-component",
+      "keywords": [
+        "ингредиент",
+        "компонент"
+      ],
+      "name": "Компонент",
+      "parent": null,
+      "synonyms": [
+        "component",
+        "ingredient"
+      ]
+    },
+    {
+      "attributes": [
+        {
+          "description": "Количество компонента",
+          "id": "attr-amount",
+          "name": "Доля компонента",
+          "type": "float",
+          "unit": "% или ч.м."
+        }
+      ],
+      "description": "Количественный состав компонентов материала.",
+      "id": "cls-formulation",
+      "keywords": [
+        "recipe",
+        "formulation",
+        "рецепт"
+      ],
+      "name": "Рецептура",
+      "parent": null,
+      "synonyms": [
+        "рецепт",
+        "состав"
+      ]
+    },
+    {
+      "attributes": [
+        {
+          "description": "Тип свойства",
+          "id": "attr-prop-type",
+          "name": "Тип свойства",
+          "type": "enum"
+        },
+        {
+          "description": "Значение",
+          "id": "attr-value",
+          "name": "Значение",
+          "type": "string"
+        },
+        {
+          "description": "Единица измерения",
+          "id": "attr-unit",
+          "name": "Единица измерения",
+          "type": "string"
+        },
+        {
+          "description": "Метод измерения",
+          "id": "attr-method",
+          "name": "Метод измерения",
+          "type": "string"
+        }
+      ],
+      "description": "Измеримая характеристика материала: Tg, модуль, прочность, термостабильность, адгезия, стабильность, размер частиц, pH.",
+      "id": "cls-property",
+      "keywords": [
+        "Tg",
+        "modulus",
+        "strength",
+        "adhesion",
+        "stability",
+        "particle size",
+        "pH"
+      ],
+      "name": "Свойство",
+      "parent": null,
+      "synonyms": [
+        "property",
+        "характеристика"
+      ]
+    },
+    {
+      "attributes": [
+        {
+          "id": "attr-process-type",
+          "name": "Тип процесса",
+          "type": "enum"
+        }
+      ],
+      "description": "Технологическая операция: синтез, отверждение, диспергирование, модификация, аддитивные технологии.",
+      "id": "cls-process",
+      "keywords": [
+        "synthesis",
+        "curing",
+        "dispersion",
+        "processing"
+      ],
+      "name": "Процесс",
+      "synonyms": [
+        "process",
+        "технологическая операция"
+      ]
+    },
+    {
+      "attributes": [
+        {
+          "id": "attr-temp",
+          "name": "Температура",
+          "type": "float",
+          "unit": "°C"
+        },
+        {
+          "id": "attr-time",
+          "name": "Время",
+          "type": "float",
+          "unit": "мин/ч"
+        },
+        {
+          "id": "attr-pressure",
+          "name": "Давление",
+          "type": "float",
+          "unit": "МПа"
+        },
+        {
+          "id": "attr-stirring",
+          "name": "Скорость перемешивания",
+          "type": "float",
+          "unit": "об/мин"
+        }
+      ],
+      "description": "Набор параметров процесса: температура, время, давление, скорость перемешивания, количество слоев печати, время засветки.",
+      "id": "cls-regime",
+      "keywords": [
+        "temperature",
+        "time",
+        "pressure",
+        "режим"
+      ],
+      "name": "Режим",
+      "synonyms": [
+        "regime",
+        "параметры процесса"
+      ]
+    },
+    {
+      "attributes": [
+        {
+          "description": "Химическое название",
+          "id": "attr-cat-name",
+          "name": "Химическое название",
+          "type": "string"
+        }
+      ],
+      "description": "Вещество, ускоряющее процесс (отверждение, синтез).",
+      "id": "cls-catalyst",
+      "keywords": [
+        "catalyst",
+        "curing agent",
+        "initiator"
+      ],
+      "name": "Катализатор",
+      "parent": "cls-component",
+      "synonyms": [
+        "катализатор",
+        "инициатор",
+        "отвердитель"
+      ]
+    },
+    {
+      "attributes": [
+        {
+          "description": "Химическое название",
+          "id": "attr-stab-name",
+          "name": "Химическое название",
+          "type": "string"
+        }
+      ],
+      "description": "Компонент, обеспечивающий стабильность дисперсии.",
+      "id": "cls-stabilizer",
+      "keywords": [
+        "stabilizer",
+        "surfactant",
+        "emulsifier"
+      ],
+      "name": "Стабилизатор",
+      "parent": "cls-component",
+      "synonyms": [
+        "стабилизатор",
+        "ПАВ",
+        "эмульгатор"
+      ]
+    },
+    {
+      "attributes": [
+        {
+          "description": "Тип связующего",
+          "id": "attr-binder-type",
+          "name": "Тип связующего",
+          "type": "string"
+        }
+      ],
+      "description": "Матрица композита или основа рецептуры, связывающая компоненты.",
+      "id": "cls-binder",
+      "keywords": [
+        "binder",
+        "matrix",
+        "связующее"
+      ],
+      "name": "Связующее",
+      "parent": "cls-component",
+      "synonyms": [
+        "матрица",
+        "связующее"
+      ]
+    },
+    {
+      "attributes": [
+        {
+          "description": "Тип наполнителя",
+          "id": "attr-filler-type",
+          "name": "Тип наполнителя",
+          "type": "string"
+        }
+      ],
+      "description": "Волокно, пигмент, наполнитель, изменяющий свойства материала.",
+      "id": "cls-filler",
+      "keywords": [
+        "filler",
+        "fiber",
+        "pigment",
+        "reinforcement"
+      ],
+      "name": "Наполнитель/армирующий компонент",
+      "parent": "cls-component",
+      "synonyms": [
+        "наполнитель",
+        "армирующий",
+        "пигмент"
+      ]
+    },
+    {
+      "attributes": [
+        {
+          "description": "Тип стандарта",
+          "id": "attr-standard-type",
+          "name": "Тип стандарта",
+          "type": "enum"
+        },
+        {
+          "description": "Номер стандарта",
+          "id": "attr-standard-num",
+          "name": "Номер стандарта",
+          "type": "string"
+        }
+      ],
+      "description": "Методика оценки свойства по стандарту: ГОСТ, ASTM, ISO.",
+      "id": "cls-test",
+      "keywords": [
+        "test",
+        "standard",
+        "ГОСТ",
+        "ASTM",
+        "ISO"
+      ],
+      "name": "Испытание",
+      "parent": null,
+      "synonyms": [
+        "test",
+        "испытание",
+        "стандарт"
+      ]
+    },
+    {
+      "attributes": [
+        {
+          "description": "Название модели",
+          "id": "attr-model-name",
+          "name": "Модель",
+          "type": "string"
+        },
+        {
+          "description": "Метрика качества",
+          "id": "attr-metric",
+          "name": "Метрика качества",
+          "type": "string"
+        },
+        {
+          "description": "Значение метрики",
+          "id": "attr-metric-value",
+          "name": "Значение метрики",
+          "type": "float"
+        }
+      ],
+      "description": "Вычислительная оценка свойства до натурного эксперимента (in silico).",
+      "id": "cls-prediction",
+      "keywords": [
+        "prediction",
+        "in silico",
+        "model",
+        "polyBERT"
+      ],
+      "name": "Прогноз/модель",
+      "parent": null,
+      "synonyms": [
+        "прогноз",
+        "модель",
+        "in silico"
+      ]
+    }
+  ],
+  "relations": [
+    {
+      "cardinality": "1..N",
+      "description": "Рецептура включает компоненты.",
+      "domain_class": "cls-formulation",
+      "id": "rel-consists-of",
+      "name": "состоит из",
+      "range_class": "cls-component"
+    },
+    {
+      "cardinality": "1..N",
+      "description": "Материал обладает набором свойств.",
+      "domain_class": "cls-material",
+      "id": "rel-has-property",
+      "name": "имеет",
+      "range_class": "cls-property"
+    },
+    {
+      "cardinality": "1..N",
+      "description": "Процесс выполняется при заданном режиме.",
+      "domain_class": "cls-process",
+      "id": "rel-conducted-at",
+      "name": "проводится при",
+      "range_class": "cls-regime"
+    },
+    {
+      "cardinality": "0..N",
+      "description": "В процессе может использоваться катализатор.",
+      "domain_class": "cls-process",
+      "id": "rel-uses",
+      "name": "использует",
+      "range_class": "cls-catalyst"
+    },
+    {
+      "cardinality": "1..N",
+      "description": "Материал получают в результате процесса.",
+      "domain_class": "cls-material",
+      "id": "rel-produced-by",
+      "name": "получается в результате",
+      "range_class": "cls-process"
+    },
+    {
+      "cardinality": "1..N",
+      "description": "Свойство определяется в испытании.",
+      "domain_class": "cls-property",
+      "id": "rel-measured-in",
+      "name": "измеряется в",
+      "range_class": "cls-test"
+    },
+    {
+      "cardinality": "1..N",
+      "description": "Прогноз/модель оценивает свойство до эксперимента.",
+      "domain_class": "cls-prediction",
+      "id": "rel-predicts",
+      "name": "оценивает",
+      "range_class": "cls-property"
+    },
+    {
+      "cardinality": "0..N",
+      "description": "Компонент влияет на свойство материала.",
+      "domain_class": "cls-component",
+      "id": "rel-affects",
+      "name": "влияет на",
+      "range_class": "cls-property"
+    },
+    {
+      "cardinality": "0..N",
+      "description": "Стабилизатор обеспечивает стабильность дисперсии.",
+      "domain_class": "cls-dispersion",
+      "id": "rel-stabilized-by",
+      "name": "стабилизируется",
+      "range_class": "cls-stabilizer"
+    },
+    {
+      "cardinality": "0..N",
+      "description": "Конструкционный материал армирован наполнителем.",
+      "domain_class": "cls-structural",
+      "id": "rel-reinforced-by",
+      "name": "армирован",
+      "range_class": "cls-filler"
+    },
+    {
+      "cardinality": "0..N",
+      "description": "Конструкционный материал содержит связующее (одно или несколько).",
+      "domain_class": "cls-structural",
+      "id": "rel-contains",
+      "name": "содержит",
+      "range_class": "cls-binder"
+    },
+    {
+      "cardinality": "0..1",
+      "description": "Материал описывается рецептурой.",
+      "domain_class": "cls-material",
+      "id": "rel-described-by",
+      "name": "описывается",
+      "range_class": "cls-formulation"
+    },
+    {
+      "cardinality": "0..N",
+      "description": "Прогноз/модель применяется к материалу для оценки его свойств.",
+      "domain_class": "cls-prediction",
+      "id": "rel-applies-to-material",
+      "name": "применяется к материалу",
+      "range_class": "cls-material"
+    },
+    {
+      "cardinality": "0..N",
+      "description": "Прогноз/модель применяется к рецептуре для оценки свойств будущего материала.",
+      "domain_class": "cls-prediction",
+      "id": "rel-applies-to-formulation",
+      "name": "применяется к рецептуре",
+      "range_class": "cls-formulation"
+    },
+    {
+      "cardinality": "0..N",
+      "description": "Режим процесса влияет на итоговое свойство материала.",
+      "domain_class": "cls-regime",
+      "id": "rel-affects-property",
+      "name": "влияет на свойство",
+      "range_class": "cls-property"
+    },
+    {
+      "cardinality": "0..N",
+      "description": "Режим процесса влияет на характеристики получаемого материала в целом.",
+      "domain_class": "cls-regime",
+      "id": "rel-affects-material",
+      "name": "влияет на материал",
+      "range_class": "cls-material"
+    }
+  ],
+  "competency_questions": [
+    {
+      "coverage": [
+        "cls-formulation →rel-consists-of→ cls-component",
+        "cls-material →rel-described-by→ cls-formulation"
+      ],
+      "id": "cq-1",
+      "question": "Из каких компонентов состоит рецептура кремнийорганического герметика?"
+    },
+    {
+      "coverage": [
+        "cls-structural →rel-has-property→ cls-property"
+      ],
+      "id": "cq-2",
+      "question": "Какие свойства (Tg, модуль, прочность, термостабильность) характеризуют конструкционный композит?"
+    },
+    {
+      "coverage": [
+        "cls-process →rel-conducted-at→ cls-regime",
+        "cls-process →rel-uses→ cls-catalyst"
+      ],
+      "id": "cq-3",
+      "question": "При каких режимах (температура, время, катализатор) проводится отверждение силоксановой смолы?"
+    },
+    {
+      "coverage": [
+        "cls-dispersion →rel-stabilized-by→ cls-stabilizer",
+        "cls-dispersion →rel-has-property→ cls-property"
+      ],
+      "id": "cq-4",
+      "question": "От чего зависит стабильность латекса/эмульсии (размер частиц, стабилизатор, pH)?"
+    },
+    {
+      "coverage": [
+        "cls-structural →rel-contains→ cls-binder",
+        "cls-structural →rel-has-property→ cls-property"
+      ],
+      "id": "cq-5",
+      "question": "Какой тип связующего выбрать для армированного композита с заданным модулем упругости?"
+    },
+    {
+      "coverage": [
+        "cls-material →rel-produced-by→ cls-process",
+        "cls-process →rel-conducted-at→ cls-regime"
+      ],
+      "id": "cq-6",
+      "question": "Каким способом (технологическим или химическим) получают дисперсионный материал?"
+    },
+    {
+      "coverage": [
+        "cls-property →rel-measured-in→ cls-test"
+      ],
+      "id": "cq-7",
+      "question": "Какие испытания (ГОСТ/ASTM/ISO) нужны для оценки свойств материала?"
+    },
+    {
+      "coverage": [
+        "cls-component →rel-affects→ cls-property"
+      ],
+      "id": "cq-8",
+      "question": "Как добавка/модификатор влияет на свойства конечного материала?"
+    }
+  ],
+  "rag_hints": {
+    "extraction_targets": [
+      "cls-material",
+      "cls-component",
+      "cls-property",
+      "cls-process",
+      "cls-regime",
+      "cls-test",
+      "cls-formulation"
+    ],
+    "retrieval_paths": [
+      "cls-formulation →rel-consists-of→ cls-component",
+      "cls-material →rel-has-property→ cls-property",
+      "cls-process →rel-conducted-at→ cls-regime",
+      "cls-material →rel-produced-by→ cls-process",
+      "cls-property →rel-measured-in→ cls-test",
+      "cls-prediction →rel-predicts→ cls-property",
+      "cls-component →rel-affects→ cls-property",
+      "cls-regime →rel-affects-property→ cls-property",
+      "cls-regime →rel-affects-material→ cls-material"
+    ],
+    "sources": []
+  },
+  "name": "Онтология полимерных материалов инженерной школы",
+  "domain": "Полимерные материалы: кремнийорганические, дисперсионные и конструкционные",
+  "description": "Онтология предметной области инженерной школы полимерных материалов: кремнийорганические материалы (силоксаны, силаны, герметики, покрытия, смолы), дисперсионные материалы (эмульсии, суспензии, пасты, золи, латексы), конструкционные материалы (композиты, связующие, армированные системы); синтез, модификация, отверждение, испытания, прогноз свойств.",
+  "author": "Кузьмин Владислав Владимирович",
+  "project_id": "prj-2034b75fa3",
+  "tags": [
+    "полимеры",
+    "кремнийорганика",
+    "дисперсии",
+    "композиты",
+    "материаловедение"
+  ],
+  "classes_count": 15,
+  "relations_count": 16,
+  "updated_at": 1789121469.2374234,
+  "status_changed_at": 1789114744.3697753
+}

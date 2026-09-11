@@ -1,0 +1,11 @@
+{
+ "id": "811b27d7d917",
+ "login": "semikin@technolog.edu.ru",
+ "name": "",
+ "role": "Пользователь",
+ "salt": "16241d31dc2ee15a62aab49a8c9e71e5",
+ "password_hash": "a585ba46b62b10f9937571779f1aa6c680afe2c3a7e51b3918ada1e161942f5e",
+ "created_at": 1789049057.4258914,
+ "last_login": null,
+ "confirmed": false
+}

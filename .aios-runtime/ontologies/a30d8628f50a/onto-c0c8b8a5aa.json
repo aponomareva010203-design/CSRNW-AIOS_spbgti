@@ -1,0 +1,602 @@
+{
+  "id": "onto-c0c8b8a5aa",
+  "user_id": "a30d8628f50a",
+  "created_at": 1789054634.2536483,
+  "status": "draft",
+  "version": 5,
+  "classes": [
+    {
+      "attributes": [
+        {
+          "description": "Каноническая структура для расчёта дескрипторов",
+          "id": "attr-protac-smiles",
+          "name": "SMILES",
+          "type": "string"
+        },
+        {
+          "description": "Молекулярная масса",
+          "id": "attr-protac-mw",
+          "name": "MW",
+          "type": "float",
+          "unit": "Да"
+        },
+        {
+          "description": "Липофильность",
+          "id": "attr-protac-logp",
+          "name": "logP",
+          "type": "float"
+        },
+        {
+          "description": "Топологическая полярная поверхность",
+          "id": "attr-protac-tpsa",
+          "name": "TPSA",
+          "type": "float",
+          "unit": "Å²"
+        },
+        {
+          "description": "Растворимость",
+          "id": "attr-protac-solubility",
+          "name": "Растворимость",
+          "type": "float",
+          "unit": "мкМ"
+        },
+        {
+          "description": "Клеточная проницаемость (PAMPA/Caco-2)",
+          "id": "attr-protac-permeability",
+          "name": "Проницаемость",
+          "type": "float"
+        }
+      ],
+      "description": "Химерная молекула-деградер: лиганд мишени — линкер — лиганд E3-лигазы; основная сущность проекта, ранжируется моделью до синтеза.",
+      "id": "cls-protac",
+      "keywords": [
+        "degrader",
+        "химерная молекула",
+        "деградер"
+      ],
+      "name": "PROTAC-конструкция",
+      "parent": null,
+      "synonyms": [
+        "ПРОТАК",
+        "протеолиз-нацеленная химера",
+        "PROTAC"
+      ]
+    },
+    {
+      "attributes": [
+        {
+          "description": "Структура лиганда",
+          "id": "attr-ligand-smiles",
+          "name": "SMILES",
+          "type": "string"
+        },
+        {
+          "description": "Аффинность к партнёру",
+          "id": "attr-ligand-affinity",
+          "name": "Аффинность (IC50/Kd)",
+          "type": "float",
+          "unit": "нМ"
+        }
+      ],
+      "description": "Низкомолекулярный связывающий фрагмент PROTAC, отвечающий за распознавание белкового партнёра.",
+      "id": "cls-ligand",
+      "keywords": [
+        "small molecule binder",
+        "аффинный фрагмент"
+      ],
+      "name": "Лиганд",
+      "parent": null,
+      "synonyms": [
+        "связывающий фрагмент",
+        "ligand"
+      ]
+    },
+    {
+      "attributes": [],
+      "description": "Лиганд, связывающий белок-мишень (warhead): известные ингибиторы или аффинные фрагменты к POI.",
+      "id": "cls-warhead",
+      "keywords": [
+        "warhead",
+        "лиганд POI",
+        "ингибитор мишени"
+      ],
+      "name": "Лиганд мишени",
+      "parent": "cls-ligand",
+      "synonyms": [
+        "варhead",
+        "лиганд белка-мишени"
+      ]
+    },
+    {
+      "attributes": [],
+      "description": "Лиганд, рекрутирующий E3-лигазу; в проекте — лиганды MDM2 (нутлины, idasanutlin и аналоги).",
+      "id": "cls-e3-ligand",
+      "keywords": [
+        "нутлин",
+        "idasanutlin",
+        "MDM2 ligand",
+        "E3 recruiter"
+      ],
+      "name": "Лиганд E3-лигазы",
+      "parent": "cls-ligand",
+      "synonyms": [
+        "рекрутер E3",
+        "лиганд MDM2"
+      ]
+    },
+    {
+      "attributes": [
+        {
+          "description": "Тип спейсера",
+          "id": "attr-linker-type",
+          "name": "Тип",
+          "type": "enum"
+        },
+        {
+          "description": "Длина линкера в атомах",
+          "id": "attr-linker-length",
+          "name": "Длина",
+          "type": "int",
+          "unit": "атомов"
+        },
+        {
+          "description": "Позиции присоединения на вархеде и лиганде E3",
+          "id": "attr-linker-attach",
+          "name": "Точки присоединения",
+          "type": "string"
+        }
+      ],
+      "description": "Спейсер, соединяющий лиганд мишени и лиганд E3-лигазы; параметры (длина, состав, точки присоединения) определяют эффективность деградации.",
+      "id": "cls-linker",
+      "keywords": [
+        "PEG-линкер",
+        "алкильный линкер",
+        "спейсер"
+      ],
+      "name": "Линкер",
+      "parent": null,
+      "synonyms": [
+        "спейсер",
+        "linker"
+      ]
+    },
+    {
+      "attributes": [
+        {
+          "description": "Символ гена (напр., BRD4)",
+          "id": "attr-target-gene",
+          "name": "Символ гена",
+          "type": "string"
+        },
+        {
+          "description": "Идентификатор UniProt",
+          "id": "attr-target-uniprot",
+          "name": "ID UniProt",
+          "type": "string"
+        }
+      ],
+      "description": "Онкологический белок, подлежащий индуцированной деградации (protein of interest, POI).",
+      "id": "cls-target-protein",
+      "keywords": [
+        "POI",
+        "protein of interest",
+        "онкобелок"
+      ],
+      "name": "Белок-мишень",
+      "parent": null,
+      "synonyms": [
+        "мишень",
+        "белок интереса",
+        "POI"
+      ]
+    },
+    {
+      "attributes": [
+        {
+          "description": "Название лигазы (MDM2)",
+          "id": "attr-e3-name",
+          "name": "Название",
+          "type": "string"
+        },
+        {
+          "description": "Идентификатор UniProt",
+          "id": "attr-e3-uniprot",
+          "name": "ID UniProt",
+          "type": "string"
+        }
+      ],
+      "description": "Рекрутируемая убиквитин-лигаза; в проекте — MDM2 (E3 ubiquitin-protein ligase Mdm2).",
+      "id": "cls-e3-ligase",
+      "keywords": [
+        "MDM2",
+        "убиквитин-лигаза",
+        "HDM2"
+      ],
+      "name": "E3-лигаза",
+      "parent": null,
+      "synonyms": [
+        "убиквитин E3-лигаза",
+        "MDM2"
+      ]
+    },
+    {
+      "attributes": [
+        {
+          "description": "Фактор кооперативности α",
+          "id": "attr-tc-coop",
+          "name": "Кооперативность (α)",
+          "type": "float"
+        },
+        {
+          "description": "PDB ID / метод (КРД, крио-ЭМ)",
+          "id": "attr-tc-structure",
+          "name": "Структурные данные",
+          "type": "string"
+        }
+      ],
+      "description": "Комплекс «белок-мишень — PROTAC — MDM2»; его стабильность и кооперативность определяют эффективность убиквитилирования.",
+      "id": "cls-ternary-complex",
+      "keywords": [
+        "ternary complex",
+        "тройной комплекс",
+        "кооперативность"
+      ],
+      "name": "Троичный комплекс",
+      "parent": null,
+      "synonyms": [
+        "тройной комплекс",
+        "троичный комплекс мишень–деградер–E3"
+      ]
+    },
+    {
+      "attributes": [
+        {
+          "description": "Диапазон концентраций конструкции",
+          "id": "attr-assay-conc",
+          "name": "Концентрация",
+          "type": "range",
+          "unit": "нМ"
+        },
+        {
+          "description": "Время экспозиции клеток",
+          "id": "attr-assay-time",
+          "name": "Время экспозиции",
+          "type": "float",
+          "unit": "ч"
+        },
+        {
+          "description": "Доля деградации белка-мишени (порог проекта ≥ 80%)",
+          "id": "attr-assay-degr",
+          "name": "Доля деградации",
+          "type": "float",
+          "unit": "%"
+        }
+      ],
+      "description": "Биологическое тестирование PROTAC-конструкции: режимы (концентрация, время, клеточная линия) и результат деградации.",
+      "id": "cls-degradation-assay",
+      "keywords": [
+        "degradation assay",
+        "биологическое тестирование",
+        "in vitro эксперимент"
+      ],
+      "name": "Эксперимент деградации",
+      "parent": null,
+      "synonyms": [
+        "тест деградации",
+        "ассей деградации"
+      ]
+    },
+    {
+      "attributes": [],
+      "description": "Модельные клетки (напр., опухолевые линии), на которых измеряется деградация белка-мишени.",
+      "id": "cls-cell-line",
+      "keywords": [
+        "cell line",
+        "опухолевые клетки",
+        "клеточная модель"
+      ],
+      "name": "Клеточная линия",
+      "parent": null,
+      "synonyms": [
+        "клеточная культура",
+        "линия клеток"
+      ]
+    },
+    {
+      "attributes": [],
+      "description": "Аналитический метод регистрации уровня белка: вестерн-блоттинг, протеомика, HiBiT и др.",
+      "id": "cls-assay-method",
+      "keywords": [
+        "western blot",
+        "вестерн-блоттинг",
+        "протеомика",
+        "HiBiT"
+      ],
+      "name": "Метод измерения",
+      "parent": null,
+      "synonyms": [
+        "аналитический метод",
+        "метод регистрации"
+      ]
+    },
+    {
+      "attributes": [
+        {
+          "description": "Концентрация полумаксимальной деградации",
+          "id": "attr-eff-dc50",
+          "name": "DC50",
+          "type": "float",
+          "unit": "нМ"
+        },
+        {
+          "description": "Максимальная глубина деградации",
+          "id": "attr-eff-dmax",
+          "name": "Dmax",
+          "type": "float",
+          "unit": "%"
+        }
+      ],
+      "description": "Метрики результата деградации: DC50 (концентрация полумаксимальной деградации), Dmax (максимальная глубина), % деградации.",
+      "id": "cls-degradation-efficacy",
+      "keywords": [
+        "DC50",
+        "Dmax",
+        "% деградации"
+      ],
+      "name": "Эффективность деградации",
+      "parent": null,
+      "synonyms": [
+        "метрики деградации",
+        "эффективность деградера"
+      ]
+    },
+    {
+      "attributes": [],
+      "description": "Литературная или внутренняя запись «конструкция → результат»: статья, база данных (PROTAC-DB), экспериментальный отчёт.",
+      "id": "cls-data-source",
+      "keywords": [
+        "статья",
+        "PROTAC-DB",
+        "литература",
+        "датасет"
+      ],
+      "name": "Источник данных",
+      "parent": null,
+      "synonyms": [
+        "источник",
+        "публикация",
+        "запись данных"
+      ]
+    },
+    {
+      "attributes": [
+        {
+          "description": "Предсказанная эффективность деградации",
+          "id": "attr-rank-pred",
+          "name": "Предсказанная эффективность",
+          "type": "float"
+        },
+        {
+          "description": "Оценка неопределённости предсказания",
+          "id": "attr-rank-unc",
+          "name": "Неопределённость",
+          "type": "float"
+        },
+        {
+          "description": "Ранг конструкции в выдаче модели",
+          "id": "attr-rank-rank",
+          "name": "Ранг в выдаче",
+          "type": "int"
+        },
+        {
+          "description": "Подтверждена ли конструкция экспериментально",
+          "id": "attr-rank-confirmed",
+          "name": "Подтверждено экспериментально",
+          "type": "bool"
+        }
+      ],
+      "description": "Предсказание комбинированной модели (QSAR на дескрипторах + дообучение ChemBERTa/MoLFormer): ранг конструкции и оценка неопределённости.",
+      "id": "cls-model-ranking",
+      "keywords": [
+        "QSAR",
+        "ChemBERTa",
+        "MoLFormer",
+        "ранжирование",
+        "неопределённость"
+      ],
+      "name": "Ранжирование модели",
+      "parent": null,
+      "synonyms": [
+        "модельное ранжирование",
+        "предсказание модели"
+      ]
+    }
+  ],
+  "relations": [
+    {
+      "cardinality": "1..1",
+      "description": "Вархед — обязательный компонент конструкции.",
+      "domain_class": "cls-protac",
+      "id": "rel-has-warhead",
+      "name": "содержит лиганд мишени",
+      "range_class": "cls-warhead"
+    },
+    {
+      "cardinality": "1..1",
+      "description": "Линкер — обязательный компонент конструкции.",
+      "domain_class": "cls-protac",
+      "id": "rel-has-linker",
+      "name": "содержит линкер",
+      "range_class": "cls-linker"
+    },
+    {
+      "cardinality": "1..1",
+      "description": "Лиганд E3-лигазы — обязательный компонент конструкции.",
+      "domain_class": "cls-protac",
+      "id": "rel-has-e3-ligand",
+      "name": "содержит лиганд E3",
+      "range_class": "cls-e3-ligand"
+    },
+    {
+      "cardinality": "1..N",
+      "description": "Вархед связывает один или несколько белков-мишеней.",
+      "domain_class": "cls-warhead",
+      "id": "rel-binds-target",
+      "name": "связывает",
+      "range_class": "cls-target-protein"
+    },
+    {
+      "cardinality": "1..N",
+      "description": "Лиганд рекрутирует E3-лигазу (в проекте — MDM2).",
+      "domain_class": "cls-e3-ligand",
+      "id": "rel-recruits-e3",
+      "name": "рекрутирует",
+      "range_class": "cls-e3-ligase"
+    },
+    {
+      "cardinality": "1..N",
+      "description": "Конструкция индуцирует образование троичного комплекса.",
+      "domain_class": "cls-protac",
+      "id": "rel-induces-ternary",
+      "name": "индуцирует",
+      "range_class": "cls-ternary-complex"
+    },
+    {
+      "cardinality": "1..1",
+      "description": "Комплекс включает белок-мишень.",
+      "domain_class": "cls-ternary-complex",
+      "id": "rel-tc-target",
+      "name": "включает мишень",
+      "range_class": "cls-target-protein"
+    },
+    {
+      "cardinality": "1..1",
+      "description": "Комплекс включает E3-лигазу.",
+      "domain_class": "cls-ternary-complex",
+      "id": "rel-tc-e3",
+      "name": "включает E3",
+      "range_class": "cls-e3-ligase"
+    },
+    {
+      "cardinality": "1..N",
+      "description": "Конструкция тестируется в одном или нескольких экспериментах.",
+      "domain_class": "cls-protac",
+      "id": "rel-tested-in",
+      "name": "тестируется в",
+      "range_class": "cls-degradation-assay"
+    },
+    {
+      "cardinality": "1..N",
+      "description": "Эксперимент проводится на клеточной линии.",
+      "domain_class": "cls-degradation-assay",
+      "id": "rel-assay-cell",
+      "name": "проводится на",
+      "range_class": "cls-cell-line"
+    },
+    {
+      "cardinality": "1..N",
+      "description": "Деградация регистрируется аналитическим методом.",
+      "domain_class": "cls-degradation-assay",
+      "id": "rel-assay-method",
+      "name": "измеряется методом",
+      "range_class": "cls-assay-method"
+    },
+    {
+      "cardinality": "1..1",
+      "description": "Эксперимент даёт метрики эффективности (DC50, Dmax).",
+      "domain_class": "cls-degradation-assay",
+      "id": "rel-assay-yields",
+      "name": "даёт",
+      "range_class": "cls-degradation-efficacy"
+    },
+    {
+      "cardinality": "0..1",
+      "description": "Эксперимент заимствован из литературного источника (или проведён внутри проекта).",
+      "domain_class": "cls-degradation-assay",
+      "id": "rel-assay-source",
+      "name": "заимствован из",
+      "range_class": "cls-data-source"
+    },
+    {
+      "cardinality": "1..N",
+      "description": "Источник сообщает данные по конструкциям.",
+      "domain_class": "cls-data-source",
+      "id": "rel-source-reports",
+      "name": "сообщает о",
+      "range_class": "cls-protac"
+    },
+    {
+      "cardinality": "1..N",
+      "description": "Модель ранжирует конструкции до синтеза.",
+      "domain_class": "cls-model-ranking",
+      "id": "rel-ranks-protac",
+      "name": "ранжирует",
+      "range_class": "cls-protac"
+    },
+    {
+      "cardinality": "1..N",
+      "description": "Модель обучена на литературных и внутренних данных.",
+      "domain_class": "cls-model-ranking",
+      "id": "rel-trained-on",
+      "name": "обучено на",
+      "range_class": "cls-data-source"
+    },
+    {
+      "cardinality": "1..N",
+      "description": "Предсказания модели подтверждаются биологическими экспериментами.",
+      "domain_class": "cls-model-ranking",
+      "id": "rel-confirmed-by",
+      "name": "подтверждается",
+      "range_class": "cls-degradation-assay"
+    }
+  ],
+  "competency_questions": [
+    {
+      "id": "cq-1",
+      "question": "Из каких компонентов состоит PROTAC-конструкция (лиганд мишени — линкер — лиганд MDM2) и какова её структура (SMILES) для расчёта дескрипторов?"
+    },
+    {
+      "id": "cq-2",
+      "question": "Какие литературные данные «конструкция → эффективность деградации» (DC50, Dmax) доступны для обучения модели ранжирования?"
+    },
+    {
+      "id": "cq-3",
+      "question": "Какие белки-мишени деградировались через рекрутирование MDM2 и какими лигандами они связывались?"
+    },
+    {
+      "id": "cq-4",
+      "question": "Каковы физико-химические дескрипторы конструкции (MW, logP, TPSA, растворимость, проницаемость) для QSAR-модели?"
+    },
+    {
+      "id": "cq-5",
+      "question": "При каких условиях (клеточная линия, концентрация, время экспозиции) измерена деградация и достигнут ли порог ≥ 80% по вестерн-блоттингу?"
+    },
+    {
+      "id": "cq-6",
+      "question": "Как параметры линкера (длина, состав, точки присоединения) влияют на эффективность деградации?"
+    },
+    {
+      "id": "cq-7",
+      "question": "Какие конструкции вошли в топ-5 по ранжированию модели и сколько из них подтвердились экспериментально?"
+    },
+    {
+      "id": "cq-8",
+      "question": "Какие троичные комплексы «мишень — PROTAC — MDM2» охарактеризованы структурно и какова их кооперативность?"
+    }
+  ],
+  "rag_hints": {},
+  "name": "Онтология PROTAC-платформы на основе MDM2",
+  "domain": "Таргетная деградация белков (TPD): PROTAC на основе E3-лигазы MDM2",
+  "description": "Онтология домена PROTAC-платформы на основе MDM2 как E3-лигазы: химерные деградеры, белки-мишени, убиквитин-протеасомная система, дизайн, скрининг, синтез и биологическое тестирование.",
+  "author": "Григорьева Татьяна Алексеевна",
+  "project_id": "prj-6a9cb74d5d",
+  "tags": [
+    "PROTAC",
+    "MDM2",
+    "таргетная деградация белков",
+    "молекулярная фармакология"
+  ],
+  "classes_count": 14,
+  "relations_count": 17,
+  "updated_at": 1789055135.422543
+}

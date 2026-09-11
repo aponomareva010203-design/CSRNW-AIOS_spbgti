@@ -1,0 +1,11 @@
+{
+ "id": "3b472852c881",
+ "login": "svetlovstanislav@gmail.com",
+ "name": "",
+ "role": "Пользователь",
+ "salt": "c42a6b31c6cfcd4bb582e5047d0276a4",
+ "password_hash": "92b7dc7d0988684197dabac152d6d8f615ae01f268100a634b8df1b8fc07ce34",
+ "created_at": 1789049356.8038638,
+ "last_login": 1789049383.297662,
+ "confirmed": true
+}

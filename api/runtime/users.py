@@ -113,6 +113,7 @@ class UserStore:
             "created_at": time.time(),
             "last_login": None,
             "confirmed": confirmed,
+            "reminder_overrides": {},
         }
         self.save(user)
         return user

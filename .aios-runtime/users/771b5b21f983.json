@@ -1,0 +1,11 @@
+{
+ "id": "771b5b21f983",
+ "login": "e.godunova@csr-nw.ru",
+ "name": "",
+ "role": "Пользователь",
+ "salt": "f20b3ba0bda66b484812076bc19eb205",
+ "password_hash": "21ca5316300a4a12fe5311163434fa2ec8279ef90f5ec1b1f6e1ed6b7b1edf3a",
+ "created_at": 1789043177.5461466,
+ "last_login": 1789043268.6669335,
+ "confirmed": true
+}

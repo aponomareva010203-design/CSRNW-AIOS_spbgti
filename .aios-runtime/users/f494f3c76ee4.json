@@ -1,0 +1,11 @@
+{
+ "id": "f494f3c76ee4",
+ "login": "dasha13129@gmail.com",
+ "name": "",
+ "role": "Пользователь",
+ "salt": "c1d3fabdb86ff15af11cd539139049df",
+ "password_hash": "4beef4c7dea1db3ca842a02437a294e3d9cdeaef9b05ac5fc5c0211aa15314b1",
+ "created_at": 1789049214.0905652,
+ "last_login": 1789129437.2780504,
+ "confirmed": true
+}

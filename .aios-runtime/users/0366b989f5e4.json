@@ -1,0 +1,11 @@
+{
+ "id": "0366b989f5e4",
+ "login": "e.naumova@csr-nw.ru",
+ "name": "",
+ "role": "Пользователь",
+ "salt": "5f2cd4a341cc60039a1b78f59fcacb9b",
+ "password_hash": "b82152fb1097c56ccb88359e93a348d6b987e3299808082c206f829e7fba67b9",
+ "created_at": 1788963834.86094,
+ "last_login": 1788963958.2414722,
+ "confirmed": true
+}

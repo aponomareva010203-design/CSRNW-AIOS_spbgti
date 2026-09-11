@@ -282,6 +282,28 @@
     return request('POST', '/admin/llm/models', { base_url: baseUrl, api_key: apiKey }, token);
   }
 
+  /* ---------- Напоминания по шагам пайплайна (админ-панель) ---------- */
+
+  /** [админ] Текущая конфигурация напоминаний (глобальные тумблеры + режим). */
+  function adminGetReminders(token) {
+    return request('GET', '/admin/reminders', undefined, token);
+  }
+
+  /** [админ] Обновить тумблеры шагов и/или режим показа: {display_mode?, steps?}. */
+  function adminSetReminders(token, patch) {
+    return request('PUT', '/admin/reminders', patch || {}, token);
+  }
+
+  /** [админ] Личные оверрайды напоминаний вызывающего администратора. */
+  function adminGetOwnReminderOverrides(token) {
+    return request('GET', '/admin/reminders/self', undefined, token);
+  }
+
+  /** [админ] Личный оверрайд напоминаний для тестирования: {step_id: 'on'|'off'|null}. */
+  function adminSetOwnReminderOverrides(token, overrides) {
+    return request('PATCH', '/admin/reminders/self', { overrides: overrides || {} }, token);
+  }
+
   /* ---------- Раздел «Об организации» (админ-панель) ---------- */
 
   /** [админ] Данные организации: {profile, metrics, documents, categories}. */
@@ -366,6 +388,13 @@
       { permissions: permissions || {} },
       token
     );
+  }
+
+  /* ---------- Напоминания по шагам пайплайна ---------- */
+
+  /** Активные напоминания текущего пользователя: {items: [{id, label}]}. */
+  function remindersList(token) {
+    return request('GET', '/reminders', undefined, token);
   }
 
   /* ---------- Проекты (карточки проектов пользователя) ---------- */
@@ -551,6 +580,7 @@
     cabinetListProjects: cabinetListProjects,
     cabinetListTeam: cabinetListTeam,
     cabinetSetTeamPermissions: cabinetSetTeamPermissions,
+    remindersList: remindersList,
     projectsList: projectsList,
     projectsCreate: projectsCreate,
     projectsGet: projectsGet,
@@ -580,6 +610,10 @@
     adminSetLLM: adminSetLLM,
     adminTestLLM: adminTestLLM,
     adminListLLMModels: adminListLLMModels,
+    adminGetReminders: adminGetReminders,
+    adminSetReminders: adminSetReminders,
+    adminGetOwnReminderOverrides: adminGetOwnReminderOverrides,
+    adminSetOwnReminderOverrides: adminSetOwnReminderOverrides,
     adminGetOrganization: adminGetOrganization,
     adminSaveOrgProfile: adminSaveOrgProfile,
     adminSaveOrgMetrics: adminSaveOrgMetrics,

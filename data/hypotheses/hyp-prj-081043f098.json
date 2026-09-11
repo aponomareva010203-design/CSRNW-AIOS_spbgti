@@ -1,0 +1,34 @@
+{
+  "project_id": "prj-081043f098",
+  "project_title": "Smart HEX: сервис выбора типа и конструкции теплообменного оборудования",
+  "author_role": "lead",
+  "status": "draft",
+  "ontology": [
+    {
+      "id": "ont-1",
+      "kind": "ontology",
+      "title": "",
+      "statement": "",
+      "users": "",
+      "decision": "",
+      "as_is": "",
+      "inputs": "",
+      "outputs": "",
+      "check_method": "",
+      "success_metric": "",
+      "falsifier": "",
+      "horizon": "",
+      "depends_on": [],
+      "reuse_of": "",
+      "risks": "",
+      "specific": {},
+      "skipped": true,
+      "skip_reason": "Терминология в источниках (учебники и методические пособия по теплообменным аппаратам) единообразна; задача проекта расчётная, отдельный словарь-схема не требуется"
+    }
+  ],
+  "rag": [],
+  "models": [],
+  "agents": [],
+  "polygons": [],
+  "dashboards": []
+}

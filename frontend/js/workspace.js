@@ -44,8 +44,9 @@
 
   var PANEL_HTML = [
     '<div class="ws-overlay" id="wsOverlay" hidden></div>',
-    '<button class="ws-edge-tab" id="wsEdgeTab" type="button" aria-label="Открыть рабочий чат" hidden><span>💬</span></button>',
+    '<button class="ws-edge-tab" id="wsEdgeTab" type="button" aria-label="Открыть рабочий чат" hidden><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 5.94 2 10.8c0 2.72 1.47 5.14 3.79 6.76-.13.9-.5 2.1-1.44 3.44a.5.5 0 0 0 .58.77c1.94-.63 3.4-1.53 4.32-2.19.86.2 1.77.31 2.75.31 5.52 0 10-3.94 10-8.8S17.52 2 12 2Z"></path><circle cx="8.3" cy="10.8" r="1.15" fill="var(--green-deep, #2c3128)"></circle><circle cx="12" cy="10.8" r="1.15" fill="var(--green-deep, #2c3128)"></circle><circle cx="15.7" cy="10.8" r="1.15" fill="var(--green-deep, #2c3128)"></circle></svg></button>',
     '<button class="ws-ready-badge" id="wsReadyBadge" type="button" hidden aria-live="polite">✦ Ответ готов</button>',
+    '<button class="ws-reminder-badge" id="wsReminderBadge" type="button" hidden aria-live="polite"></button>',
     '<div class="ws-panel" id="wsPanel" role="dialog" aria-modal="true" aria-labelledby="wsTitle" hidden>',
     '  <div class="ws-grip" id="wsGrip" title="Потяните, чтобы изменить ширину" aria-hidden="true"></div>',
     '  <header class="ws-head">',
@@ -63,18 +64,18 @@
     '  <div class="ws-messages" id="wsMessages" aria-live="polite"></div>',
     '  <form class="ws-composer" id="wsComposer" onsubmit="return false">',
     '    <div class="ws-skillpick" id="wsSkillPick">',
-    '      <button class="ws-skillpick-btn" id="wsSkillPickBtn" type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Выбрать навык" data-tooltip="Выбрать навык"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg></button>',
+    '      <button class="ws-skillpick-btn" id="wsSkillPickBtn" type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Выбрать навык" data-tooltip="Выбрать навык"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg></button>',
     '      <div class="ws-skillpick-menu" id="wsSkillPickMenu" role="listbox" aria-label="Навыки" hidden></div>',
     '    </div>',
     '    <div class="ws-composer-row">',
     '    <div class="ws-skillpick" id="wsRagPick">',
-    '      <button class="ws-skillpick-btn" id="wsRagPickBtn" type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Подключить RAG-базу" data-tooltip="Подключить RAG-базу"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg></button>',
+    '      <button class="ws-skillpick-btn" id="wsRagPickBtn" type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Подключить RAG-базу" data-tooltip="Подключить RAG-базу"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg></button>',
     '      <div class="ws-skillpick-menu" id="wsRagPickMenu" role="listbox" aria-label="RAG-базы" hidden></div>',
     '    </div>',
-    '    <button class="ws-skillpick-btn" id="wsAttachBtn" type="button" aria-label="Прикрепить файл" data-tooltip="Прикрепить файл (.pdf, .txt, .md, .docx)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg></button>',
+    '    <button class="ws-skillpick-btn" id="wsAttachBtn" type="button" aria-label="Прикрепить файл" data-tooltip="Прикрепить файл (.pdf, .txt, .md, .docx)"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg></button>',
     '    <input type="file" id="wsFileInput" multiple accept=".pdf,.txt,.md,.docx" hidden>',
     '    <textarea id="wsInput" rows="1" placeholder="Сообщение рабочему чату…" aria-label="Сообщение"></textarea>',
-    '    <button class="ws-send" type="submit" aria-label="Отправить">↑</button>',
+    '    <button class="ws-send" type="submit" aria-label="Отправить"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg></button>',
     '    </div>',
     '    <div class="ws-attach-strip" id="wsAttachStrip" hidden></div>',
     '  </form>',
@@ -113,6 +114,7 @@
   var attachStrip = document.getElementById('wsAttachStrip');
   var liveDot = document.getElementById('wsLiveDot');
   var readyBadge = document.getElementById('wsReadyBadge');
+  var reminderBadge = document.getElementById('wsReminderBadge');
 
   /* ---------- утилиты ---------- */
 
@@ -468,6 +470,85 @@
   syncEntry();
   window.addEventListener('aios-auth-change', syncEntry);
 
+  /* ---------- напоминания по шагам пайплайна (плавающий бейдж) ---------- */
+
+  /* skill_id/название/автопромпт навыка — как у аналогичных кнопок-CTA
+     в cabinet.js («Создать новый проект», «Создать онтологию» и т.п.) */
+  var REMINDER_SKILLS = {
+    onboarding: {
+      id: 'project-onboarding',
+      name: 'Онбординг проекта',
+      prompt: 'Запусти онбординг проекта: познакомься со мной и задай вопросы, ' +
+        'нужные для карточки проекта (название, цель, команда, подразделения, бюджет, задел).'
+    },
+    hypotheses: { id: 'aios-hypotheses-skill', name: 'Формулировка гипотез', prompt: null },
+    ontology: { id: 'ontology-engineer', name: 'Конструктор онтологий', prompt: null },
+    rag: { id: 'rag-builder', name: 'Конструктор RAG', prompt: null }
+  };
+  var REMINDERS_POLL_MS = 120000; /* раз в 2 минуты — без инвалидации по конкретным действиям */
+
+  /* Объект сессии auth.js: {token, login, name, role, profile_filled}
+     (AUTH_KEY тот же ключ localStorage, что и isAuthed() выше). */
+  function getAuthSession() {
+    try {
+      var raw = localStorage.getItem(AUTH_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  var lastReminderItems = null; /* кэш последнего ответа /api/reminders, чтобы
+     перерисовывать бейдж при открытии/закрытии панели без лишнего запроса */
+
+  function renderReminderBadge(items) {
+    if (!reminderBadge) return;
+    if (panelOpen) { /* панель открыта — напоминание не нужно, человек уже в чате */
+      reminderBadge.hidden = true;
+      return;
+    }
+    if (!items || !items.length) {
+      reminderBadge.hidden = true;
+      reminderBadge.textContent = '';
+      delete reminderBadge.dataset.step;
+      return;
+    }
+    var item = items[0]; /* sequential-режим — обычно один; all — берём первый по цепочке */
+    reminderBadge.textContent = '✎ ' + item.label;
+    reminderBadge.dataset.step = item.id;
+    reminderBadge.hidden = false;
+  }
+
+  function loadReminders() {
+    var session = getAuthSession();
+    if (!session || !session.token || !window.AIOS_API || !window.AIOS_API.remindersList) {
+      renderReminderBadge(null);
+      return;
+    }
+    window.AIOS_API.remindersList(session.token)
+      .then(function (data) {
+        lastReminderItems = (data && data.items) || [];
+        renderReminderBadge(lastReminderItems);
+      })
+      .catch(function () {
+        lastReminderItems = null;
+        renderReminderBadge(null);
+      });
+  }
+
+  if (reminderBadge) {
+    reminderBadge.addEventListener('click', function () {
+      var stepId = reminderBadge.dataset.step;
+      var info = REMINDER_SKILLS[stepId];
+      reminderBadge.hidden = true;
+      if (info) launchSkill({ id: info.id, name: info.name }, info.prompt || undefined);
+    });
+  }
+
+  loadReminders();
+  window.addEventListener('aios-auth-change', loadReminders);
+  setInterval(loadReminders, REMINDERS_POLL_MS);
+
   /* ---------- открытие / закрытие панели ---------- */
 
   var panelOpen = false;
@@ -484,6 +565,7 @@
   function openPanel(via) {
     if (panelOpen) return;
     panelOpen = true;
+    renderReminderBadge(lastReminderItems); /* панель открыта — прячем напоминание */
     lastTrigger = via || null;
     clearTimeout(closeTimer);
     if (readyBadge) readyBadge.hidden = true;
@@ -527,6 +609,7 @@
   function closePanel() {
     if (!panelOpen) return;
     panelOpen = false;
+    renderReminderBadge(lastReminderItems); /* панель закрыта — напоминание снова уместно */
     overlay.classList.remove('ws-overlay--show');
     panel.classList.remove('ws-open');
     clearTimeout(closeTimer);

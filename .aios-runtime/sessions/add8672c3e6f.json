@@ -1,0 +1,21 @@
+{
+ "id": "add8672c3e6f",
+ "title": "ответь одним словом: работает",
+ "created_at": 1788855632.0017366,
+ "updated_at": 1788855638.594017,
+ "model": "z-ai/glm-5.3-flash",
+ "agent_id": null,
+ "skill_ids": [],
+ "messages": [
+  {
+   "role": "user",
+   "content": "ответь одним словом: работает",
+   "ts": 1788855632.0024338
+  },
+  {
+   "role": "assistant",
+   "content": "Работает.",
+   "ts": 1788855638.594015
+  }
+ ]
+}

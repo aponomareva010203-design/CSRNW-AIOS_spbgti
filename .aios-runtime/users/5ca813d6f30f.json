@@ -1,0 +1,11 @@
+{
+ "id": "5ca813d6f30f",
+ "login": "bolotova.lyubov1@yandex.ru",
+ "name": "",
+ "role": "Пользователь",
+ "salt": "92372b7168b5e2fd79c0e476453392bd",
+ "password_hash": "5926dda68bbe0b2b35286ef2d36690a80dd12b3758341fcddf09704f39b94188",
+ "created_at": 1789049888.895653,
+ "last_login": 1789072012.1602592,
+ "confirmed": true
+}

@@ -1,0 +1,12 @@
+{
+ "id": "f7afbf22a988",
+ "login": "xdeox88@gmail.com",
+ "name": "",
+ "role": "Пользователь",
+ "salt": "e43e82daaec5d3a7a71078a8ea6af5c6",
+ "password_hash": "df96e30fbf1091686e9bcd13894b7d005647ba2cfd82f46643883eae2c993c1b",
+ "created_at": 1789129214.9939015,
+ "last_login": 1789129237.6593564,
+ "confirmed": true,
+ "reminder_overrides": {}
+}
