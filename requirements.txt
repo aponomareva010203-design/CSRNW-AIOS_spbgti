@@ -1,0 +1,20 @@
+fastapi>=0.110
+uvicorn[standard]>=0.29
+pydantic>=2.6
+httpx>=0.27
+python-multipart>=0.0.9
+pypdf>=4.0
+# Ставились на сервере вручную и в файле не значились: чистая установка
+# поднималась, но падала на импорте indexer (qdrant-client) и отвечала
+# «не установлено» на read_data_file и make_document.
+qdrant-client
+openpyxl
+python-docx
+# Парсинг YAML-frontmatter навыков (триггеры подсказок, этапы конвейера).
+pyyaml
+
+# Прогон тестов на сервере — часть штатной проверки после переноса и после
+# каждой выкладки (Architecture_V5 §6.9), поэтому pytest ставится вместе с
+# приложением, а не отдельным dev-набором.
+pytest
+pillow

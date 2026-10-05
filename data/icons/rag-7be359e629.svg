@@ -1,0 +1,13 @@
+<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <path d="M14 9 H38 L46 17 V54 H14 Z" fill="#F4F6EF" stroke="#2C3128" stroke-width="2" stroke-linejoin="round" />
+  <path d="M38 9 V17 H46" fill="none" stroke="#2C3128" stroke-width="2" stroke-linejoin="round" />
+  <line x1="20" y1="24" x2="33" y2="24" stroke="#5D6C50" stroke-width="2" stroke-linecap="round" />
+  <line x1="20" y1="30" x2="27" y2="30" stroke="#5D6C50" stroke-width="2" stroke-linecap="round" />
+  <polyline points="21,42 27,36 33,42 39,36" fill="none" stroke="#C2A054" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+  <circle cx="21" cy="42" r="3" fill="#C2A054" stroke="#2C3128" stroke-width="1.5" />
+  <circle cx="27" cy="36" r="3" fill="#C2A054" stroke="#2C3128" stroke-width="1.5" />
+  <circle cx="33" cy="42" r="3" fill="#C2A054" stroke="#2C3128" stroke-width="1.5" />
+  <circle cx="39" cy="36" r="3" fill="#C2A054" stroke="#2C3128" stroke-width="1.5" />
+  <circle cx="39.5" cy="42" r="9.5" fill="#F4F6EF" fill-opacity="0.4" stroke="#5D6C50" stroke-width="2.5" />
+  <line x1="46.2" y1="48.7" x2="51" y2="53.5" stroke="#5D6C50" stroke-width="3" stroke-linecap="round" />
+</svg>

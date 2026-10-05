@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Админ-панель — AIOS Технологического института</title>
+<link rel="stylesheet" href="css/style.css?v=20260929m">
+</head>
+<body>
+<div class="layout">
+
+  <aside class="sidebar">
+    <a class="wordmark" href="index.html">
+      <span class="sigil"></span>
+      <span>AIOS</span>
+    </a>
+    <nav class="side-nav" aria-label="Разделы AIOS">
+      <div class="side-group side-group--collapsible" data-side-group="dashboards">
+        <button class="side-group-title side-group-toggle" type="button" aria-expanded="true" aria-controls="sideGroupDashboards">Дашборды</button>
+        <div class="side-group-items" id="sideGroupDashboards">
+        <a class="side-link" id="menuPish" href="pish.html" hidden>ПИШ «Химический инжиниринг»</a>
+        <span class="side-link side-link--disabled" id="menuPishLock">ПИШ «Химический инжиниринг» <span class="side-note">в разработке</span></span>
+        <a class="side-link" href="pilot.html">Статус пилотного проекта</a>
+        </div>
+      </div>
+
+      <div class="side-group side-group--collapsible" data-side-group="catalogs">
+        <button class="side-group-title side-group-toggle" type="button" aria-expanded="true" aria-controls="sideGroupCatalogs">Каталоги</button>
+        <div class="side-group-items" id="sideGroupCatalogs">
+        <a class="side-link side-link--ico" href="knowledge.html"><svg class="side-ico" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="5.5" rx="7" ry="2.8"/><path d="M5 5.5v13c0 1.6 3.1 2.9 7 2.9s7-1.3 7-2.9v-13"/><path d="M5 12c0 1.6 3.1 2.9 7 2.9s7-1.3 7-2.9"/></svg><span class="side-ico-main">Данные и знания</span></a>
+        <a class="side-link side-link--ico" href="agents.html"><svg class="side-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="5.5" y="8" width="13" height="10" rx="3"/><path d="M12 8V5.2"/><circle cx="12" cy="4" r="1.2"/><path d="M9.5 12.3h.01M14.5 12.3h.01"/><path d="M9.5 15.5h5"/></svg><span class="side-ico-main">Агенты</span></a>
+        <a class="side-link side-link--ico" id="menuModels" href="models.html" hidden><svg class="side-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="2"/><rect x="10.2" y="10.2" width="3.6" height="3.6" rx="1"/><path d="M9.5 7V4.5M14.5 7V4.5M9.5 19.5V17M14.5 19.5V17M7 9.5H4.5M7 14.5H4.5M19.5 9.5H17M19.5 14.5H17"/></svg><span class="side-ico-main">Модели</span></a>
+        <a class="side-link side-link--ico side-link--disabled side-link--disabled" ><svg class="side-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5l7.4 4.3v8.4L12 20.5l-7.4-4.3V7.8z"/></svg><span class="side-ico-main">Полигоны <span class="side-note">в разработке</span></span></a>
+        </div>
+      </div>
+
+      <div class="side-group side-group--collapsible" id="wsGroup" data-side-group="workspace" hidden>
+        <button class="side-group-title side-group-toggle" type="button" aria-expanded="true" aria-controls="sideGroupWorkspace">Рабочее пространство</button>
+        <div class="side-group-items" id="sideGroupWorkspace">
+        <button class="side-link side-link--ico side-link--chat" id="btnNavWorkspace" type="button" hidden><svg class="side-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11.5a8.4 8.4 0 0 1-8.5 8.4 8.9 8.9 0 0 1-3.4-.7L4 20l1.4-4.4A8.4 8.4 0 1 1 20 11.5z"/><path d="M12 8.5v6M9 11.5h6"/></svg><span class="side-ico-main">Новый чат</span></button>
+        <a class="side-link side-link--ico" id="menuCabinet" href="cabinet.html"><svg class="side-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5.5 20a6.5 6.5 0 0 1 13 0"/></svg><span class="side-ico-main">Кабинет</span></a>
+        <a class="side-link side-link--ico" id="menuProjects" href="projects.html"><svg class="side-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7.5A2.5 2.5 0 0 1 6.5 5h3l2 2.5h6A2.5 2.5 0 0 1 20 10v7a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 17z"/></svg><span class="side-ico-main">Проекты</span></a>
+        <a class="side-link side-link--ico" id="menuAutomations" href="automations.html"><svg class="side-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 3 5.5 13.5H11L10 21l7.5-10.5H12z"/></svg><span class="side-ico-main">Автоматизации</span></a>
+        </div>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <a class="side-link" id="btnSettings" href="settings.html" hidden>Настройки</a>
+      <button class="side-link" id="btnSuggest" type="button">Предложить изменения</button>
+      <a class="side-link" id="menuAdmin" href="admin.html" hidden>Админ-панель</a>
+      <div class="sidebar-user">
+        <button class="btn-login" id="btnLogin" type="button" aria-haspopup="dialog" aria-controls="loginModal">Войти</button>
+        <div class="user-menu" id="userMenu" hidden>
+          <div class="user-menu-head">
+            <span class="user-menu-name"></span>
+            <span class="user-menu-role"></span>
+          </div>
+          <a class="user-menu-item" id="menuPilot" href="pilot.html" hidden>Пилот: режим администратора</a>
+          <button class="user-menu-item" id="btnChangePass" type="button" hidden>Сменить пароль</button>
+          <button class="user-menu-item user-menu-logout" id="btnLogout" type="button">Выйти</button>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <script src="js/sidebar.js?v=20260925zq"></script>
+
+  <div class="page">
+
+  <section class="section-head">
+    <a class="backlink" href="index.html">← AIOS Технологического института</a>
+    <h1>Админ-панель</h1>
+    <p class="subtitle">Все регистрации пользователей AIOS</p>
+    <div class="rule"></div>
+  </section>
+
+  <!-- Сообщение об отказе в доступе / ошибке загрузки -->
+  <section class="admin-denied" id="adminAccess" hidden>
+    <p class="login-msg login-msg--error" id="adminAccessMsg"></p>
+    <p class="admin-denied-hint">Вернуться на <a class="pl-link" href="index.html">главную страницу</a></p>
+  </section>
+
+  <section class="admin-wrap admin-wrap--llm" id="llmWrap" hidden>
+    <div class="admin-toolbar">
+      <button class="admin-collapse-toggle" id="llmToggle" type="button" aria-expanded="true" aria-controls="llmBody">
+        <h2 class="admin-h2">Настройки внешних API (LLM)</h2>
+      </button>
+      <p class="admin-count" id="llmCurrent">Модель рабочего чата для всех пользователей</p>
+    </div>
+    <div class="admin-collapse-body" id="llmBody">
+    <form class="llm-form" id="llmForm">
+      <label>
+        <span>Endpoint (Base URL)</span>
+        <input type="url" name="base_url" placeholder="https://api.proxyapi.ru/v1" required>
+      </label>
+      <label>
+        <span>API-ключ <em id="llmKeyHint"></em></span>
+        <input type="password" name="api_key" placeholder="sk-… (пусто = без изменений)" autocomplete="new-password">
+      </label>
+      <label>
+        <span>Модель</span>
+        <span class="llm-model-row">
+          <input type="text" name="model" list="llmModels" placeholder="введите или выберите из списка" required>
+          <datalist id="llmModels"></datalist>
+          <button class="adm-btn" id="btnLoadModels" type="button">Загрузить модели</button>
+        </span>
+      </label>
+      <p class="login-msg login-msg--note admin-msg" id="llmStatus" hidden></p>
+      <p class="login-msg login-msg--error admin-msg" id="llmMsg" hidden></p>
+      <div class="llm-actions">
+        <button class="adm-btn" id="btnTestLLM" type="button">Проверить соединение</button>
+        <button class="btn-primary llm-save" type="submit">Сохранить</button>
+      </div>
+    </form>
+    </div>
+  </section>
+
+  <!-- n8n: движок раздела «Автоматизации» (deploy/n8n/SETUP.md) -->
+  <section class="admin-wrap admin-wrap--n8n" id="n8nWrap" hidden>
+    <div class="admin-toolbar">
+      <button class="admin-collapse-toggle" id="n8nToggle" type="button" aria-expanded="true" aria-controls="n8nBody">
+        <h2 class="admin-h2">n8n (автоматизации)</h2>
+      </button>
+      <p class="admin-count" id="n8nCurrent">Движок автоматизаций платформы</p>
+    </div>
+    <div class="admin-collapse-body" id="n8nBody">
+    <form class="llm-form" id="n8nForm">
+      <label>
+        <span>Адрес n8n</span>
+        <input type="url" name="base_url" placeholder="http://127.0.0.1:5678" required>
+      </label>
+      <label>
+        <span>API-ключ <em id="n8nKeyHint"></em></span>
+        <input type="password" name="api_key" placeholder="n8n → Settings → n8n API → Create an API key (пусто = без изменений)" autocomplete="new-password">
+      </label>
+      <p class="admin-note">Как получить ключ — deploy/n8n/SETUP.md: поднять контейнер, один раз зайти владельцем и создать ключ. Пользователи платформы в n8n не заводятся.</p>
+      <p class="login-msg login-msg--note admin-msg" id="n8nStatus" hidden></p>
+      <p class="login-msg login-msg--error admin-msg" id="n8nMsg" hidden></p>
+      <div class="llm-actions">
+        <button class="adm-btn" id="btnTestN8n" type="button">Проверить связь</button>
+        <button class="btn-primary llm-save" type="submit">Сохранить</button>
+      </div>
+    </form>
+    </div>
+  </section>
+
+  <!-- Раздел «Напоминания»: тумблеры шагов пайплайна + личный тестовый режим -->
+  <section class="admin-wrap admin-wrap--reminders" id="remWrap" hidden>
+    <div class="admin-toolbar">
+      <button class="admin-collapse-toggle" id="remToggle" type="button" aria-expanded="true" aria-controls="remBody">
+        <h2 class="admin-h2">Напоминания по шагам пайплайна</h2>
+      </button>
+      <p class="admin-count">Подсказки участникам, что доделать: онбординг → гипотезы → онтология → RAG</p>
+    </div>
+    <div class="admin-collapse-body" id="remBody">
+      <p class="admin-note">Включённый шаг виден всем участникам, пока они его не выполнят; сам участник выключить его не может. Личный тестовый режим ниже действует только на ваш аккаунт.</p>
+
+      <div class="admin-table-wrap">
+        <table class="admin-table rem-table">
+          <thead>
+            <tr>
+              <th>Шаг</th>
+              <th>Всем участникам</th>
+              <th>Только мне (тест)</th>
+            </tr>
+          </thead>
+          <tbody id="remRows"></tbody>
+        </table>
+      </div>
+
+      <p class="login-msg login-msg--note admin-msg" id="remStatus" hidden></p>
+      <p class="login-msg login-msg--error admin-msg" id="remMsg" hidden></p>
+      <div class="llm-actions">
+        <button class="btn-primary" id="btnRemSave" type="button">Сохранить</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Раздел «Лимиты токенов»: общий суточный лимит + индивидуальные оверрайды -->
+  <section class="admin-wrap admin-wrap--limits" id="limWrap" hidden>
+    <div class="admin-toolbar">
+      <button class="admin-collapse-toggle" id="limToggle" type="button" aria-expanded="true" aria-controls="limBody">
+        <h2 class="admin-h2">Лимиты токенов</h2>
+      </button>
+      <p class="admin-count">Суточный лимит LLM-токенов на пользователя; в таблице ниже можно задать отдельный лимит</p>
+    </div>
+    <div class="admin-collapse-body" id="limBody">
+      <p class="admin-note">Счётчик каждого пользователя обнуляется в 00:00 по московскому времени. Индивидуальные лимиты задаются кнопкой «Изменить» в колонке «Суточный лимит» таблицы регистраций (пустое значение — вернуть общий).</p>
+      <form class="llm-form" id="limForm">
+        <label>
+          <span>Общий суточный лимит на пользователя, токенов</span>
+          <input type="number" name="daily_limit" min="1" step="1" placeholder="3500000" required>
+        </label>
+        <p class="login-msg login-msg--note admin-msg" id="limStatus" hidden></p>
+        <p class="login-msg login-msg--error admin-msg" id="limMsg" hidden></p>
+        <div class="llm-actions">
+          <button class="btn-primary" type="submit">Сохранить</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- Элемент 2 плана: раздел «Об организации» — профиль, показатели и документы -->
+  <section class="admin-wrap admin-wrap--org" id="orgWrap" hidden>
+    <div class="admin-toolbar">
+      <button class="admin-collapse-toggle" id="orgToggle" type="button" aria-expanded="true" aria-controls="orgBody">
+        <h2 class="admin-h2">Об организации</h2>
+      </button>
+      <p class="admin-count">Профиль, показатели деятельности и основные документы организации</p>
+    </div>
+    <div class="admin-collapse-body" id="orgBody">
+    <p class="login-msg login-msg--error admin-msg" id="orgMsg" hidden></p>
+    <p class="login-msg login-msg--note admin-msg" id="orgStatus" hidden></p>
+
+    <!-- Элемент 1: Информация об организации (рендерится из profile.json/metrics.json) -->
+    <div class="org-card" id="orgInfoCard" hidden>
+      <div class="org-card-head">
+        <h3 class="org-h3">Информация об организации</h3>
+        <span class="org-type" id="orgType"></span>
+      </div>
+
+      <form class="org-form" id="orgProfileForm" novalidate>
+        <h4 class="org-h4">Основная информация</h4>
+        <div id="orgProfileFields"></div>
+        <label class="org-source">
+          <span>Источник данных</span>
+          <input type="text" name="source" maxlength="300" placeholder="например: мониторинг Минобрнауки, 2025">
+        </label>
+        <div class="org-actions">
+          <button class="btn-primary org-save" type="submit">Сохранить раздел</button>
+          <span class="org-updated" id="orgProfileUpdated"></span>
+        </div>
+      </form>
+
+      <form class="org-form" id="orgMetricsForm" novalidate>
+        <h4 class="org-h4">Показатели деятельности</h4>
+        <div id="orgMetricsFields"></div>
+        <label class="org-source">
+          <span>Источник данных</span>
+          <input type="text" name="source" maxlength="300" placeholder="например: форма ВПО-1, 2025">
+        </label>
+        <div class="org-actions">
+          <button class="btn-primary org-save" type="submit">Сохранить раздел</button>
+          <span class="org-updated" id="orgMetricsUpdated"></span>
+        </div>
+      </form>
+    </div>
+
+    <!-- Элемент 2: Основные документы организации -->
+    <div class="org-card" id="orgDocsCard" hidden>
+      <div class="org-card-head">
+        <button class="admin-collapse-toggle" id="orgDocsToggle" type="button" aria-expanded="true" aria-controls="orgDocsGroups">
+          <span class="org-h3">Основные документы</span>
+        </button>
+        <span class="org-updated">Скачивание — по клику на карточку</span>
+      </div>
+      <div id="orgDocsGroups"></div>
+    </div>
+    </div>
+  </section>
+
+  <!-- Блок «Рассылка писем»: настройки SMTP + композиция и отправка письма -->
+  <section class="admin-wrap admin-wrap--mail" id="mailWrap" hidden>
+    <div class="admin-toolbar">
+      <button class="admin-collapse-toggle" id="mailToggle" type="button" aria-expanded="true" aria-controls="mailBody">
+        <h2 class="admin-h2">Рассылка писем</h2>
+      </button>
+      <p class="admin-count">Настройки SMTP, письмо и получатели — из базы пользователей платформы</p>
+    </div>
+    <div class="admin-collapse-body" id="mailBody">
+
+      <h3 class="org-h3">Настройки SMTP</h3>
+      <form class="llm-form" id="mailSettingsForm">
+        <label>
+          <span>SMTP-сервер</span>
+          <input type="text" name="host" placeholder="smtp.yandex.ru" required>
+        </label>
+        <label>
+          <span>Порт</span>
+          <input type="number" name="port" min="1" max="65535" placeholder="465" required>
+        </label>
+        <label>
+          <span>Шифрование</span>
+          <select name="tls">
+            <option value="ssl">SSL (порт 465, Яндекс)</option>
+            <option value="starttls">STARTTLS (порт 587)</option>
+            <option value="none">Без шифрования</option>
+          </select>
+        </label>
+        <label>
+          <span>Логин (обычно совпадает с адресом отправителя)</span>
+          <input type="text" name="user" placeholder="rassylka@yandex.ru">
+        </label>
+        <label>
+          <span>Пароль приложения <em id="mailPassHint"></em></span>
+          <input type="password" name="password" placeholder="пароль приложения (пусто = без изменений)" autocomplete="new-password">
+        </label>
+        <label>
+          <span>Адрес отправителя (From)</span>
+          <input type="text" name="from_email" placeholder="rassylka@yandex.ru">
+        </label>
+        <label>
+          <span>Имя отправителя</span>
+          <input type="text" name="from_name" placeholder="AIOS Технологического института">
+        </label>
+        <p class="login-msg login-msg--note admin-msg" id="mailSettingsStatus" hidden></p>
+        <p class="login-msg login-msg--error admin-msg" id="mailSettingsMsg" hidden></p>
+        <div class="llm-actions">
+          <button class="btn-primary" type="submit">Сохранить настройки SMTP</button>
+        </div>
+      </form>
+
+      <h3 class="org-h3 mail-section-gap">Письмо</h3>
+      <form class="llm-form" id="mailComposeForm">
+        <label>
+          <span>Тема письма</span>
+          <input type="text" name="subject" maxlength="300" placeholder="Например: Приглашение на мастерскую" required>
+        </label>
+        <label>
+          <span>Текст письма</span>
+          <textarea name="body_text" id="mailBodyText" rows="10" placeholder="Здравствуйте!&#10;&#10;Пустая строка — новый абзац. AIOS сама оформит текст в письмо." required></textarea>
+        </label>
+        <label>
+          <span>Текст кнопки (необязательно)</span>
+          <input type="text" name="button_label" id="mailButtonLabel" maxlength="100" placeholder="Программа мастерской">
+        </label>
+        <label>
+          <span>Ссылка кнопки (необязательно)</span>
+          <input type="url" name="button_url" id="mailButtonUrl" placeholder="https://…">
+        </label>
+        <div class="llm-actions">
+          <button class="adm-btn" id="btnMailPreview" type="button">Обновить предпросмотр</button>
+        </div>
+        <div class="mail-preview-wrap">
+          <p class="admin-count">Предпросмотр письма</p>
+          <iframe class="mail-preview" id="mailPreviewFrame" title="Предпросмотр письма"></iframe>
+        </div>
+      </form>
+
+      <h3 class="org-h3 mail-section-gap">Получатели</h3>
+      <div class="llm-actions">
+        <button class="adm-btn" id="btnMailSelectAll" type="button">Отметить всех</button>
+        <button class="adm-btn" id="btnMailSelectNone" type="button">Снять все отметки</button>
+        <span class="admin-count" id="mailRecipientsCount"></span>
+      </div>
+      <div class="mail-recipients" id="mailRecipients"></div>
+
+      <p class="login-msg login-msg--note admin-msg" id="mailSendStatus" hidden></p>
+      <p class="login-msg login-msg--error admin-msg" id="mailSendMsg" hidden></p>
+
+      <div class="llm-actions mail-section-gap">
+        <label class="mail-test-inline">
+          <span>Тестовый адрес</span>
+          <input type="text" id="mailTestTo" placeholder="you@example.com">
+        </label>
+        <button class="adm-btn" id="btnMailTest" type="button">Отправить тестовое</button>
+        <button class="btn-primary" id="btnMailSend" type="button">Отправить отмеченным</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Раздел «Предложения пользователей»: все заявки из окна «Предложить изменения» -->
+  <section class="admin-wrap admin-wrap--suggestions" id="sugWrap" hidden>
+    <div class="admin-toolbar">
+      <button class="admin-collapse-toggle" id="sugToggle" type="button" aria-expanded="true" aria-controls="sugBody">
+        <h2 class="admin-h2">Предложения пользователей</h2>
+      </button>
+      <p class="admin-count" id="sugCount">Все предложения из окна «Предложить изменения»</p>
+      <button class="adm-btn" id="btnSugRefresh" type="button">Обновить</button>
+    </div>
+    <div class="admin-collapse-body" id="sugBody">
+      <p class="admin-note">Выполненные предложения не удаляются: становятся бледными и уходят вниз списка. Кнопка «Вернуть» возвращает предложение в работу.</p>
+      <p class="login-msg login-msg--error admin-msg" id="sugMsg" hidden></p>
+      <div class="sug-list" id="sugList"></div>
+    </div>
+  </section>
+
+  <section class="admin-wrap" id="adminWrap" hidden>
+    <div class="admin-toolbar">
+      <p class="admin-count">Всего регистраций: <span id="adminCount">…</span></p>
+      <p class="admin-count admin-spend" id="adminSpend" hidden></p>
+      <button class="adm-btn" id="btnRefresh" type="button">Обновить список</button>
+    </div>
+    <p class="login-msg login-msg--error admin-msg" id="adminMsg" hidden></p>
+    <div class="admin-table-wrap">
+      <table class="admin-table" id="adminTable">
+        <thead>
+          <tr>
+            <th class="at-num">№</th>
+            <th class="at-name">Имя</th>
+            <th class="at-fio">ФИО</th>
+            <th class="at-position">Должность</th>
+            <th>Логин</th>
+            <th class="at-project">Проект</th>
+            <th class="at-stage">Этап</th>
+            <th>Роль</th>
+            <th>Регистрация</th>
+            <th>Последний вход</th>
+            <th class="at-tokens at-sortable" id="thTokens" title="Кликните для сортировки — рейтинг токенмаксинга">Токены <span class="at-sort-arrow" id="tokensSortArrow"></span></th>
+            <th class="at-llm" title="Внешний API (LLM): общие настройки платформы или личные настройки пользователя (Настройки → Внешний API)">Внешний API</th>
+            <th class="at-limit">Суточный лимит</th>
+            <th class="at-ctx">Скрытый контекст</th>
+            <th class="at-actions">Действия</th>
+          </tr>
+        </thead>
+        <tbody id="adminBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+</div>
+</div>
+<script src="js/cookie-consent.js?v=20261001b"></script>
+<script src="js/api.js?v=20260929m"></script>
+<script src="js/auth.js?v=20260925zq"></script>
+<script src="js/admin.js?v=20261003d"></script>
+<script src="js/organization.js?v=20260925"></script>
+<script src="js/agent_views.js?v=20260929m"></script>
+<script src="js/thinking.js?v=20260925zq"></script>
+<script src="js/workspace.js?v=20260929m"></script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200" role="img" aria-label="Агент">
+  <rect width="320" height="200" fill="#F1EEE4"/>
+  <g>
+    <rect x="122" y="62" width="76" height="70" rx="10" fill="none" stroke="#7C8B6C" stroke-width="3"/>
+    <line x1="142" y1="62" x2="142" y2="50" stroke="#7C8B6C" stroke-width="3" stroke-linecap="round"/>
+    <line x1="178" y1="62" x2="178" y2="50" stroke="#7C8B6C" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="142" cy="45" r="4" fill="#7C8B6C"/>
+    <circle cx="178" cy="45" r="4" fill="#7C8B6C"/>
+    <circle cx="146" cy="90" r="6" fill="#5D6C50"/>
+    <circle cx="174" cy="90" r="6" fill="#5D6C50"/>
+    <line x1="146" y1="112" x2="174" y2="112" stroke="#5D6C50" stroke-width="3.5" stroke-linecap="round"/>
+    <line x1="160" y1="132" x2="160" y2="146" stroke="#7C8B6C" stroke-width="3"/>
+    <line x1="140" y1="150" x2="180" y2="150" stroke="#7C8B6C" stroke-width="3" stroke-linecap="round"/>
+  </g>
+  <g>
+    <line x1="122" y1="84" x2="88" y2="68" stroke="#C2A054" stroke-width="2.5"/>
+    <line x1="122" y1="118" x2="88" y2="136" stroke="#C2A054" stroke-width="2.5"/>
+    <line x1="198" y1="84" x2="232" y2="68" stroke="#C2A054" stroke-width="2.5"/>
+    <line x1="198" y1="118" x2="232" y2="136" stroke="#C2A054" stroke-width="2.5"/>
+    <circle cx="80" cy="65" r="9" fill="none" stroke="#5D6C50" stroke-width="3"/>
+    <circle cx="80" cy="140" r="9" fill="none" stroke="#5D6C50" stroke-width="3"/>
+    <circle cx="240" cy="65" r="9" fill="none" stroke="#5D6C50" stroke-width="3"/>
+    <rect x="229" y="132" width="22" height="16" rx="4" fill="none" stroke="#5D6C50" stroke-width="3"/>
+  </g>
+  <g stroke="#C2A054" stroke-width="3" stroke-linecap="round">
+    <line x1="219" y1="30" x2="219" y2="46"/>
+    <line x1="211" y1="38" x2="227" y2="38"/>
+    <line x1="213.5" y1="32.5" x2="224.5" y2="43.5"/>
+    <line x1="224.5" y1="32.5" x2="213.5" y2="43.5"/>
+  </g>
+</svg>

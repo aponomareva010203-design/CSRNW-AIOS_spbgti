@@ -1,0 +1,58 @@
+# n8n — движок автоматизаций платформы AIOS.
+#
+# Запуск на VPS:      docker compose up -d
+# Первичная настройка: см. SETUP.md (владелец → API-ключ → админ-панель AIOS).
+#
+# Порт публикуется только на localhost: снаружу n8n недоступен,
+# все обращения идут с сервера (AIOS → public API / webhook).
+# Внешние webhook-триггеры и разовая настройка владельца — через nginx
+# (nginx-n8n.conf, поддомен n8n.<домен>).
+#
+# host.docker.internal → хост: контейнеру n8n нужен доступ к AIOS
+# для шага «ИИ-агент AIOS» (/api/internal/agent-step).
+
+services:
+  n8n:
+    image: docker.n8n.io/n8nio/n8n
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:5678:5678"
+    environment:
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=n8n-db
+      - DB_POSTGRESDB_DATABASE=n8n
+      - DB_POSTGRESDB_USER=n8n
+      - DB_POSTGRESDB_PASSWORD=${N8N_POSTGRES_PASSWORD:-n8n-change-me}
+      - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY:-change-me-random-32-chars-minimum}
+      # время и локаль — иначе расписание (scheduleTrigger) уходит по UTC
+      - GENERIC_TIMEZONE=Europe/Moscow
+      - TZ=Europe/Moscow
+      # базовый URL для webhook-ов, если автоматизации с триггером
+      # «внешний webhook» будут вызываться снаружи (через nginx)
+      - N8N_WEBHOOK_URL=https://n8n.176.108.244.194.sslip.io/
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - n8n_data:/home/node/.n8n
+    depends_on:
+      n8n-db:
+        condition: service_healthy
+
+  n8n-db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=n8n
+      - POSTGRES_PASSWORD=${N8N_POSTGRES_PASSWORD:-n8n-change-me}
+      - POSTGRES_DB=n8n
+    volumes:
+      - n8n_db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U n8n"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  n8n_data:
+  n8n_db:

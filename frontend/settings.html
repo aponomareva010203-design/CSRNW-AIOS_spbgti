@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Настройки — AIOS Технологического института</title>
+<link rel="stylesheet" href="css/style.css?v=20260929m">
+</head>
+<body>
+<div class="layout">
+
+  <aside class="sidebar">
+    <a class="wordmark" href="index.html">
+      <span class="sigil"></span>
+      <span>AIOS</span>
+    </a>
+    <nav class="side-nav" aria-label="Разделы AIOS">
+      <div class="side-group side-group--collapsible" data-side-group="dashboards">
+        <button class="side-group-title side-group-toggle" type="button" aria-expanded="true" aria-controls="sideGroupDashboards">Дашборды</button>
+        <div class="side-group-items" id="sideGroupDashboards">
+        <a class="side-link" id="menuPish" href="pish.html" hidden>ПИШ «Химический инжиниринг»</a>
+        <span class="side-link side-link--disabled" id="menuPishLock">ПИШ «Химический инжиниринг» <span class="side-note">в разработке</span></span>
+        <a class="side-link" href="pilot.html">Статус пилотного проекта</a>
+        </div>
+      </div>
+
+      <div class="side-group side-group--collapsible" data-side-group="catalogs">
+        <button class="side-group-title side-group-toggle" type="button" aria-expanded="true" aria-controls="sideGroupCatalogs">Каталоги</button>
+        <div class="side-group-items" id="sideGroupCatalogs">
+        <a class="side-link side-link--ico" href="knowledge.html"><svg class="side-ico" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="5.5" rx="7" ry="2.8"/><path d="M5 5.5v13c0 1.6 3.1 2.9 7 2.9s7-1.3 7-2.9v-13"/><path d="M5 12c0 1.6 3.1 2.9 7 2.9s7-1.3 7-2.9"/></svg><span class="side-ico-main">Данные и знания</span></a>
+        <a class="side-link side-link--ico" href="agents.html"><svg class="side-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="5.5" y="8" width="13" height="10" rx="3"/><path d="M12 8V5.2"/><circle cx="12" cy="4" r="1.2"/><path d="M9.5 12.3h.01M14.5 12.3h.01"/><path d="M9.5 15.5h5"/></svg><span class="side-ico-main">Агенты</span></a>
+        <a class="side-link side-link--ico" id="menuModels" href="models.html" hidden><svg class="side-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="2"/><rect x="10.2" y="10.2" width="3.6" height="3.6" rx="1"/><path d="M9.5 7V4.5M14.5 7V4.5M9.5 19.5V17M14.5 19.5V17M7 9.5H4.5M7 14.5H4.5M19.5 9.5H17M19.5 14.5H17"/></svg><span class="side-ico-main">Модели</span></a>
+        <a class="side-link side-link--ico side-link--disabled side-link--disabled" ><svg class="side-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5l7.4 4.3v8.4L12 20.5l-7.4-4.3V7.8z"/></svg><span class="side-ico-main">Полигоны <span class="side-note">в разработке</span></span></a>
+        </div>
+      </div>
+
+      <div class="side-group side-group--collapsible" id="wsGroup" data-side-group="workspace" hidden>
+        <button class="side-group-title side-group-toggle" type="button" aria-expanded="true" aria-controls="sideGroupWorkspace">Рабочее пространство</button>
+        <div class="side-group-items" id="sideGroupWorkspace">
+        <button class="side-link side-link--ico side-link--chat" id="btnNavWorkspace" type="button" hidden><svg class="side-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11.5a8.4 8.4 0 0 1-8.5 8.4 8.9 8.9 0 0 1-3.4-.7L4 20l1.4-4.4A8.4 8.4 0 1 1 20 11.5z"/><path d="M12 8.5v6M9 11.5h6"/></svg><span class="side-ico-main">Новый чат</span></button>
+        <a class="side-link side-link--ico" id="menuCabinet" href="cabinet.html"><svg class="side-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5.5 20a6.5 6.5 0 0 1 13 0"/></svg><span class="side-ico-main">Кабинет</span></a>
+        <a class="side-link side-link--ico" id="menuProjects" href="projects.html"><svg class="side-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7.5A2.5 2.5 0 0 1 6.5 5h3l2 2.5h6A2.5 2.5 0 0 1 20 10v7a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 17z"/></svg><span class="side-ico-main">Проекты</span></a>
+        <a class="side-link side-link--ico" id="menuAutomations" href="automations.html"><svg class="side-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 3 5.5 13.5H11L10 21l7.5-10.5H12z"/></svg><span class="side-ico-main">Автоматизации</span></a>
+        </div>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <a class="side-link active" id="btnSettings" href="settings.html" hidden>Настройки</a>
+      <button class="side-link" id="btnSuggest" type="button">Предложить изменения</button>
+      <a class="side-link" id="menuAdmin" href="admin.html" hidden>Админ-панель</a>
+      <div class="sidebar-user">
+        <button class="btn-login" id="btnLogin" type="button" aria-haspopup="dialog" aria-controls="loginModal">Войти</button>
+        <div class="user-menu" id="userMenu" hidden>
+          <div class="user-menu-head">
+            <span class="user-menu-name"></span>
+            <span class="user-menu-role"></span>
+          </div>
+          <a class="user-menu-item" id="menuPilot" href="pilot.html" hidden>Пилот: режим администратора</a>
+          <button class="user-menu-item" id="btnChangePass" type="button" hidden>Сменить пароль</button>
+          <button class="user-menu-item user-menu-logout" id="btnLogout" type="button">Выйти</button>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <script src="js/sidebar.js?v=20260925zq"></script>
+
+  <div class="page">
+
+  <section class="section-head">
+    <a class="backlink" href="index.html">← AIOS Технологического института</a>
+    <h1>Настройки</h1>
+    <div class="rule"></div>
+  </section>
+
+  <div class="cab-wrap">
+
+    <!-- данные пользователя: персонализация ответов ассистента -->
+    <div class="org-card cab-card" id="setProfileCard" hidden>
+      <button class="cab-sec-head" id="setProfileHead" type="button" aria-controls="setProfileBody" aria-expanded="true">
+        <span class="org-h3 cab-sec-title">Данные пользователя</span>
+        <span class="org-updated" id="setUpdated"></span>
+        <span class="cab-sec-chev" aria-hidden="true"></span>
+      </button>
+      <div class="cab-sec-body" id="setProfileBody">
+      <p class="cab-note">Заполняется вами; ассистент платформы использует эти данные для персонализации ответов.</p>
+
+      <form class="org-form" id="setProfileForm" novalidate>
+        <div class="cab-grid">
+          <label class="org-field">
+            <span class="org-field-title">Фамилия</span>
+            <input type="text" name="last_name" maxlength="80" placeholder="Иванов">
+          </label>
+          <label class="org-field">
+            <span class="org-field-title">Имя</span>
+            <input type="text" name="first_name" maxlength="80" placeholder="Иван">
+          </label>
+          <label class="org-field">
+            <span class="org-field-title">Отчество</span>
+            <input type="text" name="patronymic" maxlength="80" placeholder="Иванович">
+          </label>
+        </div>
+
+        <div class="org-field">
+          <span class="org-field-title">Должности</span>
+          <div class="org-aliases" id="setPositions"></div>
+          <button class="btn-primary org-alias-add" id="setPosAdd" type="button">+ Добавить должность</button>
+        </div>
+
+        <label class="org-field">
+          <span class="org-field-title">Учёная степень / звание</span>
+          <input type="text" name="degree" maxlength="160" placeholder="например: кандидат технических наук">
+        </label>
+
+        <label class="org-field">
+          <span class="org-field-title">Научные интересы</span>
+          <textarea name="interests" rows="4" maxlength="2000" placeholder="например: машинное обучение, математическое моделирование…"></textarea>
+        </label>
+
+        <label class="cab-consent">
+          <input type="checkbox" id="setConsent">
+          <span>Даю Фонду «ЦСР «Северо-Запад» согласие на обработку указанных выше персональных данных</span>
+        </label>
+
+        <p class="login-msg" id="setProfileMsg" hidden></p>
+        <div class="org-actions">
+          <button class="btn-primary" id="setProfileSave" type="submit">Сохранить</button>
+          <span class="org-updated" id="setProfileStatus"></span>
+        </div>
+      </form>
+      </div>
+
+    </div>
+
+    <!-- личные настройки внешнего API (LLM) -->
+    <div class="org-card cab-card" id="setLLMCard" hidden>
+      <button class="cab-sec-head" id="setLLMHead" type="button" aria-controls="setLLMBody" aria-expanded="true">
+        <span class="org-h3 cab-sec-title">Внешний API (LLM)</span>
+        <span class="org-updated" id="setLLMMode"></span>
+        <span class="cab-sec-chev" aria-hidden="true"></span>
+      </button>
+      <div class="cab-sec-body" id="setLLMBody">
+        <p class="cab-note">Если заполнено, платформа обращается к генеративной модели через ваш endpoint и ваш ключ
+        (рабочий чат, иконки проектов, скрытый контекст). Пустые поля — общие настройки платформы, задаваемые
+        администратором. Модель — ваша, если указана; пусто — общая модель платформы. Индексация и поиск RAG
+        используют общий сервер эмбеддингов. При личных настройках суточный лимит токенов не применяется —
+        в левом меню показывается только потраченное за сутки.</p>
+
+        <form class="org-form" id="setLLMForm" novalidate>
+          <label class="org-field">
+            <span class="org-field-title">API Provider <span class="cab-wip">необязательно</span></span>
+            <input type="text" name="provider" maxlength="60" placeholder="например: OpenAI, vLLM, Ollama">
+          </label>
+
+          <label class="org-field">
+            <span class="org-field-title">Endpoint (Base URL)</span>
+            <input type="text" name="base_url" maxlength="300" placeholder="https://api.openai.com/v1">
+          </label>
+
+          <label class="org-field">
+            <span class="org-field-title">Модель <span class="cab-wip">пусто — общая модель платформы</span></span>
+            <input type="text" name="model" maxlength="200" placeholder="например: gpt-4o-mini, qwen2.5:14b">
+          </label>
+
+          <div class="cab-grid">
+            <label class="org-field">
+              <span class="org-field-title">API-ключ</span>
+              <input type="password" name="api_key" maxlength="400" autocomplete="new-password"
+                placeholder="введите новый ключ или оставьте пустым">
+            </label>
+            <label class="org-field">
+              <span class="org-field-title">API-ключ ещё раз</span>
+              <input type="password" name="api_key2" maxlength="400" autocomplete="new-password"
+                placeholder="повторите ключ">
+            </label>
+          </div>
+          <p class="cab-note" id="setLLMKeyHint"></p>
+
+          <p class="login-msg" id="setLLMMsg" hidden></p>
+          <div class="org-actions">
+            <button class="btn-primary" id="setLLMSave" type="submit">Сохранить настройки</button>
+            <button class="btn-primary prj-btn-ghost" id="setLLMTest" type="button">Проверить соединение</button>
+            <button class="btn-primary prj-btn-ghost" id="setLLMClear" type="button">Использовать общие</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Telegram-бот: привязка учётной записи (api/routers/telegram.py).
+         Код выдаёт /start в боте; deep-link settings.html#tg-link=КОД
+         подставляет код сам — пароль боту не вводится никогда.
+         Переехало из «Кабинета». -->
+    <div class="org-card cab-card" id="setTgCard" hidden>
+      <button class="cab-sec-head" id="setTgHead" type="button" aria-controls="setTgBody" aria-expanded="true">
+        <span class="org-h3 cab-sec-title">Telegram-бот</span>
+        <span class="org-updated" id="setTgState"></span>
+        <span class="cab-sec-chev" aria-hidden="true"></span>
+      </button>
+      <div class="cab-sec-body" id="setTgBody">
+        <p class="cab-note">Тот же чат с агентами и базами знаний, что и на сайте, — в Telegram.
+          Отправьте боту <a class="cab-link" id="setTgBotLink" href="#" hidden></a> команду <b>/start</b>
+          и введите присланный код ниже. Пароль боту не вводится никогда.</p>
+        <div class="cab-tg-row" id="setTgLinkForm" hidden>
+          <label class="org-field cab-tg-field">
+            <span class="org-field-title">Код привязки</span>
+            <input type="text" id="setTgCode" maxlength="32" placeholder="например: A1B2C3D4" autocomplete="off">
+          </label>
+          <button class="btn-primary" id="setTgLinkBtn" type="button">Привязать</button>
+        </div>
+        <p class="cab-note" id="setTgLinkedInfo" hidden></p>
+        <button class="btn-primary" id="setTgUnlinkBtn" type="button" hidden>Отвязать Telegram</button>
+        <p class="login-msg" id="setTgMsg" hidden></p>
+      </div>
+    </div>
+
+    <!-- безопасность: смена пароля -->
+    <div class="org-card cab-card" id="setSecurityCard" hidden>
+      <button class="cab-sec-head" id="setSecurityHead" type="button" aria-controls="setSecurityBody" aria-expanded="true">
+        <span class="org-h3 cab-sec-title">Безопасность</span>
+        <span class="cab-sec-chev" aria-hidden="true"></span>
+      </button>
+      <div class="cab-sec-body" id="setSecurityBody">
+        <p class="cab-note">После смены пароля другие сессии будут завершены (текущая останется активной).</p>
+        <div class="org-actions">
+          <button class="btn-primary" id="setChangePass" type="button" data-open-pass>Сменить пароль</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- гость: настройки недоступны -->
+    <section class="cab-denied" id="setGuest">
+      <p class="login-msg" id="setGuestMsg">Настройки доступны только после входа в AIOS.</p>
+      <p class="cab-denied-hint">Нажмите <button class="cab-link-btn" id="setLoginBtn" type="button">Войти</button> или кнопку «Войти» в левом меню.</p>
+    </section>
+
+  </div>
+
+</div>
+</div>
+<script src="js/cookie-consent.js?v=20261001b"></script>
+<script src="js/api.js?v=20260929m"></script>
+<script src="js/auth.js?v=20260925zq"></script>
+<script src="js/agent_views.js?v=20260929m"></script>
+<script src="js/thinking.js?v=20260925zq"></script>
+<script src="js/workspace.js?v=20260929m"></script>
+<script src="js/settings.js?v=20261002c"></script>
+</body>
+</html>

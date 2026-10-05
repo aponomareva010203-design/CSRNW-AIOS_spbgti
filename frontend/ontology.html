@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Визуализация онтологии — AIOS Технологического института</title>
+<link rel="stylesheet" href="css/style.css?v=20260929m">
+</head>
+<body>
+<div class="layout">
+
+  <aside class="sidebar">
+    <a class="wordmark" href="index.html">
+      <span class="sigil"></span>
+      <span>AIOS</span>
+    </a>
+    <nav class="side-nav" aria-label="Разделы AIOS">
+      <div class="side-group side-group--collapsible" data-side-group="dashboards">
+        <button class="side-group-title side-group-toggle" type="button" aria-expanded="true" aria-controls="sideGroupDashboards">Дашборды</button>
+        <div class="side-group-items" id="sideGroupDashboards">
+        <a class="side-link" id="menuPish" href="pish.html" hidden>ПИШ «Химический инжиниринг»</a>
+        <span class="side-link side-link--disabled" id="menuPishLock">ПИШ «Химический инжиниринг» <span class="side-note">в разработке</span></span>
+        <a class="side-link" href="pilot.html">Статус пилотного проекта</a>
+        </div>
+      </div>
+
+      <div class="side-group side-group--collapsible" data-side-group="catalogs">
+        <button class="side-group-title side-group-toggle" type="button" aria-expanded="true" aria-controls="sideGroupCatalogs">Каталоги</button>
+        <div class="side-group-items" id="sideGroupCatalogs">
+        <a class="side-link side-link--ico" href="knowledge.html"><svg class="side-ico" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="5.5" rx="7" ry="2.8"/><path d="M5 5.5v13c0 1.6 3.1 2.9 7 2.9s7-1.3 7-2.9v-13"/><path d="M5 12c0 1.6 3.1 2.9 7 2.9s7-1.3 7-2.9"/></svg><span class="side-ico-main">Данные и знания</span></a>
+        <a class="side-link side-link--ico" href="agents.html"><svg class="side-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="5.5" y="8" width="13" height="10" rx="3"/><path d="M12 8V5.2"/><circle cx="12" cy="4" r="1.2"/><path d="M9.5 12.3h.01M14.5 12.3h.01"/><path d="M9.5 15.5h5"/></svg><span class="side-ico-main">Агенты</span></a>
+        <a class="side-link side-link--ico" id="menuModels" href="models.html" hidden><svg class="side-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="2"/><rect x="10.2" y="10.2" width="3.6" height="3.6" rx="1"/><path d="M9.5 7V4.5M14.5 7V4.5M9.5 19.5V17M14.5 19.5V17M7 9.5H4.5M7 14.5H4.5M19.5 9.5H17M19.5 14.5H17"/></svg><span class="side-ico-main">Модели</span></a>
+        <a class="side-link side-link--ico side-link--disabled side-link--disabled" ><svg class="side-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5l7.4 4.3v8.4L12 20.5l-7.4-4.3V7.8z"/></svg><span class="side-ico-main">Полигоны <span class="side-note">в разработке</span></span></a>
+        </div>
+      </div>
+
+      <div class="side-group side-group--collapsible" id="wsGroup" data-side-group="workspace" hidden>
+        <button class="side-group-title side-group-toggle" type="button" aria-expanded="true" aria-controls="sideGroupWorkspace">Рабочее пространство</button>
+        <div class="side-group-items" id="sideGroupWorkspace">
+        <button class="side-link side-link--ico side-link--chat" id="btnNavWorkspace" type="button" hidden><svg class="side-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11.5a8.4 8.4 0 0 1-8.5 8.4 8.9 8.9 0 0 1-3.4-.7L4 20l1.4-4.4A8.4 8.4 0 1 1 20 11.5z"/><path d="M12 8.5v6M9 11.5h6"/></svg><span class="side-ico-main">Новый чат</span></button>
+        <a class="side-link side-link--ico" id="menuCabinet" href="cabinet.html"><svg class="side-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5.5 20a6.5 6.5 0 0 1 13 0"/></svg><span class="side-ico-main">Кабинет</span></a>
+        <a class="side-link side-link--ico" id="menuProjects" href="projects.html"><svg class="side-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7.5A2.5 2.5 0 0 1 6.5 5h3l2 2.5h6A2.5 2.5 0 0 1 20 10v7a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 17z"/></svg><span class="side-ico-main">Проекты</span></a>
+        <a class="side-link side-link--ico" id="menuAutomations" href="automations.html"><svg class="side-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 3 5.5 13.5H11L10 21l7.5-10.5H12z"/></svg><span class="side-ico-main">Автоматизации</span></a>
+        </div>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <a class="side-link" id="btnSettings" href="settings.html" hidden>Настройки</a>
+      <button class="side-link" id="btnSuggest" type="button">Предложить изменения</button>
+      <a class="side-link" id="menuAdmin" href="admin.html" hidden>Админ-панель</a>
+      <div class="sidebar-user">
+        <button class="btn-login" id="btnLogin" type="button" aria-haspopup="dialog" aria-controls="loginModal">Войти</button>
+        <div class="user-menu" id="userMenu" hidden>
+          <div class="user-menu-head">
+            <span class="user-menu-name"></span>
+            <span class="user-menu-role"></span>
+          </div>
+          <a class="user-menu-item" id="menuPilot" href="pilot.html" hidden>Пилот: режим администратора</a>
+          <button class="user-menu-item" id="btnChangePass" type="button" hidden>Сменить пароль</button>
+          <button class="user-menu-item user-menu-logout" id="btnLogout" type="button">Выйти</button>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <script src="js/sidebar.js?v=20260925zq"></script>
+
+  <div class="page page--wide">
+
+  <!-- ==================== Заголовок раздела ==================== -->
+  <section class="section-head">
+    <a href="knowledge.html" class="backlink">← Данные и знания</a>
+    <h1>Визуализация онтологии</h1>
+    <div class="rule"></div>
+  </section>
+
+  <!-- ==================== Панель выбора и мета ==================== -->
+  <section class="onto3d-bar">
+    <label class="onto3d-label" for="onto3dSelect">Онтология</label>
+    <select class="onto3d-select" id="onto3dSelect"></select>
+    <span class="onto3d-meta" id="onto3dMeta"></span>
+    <button type="button" class="onto3d-btn onto3d-btn--primary" id="onto3dAddClass" hidden>+ класс</button>
+  </section>
+
+  <!-- ==================== Основная информация об онтологии ==================== -->
+  <section class="onto3d-info" id="onto3dInfo" hidden>
+    <div class="onto3d-info-main">
+      <h2 class="onto3d-info-name" id="onto3dInfoName"></h2>
+      <p class="onto3d-info-desc" id="onto3dInfoDesc"></p>
+      <div class="onto3d-info-tags" id="onto3dInfoTags"></div>
+    </div>
+    <dl class="onto3d-info-facts" id="onto3dInfoFacts"></dl>
+  </section>
+
+  <!-- ==================== Сцена ==================== -->
+  <section class="onto3d-wrap" id="onto3dWrap">
+    <canvas class="onto3d-canvas" id="onto3dCanvas"></canvas>
+    <div class="onto3d-legend" id="onto3dLegend" hidden></div>
+    <aside class="onto3d-side" id="onto3dSide" hidden>
+      <button type="button" class="onto3d-side-close" id="onto3dSideClose" aria-label="Закрыть">&times;</button>
+
+      <div id="onto3dSideBody">
+        <p class="onto3d-help-eyebrow">Класс <button type="button" class="onto3d-help-btn" aria-label="Понятие вашей предметной области — то, о чём вы говорите: «базальтопластик», «связующее», «режим отверждения». Не таблица в базе данных, а вещь или идея." data-tip="Понятие вашей предметной области — то, о чём вы говорите: «базальтопластик», «связующее», «режим отверждения». Не таблица в базе данных, а вещь или идея.">?</button></p>
+        <h2 class="onto3d-side-name" id="onto3dSideName" hidden></h2>
+        <input class="onto3d-input onto3d-side-name-input" id="onto3dFName" type="text" maxlength="120" hidden>
+        <p class="onto3d-side-desc" id="onto3dSideDesc" hidden></p>
+        <textarea class="onto3d-input" id="onto3dFDesc" rows="3" hidden></textarea>
+        <div class="onto3d-side-parent" id="onto3dSideParentRow" hidden>
+          <span class="onto3d-side-parent-label">Родитель:</span> <button type="button" class="onto3d-help-btn" aria-label="Более общая категория, частным случаем которой является этот класс." data-tip="Более общая категория, частным случаем которой является этот класс.">?</button>
+          <span id="onto3dSideParent"></span>
+        </div>
+        <span class="onto3d-help-eyebrow" id="onto3dFParentLabel" hidden>Родитель</span>
+        <select class="onto3d-input" id="onto3dFParent" hidden></select>
+
+        <div class="onto3d-side-actions" id="onto3dSideActions" hidden>
+          <button type="button" class="onto3d-btn onto3d-btn--primary" id="onto3dSideEdit">Редактировать</button>
+        </div>
+        <div class="onto3d-side-actions" id="onto3dSideSaveActions" hidden>
+          <button type="button" class="onto3d-btn onto3d-btn--primary" id="onto3dFSave">Сохранить</button>
+          <button type="button" class="onto3d-btn" id="onto3dFCancel">Отмена</button>
+        </div>
+        <p class="onto3d-form-error" id="onto3dFError" hidden></p>
+
+        <div class="onto3d-side-block" id="onto3dSideAttrs" hidden>
+          <h3>Атрибуты <button type="button" class="onto3d-help-btn" aria-label="Конкретные измеримые свойства понятия — например, у «базальтового армирования» это может быть «диаметр волокна, мкм»." data-tip="Конкретные измеримые свойства понятия — например, у «базальтового армирования» это может быть «диаметр волокна, мкм».">?</button></h3>
+          <ul id="onto3dSideAttrsList"></ul>
+          <div id="onto3dFAttrs" hidden></div>
+          <button type="button" class="onto3d-btn onto3d-btn--sm" id="onto3dFAddAttr" hidden>+ атрибут</button>
+        </div>
+        <div class="onto3d-side-block" id="onto3dSideSyn" hidden>
+          <h3>Синонимы <button type="button" class="onto3d-help-btn" aria-label="Другие слова, которыми это же понятие называют в документах и разговоре — помогает точнее находить его в текстах." data-tip="Другие слова, которыми это же понятие называют в документах и разговоре — помогает точнее находить его в текстах.">?</button></h3>
+          <p class="onto3d-side-syn-chips" id="onto3dSideSynText" hidden></p>
+          <input class="onto3d-input" id="onto3dFSyn" type="text" hidden>
+        </div>
+        <div class="onto3d-side-block" id="onto3dSideLinksBlock">
+          <h3>Связи <button type="button" class="onto3d-help-btn" aria-label="Как этот класс соотносится с другими понятиями графа — например, «режим отверждения → влияет на → прочность на разрыв»." data-tip="Как этот класс соотносится с другими понятиями графа — например, «режим отверждения → влияет на → прочность на разрыв».">?</button></h3>
+          <ul id="onto3dSideLinks"></ul>
+          <div class="onto3d-rel-add">
+            <button type="button" class="onto3d-btn onto3d-btn--sm" id="onto3dRelAddBtn" hidden>+ связь</button>
+            <div class="onto3d-rel-form" id="onto3dSideRelForm" hidden>
+              <select class="onto3d-input" id="onto3dRelDir">
+                <option value="out">этот класс → цель</option>
+                <option value="in">цель → этот класс</option>
+              </select>
+              <select class="onto3d-input" id="onto3dRelTarget"></select>
+              <input class="onto3d-input" id="onto3dRelName" type="text" placeholder="Название связи" maxlength="120">
+              <div class="onto3d-rel-form-actions">
+                <button type="button" class="onto3d-btn onto3d-btn--sm onto3d-btn--primary" id="onto3dRelSubmit">Добавить</button>
+                <button type="button" class="onto3d-btn onto3d-btn--sm" id="onto3dRelCancel">Отмена</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="onto3d-side-danger" id="onto3dSideDanger" hidden>
+          <button type="button" class="onto3d-btn onto3d-btn--danger" id="onto3dSideDeleteBtn">Удалить класс</button>
+        </div>
+      </div>
+    </aside>
+    <div class="onto3d-help">Вращение — перетаскивание · Масштаб — колесо · Клик — карточка класса</div>
+    <div class="onto3d-empty" id="onto3dEmpty" hidden></div>
+  </section>
+
+  <!-- ==================== Сетка карточек классов ==================== -->
+  <section class="onto3d-classes" id="onto3dClasses" hidden>
+    <h2>Классы <button type="button" class="onto3d-help-btn" aria-label="Все классы онтологии одним списком — быстрый способ открыть карточку любого класса, не выцеливая его в 3D-сцене." data-tip="Все классы онтологии одним списком — быстрый способ открыть карточку любого класса, не выцеливая его в 3D-сцене.">?</button></h2>
+    <input type="search" class="onto3d-input onto3d-classes-search" id="onto3dClassesSearch" placeholder="Поиск по названию, синониму…">
+    <div class="onto3d-classes-grid" id="onto3dClassesGrid"></div>
+  </section>
+
+  <!-- ==================== Компетентностные вопросы ==================== -->
+  <section class="onto3d-cq" id="onto3dCq" hidden>
+    <h2>Компетентностные вопросы <button type="button" class="onto3d-help-btn" aria-label="Вопросы, на которые ваша онтология должна уметь отвечать. После каждой правки здесь видно, какие вопросы всё ещё обеспечены графом, а какие — нет." data-tip="Вопросы, на которые ваша онтология должна уметь отвечать. После каждой правки здесь видно, какие вопросы всё ещё обеспечены графом, а какие — нет.">?</button></h2>
+    <p class="onto3d-cq-summary" id="onto3dCqSummary"></p>
+    <ul id="onto3dCqList"></ul>
+  </section>
+
+  </div>
+</div>
+
+<script src="js/cookie-consent.js?v=20261001b"></script>
+<script src="js/api.js?v=20260929m"></script>
+<script src="js/auth.js?v=20260925zq"></script>
+<script src="js/ontology3d.js?v=20260930f"></script>
+<script src="js/agent_views.js?v=20260929m"></script>
+<script src="js/thinking.js?v=20260925zq"></script>
+<script src="js/workspace.js?v=20260929m"></script>
+</body>
+</html>

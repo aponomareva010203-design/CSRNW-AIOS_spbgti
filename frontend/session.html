@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Мастерская: моделирование агентов — 24 сентября</title>
+<style>
+  :root{
+    --cream:#F1EEE4;
+    --ink:#3A3A32;
+    --dark-green:#445039;
+    --mid-green:#5D6C50;
+    --sage:#7C8B6C;
+    --olive:#6B6B5E;
+    --gold:#C2A054;
+    --gold-light:#E8C574;
+    --pill:#E8D9B5;
+    --white:#FFFFFF;
+    --shadow: 0 10px 28px -14px rgba(58,58,50,0.28);
+  }
+
+  *{box-sizing:border-box;}
+
+  body{
+    background:var(--cream);
+    color:var(--ink);
+    font-family:Calibri,"Segoe UI",Arial,sans-serif;
+    font-size:16px;
+    line-height:1.55;
+    padding:0 20px;
+    margin:0;
+  }
+
+  .wrap{max-width:880px;margin:0 auto;padding-block:56px 72px;position:relative;}
+
+  h1,h2,h3{
+    font-family:Cambria,Georgia,"Times New Roman",serif;
+    color:var(--dark-green);
+    margin:0;
+    text-wrap:balance;
+  }
+
+  .eyebrow{
+    font-weight:700;font-size:13px;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--sage);margin-bottom:14px;
+  }
+
+  h1{font-size:clamp(28px,4.2vw,40px);font-weight:700;line-height:1.15;}
+
+  .subtitle{
+    font-family:Cambria,Georgia,serif;
+    font-size:clamp(17px,2.2vw,21px);
+    color:var(--mid-green);
+    margin-top:10px;
+    font-style:italic;
+  }
+
+  .lede{
+    font-style:italic;color:var(--olive);font-size:16px;
+    max-width:58ch;margin-top:18px;
+  }
+
+  .meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px;}
+
+  .meta-chip{
+    display:flex;align-items:center;gap:8px;background:var(--white);
+    border-radius:999px;padding:9px 18px;box-shadow:var(--shadow);
+    font-size:14px;font-weight:700;color:var(--dark-green);
+  }
+  .meta-chip .dot{width:8px;height:8px;border-radius:50%;background:var(--gold);flex:none;}
+
+  .meta-chip.live{background:var(--dark-green);color:var(--cream);}
+  .meta-chip.live .dot{background:var(--gold);animation:pulse 1.6s ease-in-out infinite;}
+  .meta-chip.live.is-idle{background:var(--white);color:var(--dark-green);}
+  .meta-chip.live.is-idle .dot{animation:none;background:var(--sage);}
+  @keyframes pulse{0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(1.6);opacity:.45;}}
+
+  .card{background:var(--white);border-radius:14px;box-shadow:var(--shadow);}
+
+  /* ---- о чём сессия ---- */
+  .intro{
+    margin-top:44px;padding:26px 28px;
+    display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:start;
+  }
+  .intro-badge{
+    width:40px;height:40px;border-radius:50%;background:var(--mid-green);
+    display:flex;align-items:center;justify-content:center;flex:none;
+  }
+  .intro-badge svg{width:20px;height:20px;}
+  .intro h2{font-size:19px;margin-bottom:10px;}
+  .intro p{margin:0 0 10px;}
+  .intro p:last-child{margin-bottom:0;}
+  .intro-tag{
+    display:inline-block;margin-top:14px;background:var(--pill);
+    color:var(--dark-green);font-weight:700;font-size:12.5px;
+    padding:6px 14px;border-radius:999px;
+  }
+
+  /* ---- Токен-максинг ---- */
+  .tokenmax{margin-top:52px;}
+  .tm-head h2{font-size:24px;}
+  .tm-head .lede{margin-top:8px;}
+  .tm-status{
+    display:inline-flex;align-items:center;gap:8px;margin-top:12px;
+    font-size:13px;font-weight:700;color:var(--olive);
+    font-variant-numeric:tabular-nums;
+  }
+  .tm-pulse{
+    width:8px;height:8px;border-radius:50%;background:var(--gold);
+    animation:pulse 1.6s ease-in-out infinite;flex:none;
+  }
+  .tm-grid{
+    margin-top:20px;display:grid;grid-template-columns:1fr 1fr;gap:18px;
+  }
+  .tm-card{padding:20px 22px 18px;}
+  .tm-card h3{font-size:17px;margin-bottom:14px;}
+  .tm-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px;}
+  .tm-row{display:grid;grid-template-columns:30px 1fr auto;column-gap:12px;align-items:center;}
+  .tm-rank{
+    width:30px;height:30px;border-radius:50%;flex:none;
+    display:flex;align-items:center;justify-content:center;
+    font-weight:700;font-size:14px;color:var(--white);background:var(--sage);
+  }
+  .tm-row.rank-1 .tm-rank{background:var(--gold);}
+  .tm-row.rank-2 .tm-rank{background:var(--mid-green);}
+  .tm-row.rank-3 .tm-rank{background:var(--sage);}
+  .tm-name{
+    min-width:0;font-weight:700;color:var(--ink);
+    overflow-wrap:break-word;line-height:1.3;
+  }
+  .tm-val{
+    font-weight:700;color:var(--dark-green);font-variant-numeric:tabular-nums;
+    white-space:nowrap;font-size:15px;
+  }
+  .tm-val small{font-weight:400;color:var(--olive);font-size:11.5px;margin-left:4px;}
+  .tm-bar{
+    grid-column:2 / 4;display:block;height:5px;border-radius:999px;
+    background:rgba(124,139,108,0.16);overflow:hidden;margin-top:2px;
+  }
+  .tm-bar span{display:block;height:100%;border-radius:999px;background:var(--sage);}
+  .tm-row.rank-1 .tm-bar span{background:var(--gold);}
+  .tm-row.is-empty .tm-name,.tm-row.is-empty .tm-val{color:var(--olive);opacity:.55;font-weight:400;}
+  .tm-row.is-empty .tm-rank{background:rgba(124,139,108,0.25);}
+  .tm-row.is-empty .tm-bar span{width:0!important;}
+  .tm-total{
+    margin:16px 4px 0;font-size:14px;font-style:italic;color:var(--olive);
+    font-variant-numeric:tabular-nums;
+  }
+  .tm-error{color:#8a4a3b;}
+
+  /* ---- ход семинара ---- */
+  .agenda-head{margin-top:52px;margin-bottom:26px;}
+  .agenda-head h2{font-size:24px;}
+  .agenda-progress-track{
+    margin-top:16px;height:6px;border-radius:999px;
+    background:rgba(124,139,108,0.18);overflow:hidden;
+  }
+  .agenda-progress-fill{
+    height:100%;width:0%;background:var(--gold);border-radius:999px;transition:width .6s ease;
+  }
+
+  .timeline{display:flex;flex-direction:column;gap:26px;}
+  .row{display:grid;grid-template-columns:104px 1fr;column-gap:22px;}
+
+  .tl-time{
+    grid-column:1;position:relative;display:flex;flex-direction:column;
+    align-items:center;padding-top:6px;
+  }
+  .tl-time .clock{
+    font-weight:700;color:var(--dark-green);font-size:14.5px;
+    text-align:center;line-height:1.3;white-space:nowrap;
+  }
+  .tl-node{
+    margin-top:10px;width:14px;height:14px;border-radius:50%;
+    background:var(--mid-green);border:3px solid var(--cream);
+    box-shadow:0 0 0 1px rgba(93,108,80,0.35);flex:none;z-index:2;
+    position:relative;
+  }
+
+  /* ---- Линия таймлайна с бегущей искрой ---- */
+  .tl-line {
+    flex: 1;
+    width: 2px;
+    background: linear-gradient(var(--gold), var(--gold)) center/2px 100% no-repeat;
+    opacity: .55;
+    margin-top: 6px;
+    min-height: 22px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .tl-line::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    margin-left: -6px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--gold-light);
+    box-shadow:
+      0 0 8px 2px rgba(232, 197, 116, 0.95),
+      0 0 16px 5px rgba(194, 160, 84, 0.7),
+      0 0 28px 10px rgba(194, 160, 84, 0.35);
+    animation: sparkFall 2.2s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  }
+
+  @keyframes sparkFall {
+    0%   { top: 0%;   opacity: 0; transform: scale(0.5); }
+    10%  { opacity: 1; transform: scale(1); }
+    90%  { opacity: 1; transform: scale(1); }
+    100% { top: 100%; opacity: 0; transform: scale(0.5); }
+  }
+
+  .row:nth-child(1) .tl-line::after { animation-delay: 0s; }
+  .row:nth-child(2) .tl-line::after { animation-delay: 0.4s; }
+  .row:nth-child(3) .tl-line::after { animation-delay: 0.8s; }
+  .row:nth-child(4) .tl-line::after { animation-delay: 1.2s; }
+  .row:nth-child(5) .tl-line::after { animation-delay: 1.6s; }
+
+  .row:last-child .tl-line { display: none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tl-line::after { animation: none; opacity: 0; }
+  }
+
+  .step{grid-column:2;padding:20px 24px 22px;transition:box-shadow .2s,opacity .2s;}
+  .step-top{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:6px;}
+  .step h3{font-size:18px;}
+  .dur{
+    background:var(--pill);color:var(--dark-green);font-weight:700;
+    font-size:12px;padding:4px 12px;border-radius:999px;white-space:nowrap;
+  }
+  .who{color:var(--olive);font-style:italic;font-size:14.5px;margin-top:2px;}
+  .step p.desc{margin:10px 0 0;font-size:15px;}
+
+  /* ---- состояния по времени ---- */
+  .step.is-now{box-shadow:var(--shadow),0 0 0 3px rgba(194,160,84,.55);}
+  .row.is-now .tl-node{background:var(--gold);animation:pulse-node 1.6s ease-in-out infinite;}
+  @keyframes pulse-node{
+    0%,100%{box-shadow:0 0 0 0 rgba(194,160,84,.5);}
+    50%{box-shadow:0 0 0 6px rgba(194,160,84,0);}
+  }
+  .step.is-done{opacity:.5;}
+  .step.is-done .dur{background:transparent;border:1.5px solid var(--sage);color:var(--sage);}
+  .row.is-done .tl-node{background:var(--sage);}
+
+  .now-badge{
+    background:var(--gold);color:var(--white);font-weight:700;font-size:11.5px;
+    padding:4px 11px;border-radius:999px;letter-spacing:.03em;text-transform:uppercase;
+  }
+  .step-left{
+    margin-left:auto;font-size:12.5px;font-weight:700;color:var(--olive);
+    font-variant-numeric:tabular-nums;
+  }
+
+  /* ---- закреплённая полоса «сейчас» ---- */
+  .nowbar{
+    position:fixed;left:0;right:0;bottom:0;z-index:30;
+    background:var(--dark-green);color:var(--cream);
+    padding:11px 20px;display:none;align-items:center;gap:14px;
+    box-shadow:0 -6px 20px -10px rgba(58,58,50,.5);
+  }
+  .nowbar.show{display:flex;}
+  .nowbar-label{font-size:11.5px;text-transform:uppercase;letter-spacing:.07em;opacity:.7;}
+  .nowbar-title{font-weight:700;font-size:15px;}
+  .nowbar-left{
+    margin-left:auto;font-variant-numeric:tabular-nums;font-weight:700;
+    background:rgba(255,255,255,.12);padding:5px 13px;border-radius:999px;font-size:14px;
+  }
+  .nowbar-close{
+    background:none;border:none;color:var(--cream);opacity:.6;cursor:pointer;
+    font-size:18px;line-height:1;padding:0 4px;font-family:inherit;
+  }
+  .nowbar-close:hover{opacity:1;}
+
+  .hint-key{margin-top:18px;font-size:12.5px;color:var(--olive);font-style:italic;}
+  kbd{
+    font-family:inherit;font-size:11.5px;background:var(--white);
+    border:1px solid rgba(58,58,50,.18);border-bottom-width:2px;
+    border-radius:5px;padding:1px 6px;color:var(--dark-green);font-style:normal;
+  }
+
+  footer{
+    margin-top:56px;padding-top:22px;display:flex;justify-content:space-between;
+    align-items:baseline;flex-wrap:wrap;gap:8px;
+    font-style:italic;color:var(--olive);font-size:13px;
+  }
+
+  /* ---- экран «доступ только для администраторов» ---- */
+  .gate{
+    max-width:420px;margin:18vh auto 0;padding:34px 34px 30px;text-align:center;
+  }
+  .gate-badge{
+    width:52px;height:52px;border-radius:50%;background:var(--mid-green);
+    display:flex;align-items:center;justify-content:center;margin:0 auto 18px;
+  }
+  .gate-badge svg{width:24px;height:24px;}
+  .gate h1{font-size:22px;}
+  .gate p{color:var(--olive);margin:12px 0 0;}
+  .gate a{
+    display:inline-block;margin-top:20px;background:var(--dark-green);color:var(--cream);
+    text-decoration:none;font-weight:700;font-size:14px;padding:10px 22px;border-radius:999px;
+  }
+  .gate a:hover{background:var(--mid-green);}
+  body.no-access .wrap{display:none;}
+
+  /* --- Анимация в шапке: Нейро-молекула --- */
+  .hero-anim {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 120px;
+    height: 120px;
+    pointer-events: none;
+    opacity: 0.85;
+    z-index: 0;
+  }
+  .hero-anim .node {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: var(--gold);
+    border-radius: 50%;
+    box-shadow: 0 0 8px var(--gold);
+    animation: nodePulse 2.5s ease-in-out infinite;
+  }
+  .hero-anim .node:nth-child(1) { top: 10%; left: 50%; animation-delay: 0s; }
+  .hero-anim .node:nth-child(2) { top: 40%; left: 10%; animation-delay: 0.4s; }
+  .hero-anim .node:nth-child(3) { top: 40%; left: 90%; animation-delay: 0.8s; }
+  .hero-anim .node:nth-child(4) { top: 80%; left: 30%; animation-delay: 1.2s; }
+  .hero-anim .node:nth-child(5) { top: 80%; left: 70%; animation-delay: 1.6s; }
+  .hero-anim .node:nth-child(6) { top: 55%; left: 50%; animation-delay: 2.0s; }
+  @keyframes nodePulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.8); opacity: 0.5; }
+  }
+  .hero-anim .bond {
+    position: absolute;
+    background: linear-gradient(90deg, transparent, var(--sage), transparent);
+    height: 1.5px;
+    transform-origin: left center;
+    opacity: 0.4;
+  }
+  .hero-anim .bond:nth-child(7)  { top: 14%; left: 50%; width: 30%; transform: rotate(40deg); }
+  .hero-anim .bond:nth-child(8)  { top: 14%; left: 50%; width: 30%; transform: rotate(-40deg); }
+  .hero-anim .bond:nth-child(9)  { top: 44%; left: 14%; width: 35%; transform: rotate(-15deg); }
+  .hero-anim .bond:nth-child(10) { top: 44%; left: 51%; width: 35%; transform: rotate(15deg); }
+  .hero-anim .bond:nth-child(11) { top: 84%; left: 34%; width: 35%; transform: rotate(-25deg); }
+  .hero-anim .bond:nth-child(12) { top: 84%; left: 51%; width: 35%; transform: rotate(25deg); }
+  .hero-anim { animation: spinSlow 20s linear infinite; }
+  @keyframes spinSlow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  @media (max-width: 560px) {
+    .hero-anim {
+      width: 70px;
+      height: 70px;
+      top: 10px;
+      right: 10px;
+      opacity: 0.5;
+    }
+  }
+
+  /* --- Разделитель 1: Химическая реакция --- */
+  .divider-reaction {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 40px auto 0;
+    max-width: 520px;
+    opacity: 0.75;
+  }
+  .divider-reaction .mol {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid var(--mid-green);
+    position: relative;
+    flex: none;
+  }
+  .divider-reaction .mol::before,
+  .divider-reaction .mol::after {
+    content: "";
+    position: absolute;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--gold);
+  }
+  .divider-reaction .mol::before { top: -5px; left: 50%; transform: translateX(-50%); }
+  .divider-reaction .mol::after  { bottom: -5px; left: 50%; transform: translateX(-50%); }
+  .divider-reaction .arrow {
+    flex: 1;
+    height: 2px;
+    background: linear-gradient(90deg, transparent 0%, var(--sage) 20%, var(--sage) 80%, transparent 100%);
+    position: relative;
+    overflow: hidden;
+  }
+  .divider-reaction .arrow::after {
+    content: "";
+    position: absolute;
+    top: -3px;
+    left: -20%;
+    width: 20%;
+    height: 8px;
+    background: radial-gradient(circle, var(--gold) 0%, transparent 70%);
+    animation: reactFlow 3.5s linear infinite;
+  }
+  @keyframes reactFlow {
+    0%   { left: -20%; opacity: 0; }
+    10%  { opacity: 1; }
+    90%  { opacity: 1; }
+    100% { left: 100%; opacity: 0; }
+  }
+  .divider-reaction .label {
+    font-family: Cambria, Georgia, serif;
+    font-style: italic;
+    font-size: 13px;
+    color: var(--olive);
+    white-space: nowrap;
+  }
+
+  @media (max-width: 560px) {
+    .divider-reaction { max-width: 100%; gap: 10px; }
+    .divider-reaction .label { font-size: 11.5px; }
+    .tm-grid { grid-template-columns: 1fr; }
+  }
+  @media (prefers-reduced-motion:reduce){
+    .meta-chip.live .dot,.row.is-now .tl-node,.tm-pulse{animation:none;}
+  }
+  @media print{
+    .nowbar,.hint-key,.tm-status{display:none!important;}
+    .card{box-shadow:none;border:1px solid rgba(58,58,50,.2);}
+    body{background:#fff;}
+    .tl-line::after,.hero-anim,.divider-reaction .arrow::after{display:none!important;}
+  }
+</style>
+</head>
+<body>
+
+<div class="gate card" id="gate" hidden>
+  <div class="gate-badge">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+  </div>
+  <h1>Доступ только для администраторов</h1>
+  <p id="gate-msg">Эта страница служебная. Войдите на платформе под учётной записью администратора.</p>
+  <a href="/index.html">На главную</a>
+</div>
+
+<div class="wrap" id="page">
+
+  <div class="hero-anim" aria-hidden="true">
+    <span class="node"></span>
+    <span class="node"></span>
+    <span class="node"></span>
+    <span class="node"></span>
+    <span class="node"></span>
+    <span class="node"></span>
+    <span class="bond"></span>
+    <span class="bond"></span>
+    <span class="bond"></span>
+    <span class="bond"></span>
+    <span class="bond"></span>
+    <span class="bond"></span>
+  </div>
+
+  <div class="eyebrow">Третья мастерская · AIOS Технологического института</div>
+  <h1>Моделирование агентов</h1>
+  <p class="subtitle">Создание ИИ-агентов без написания кода</p>
+  <p class="lede">Практическая сессия: пользователи платформы собирают собственных ИИ-агентов для своего проекта и проверяют их на настоящей рабочей задаче.</p>
+
+  <div class="meta-row">
+    <div class="meta-chip"><span class="dot"></span>24 сентября 2026</div>
+    <div class="meta-chip"><span class="dot"></span>17:00 – 18:30</div>
+    <div class="meta-chip"><span class="dot"></span>Технологический институт, ИТ-лаборатория</div>
+    <div class="meta-chip live is-idle" id="live-status"><span class="dot"></span><span id="live-status-text">…</span></div>
+  </div>
+
+  <section class="card intro">
+    <div class="intro-badge">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.2 4.2l2.9 2.9M16.9 16.9l2.9 2.9M1 12h4M19 12h4M4.2 19.8l2.9-2.9M16.9 7.1l2.9-2.9"/></svg>
+    </div>
+    <div>
+      <h2>О чём мастерская</h2>
+      <p>Агент в AIOS является цифровым исполнителем, которого настраивают: роль, порядок работы, подключённые возможности и способ показать результат. Всё это собирается в чате и затем тестируется на созданном интерфейсе.</p>
+      <span class="intro-tag">Ничего готовить заранее не нужно</span>
+    </div>
+  </section>
+
+  <div class="divider-reaction" aria-hidden="true">
+    <span class="mol"></span>
+    <span class="arrow"></span>
+    <span class="label">катализатор · агент</span>
+    <span class="arrow"></span>
+    <span class="mol"></span>
+  </div>
+
+  <section class="tokenmax" id="tokenmax" aria-live="polite">
+    <div class="tm-head">
+      <h2>Токен-максинг</h2>
+      <p class="lede">Расход токенов на платформе за сегодня: участники и их проекты.</p>
+      <div class="tm-status"><span class="tm-pulse"></span><span id="tm-updated">загружаем…</span></div>
+    </div>
+    <div class="tm-grid">
+      <div class="card tm-card">
+        <h3>Топ‑3 участника</h3>
+        <ol class="tm-list" id="tm-users"></ol>
+      </div>
+      <div class="card tm-card">
+        <h3>Топ‑3 проекта</h3>
+        <ol class="tm-list" id="tm-projects"></ol>
+      </div>
+    </div>
+    <p class="tm-total" id="tm-total"></p>
+  </section>
+
+  <div class="agenda-head">
+    <h2>Ход семинара</h2>
+    <p class="lede">90 минут, шесть этапов</p>
+    <div class="agenda-progress-track"><div class="agenda-progress-fill" id="agenda-progress-fill"></div></div>
+  </div>
+
+  <div class="timeline" id="timeline">
+
+    <div class="row" data-start="2026-09-24T17:00:00+03:00" data-end="2026-09-24T17:15:00+03:00">
+      <div class="tl-time"><div class="clock">17:00<br>17:15</div><div class="tl-node"></div><div class="tl-line"></div></div>
+      <div class="card step">
+        <div class="step-top"><h3>«ИИ-агенты в химии: основные архетипы»</h3><span class="dur">15 мин</span></div>
+        <div class="who">Аксенов Даниил, аналитик Фонда «ЦСР "Северо-Запад"»</div>
+        <p class="desc">Экспериментатор, документалист, технологический разведчик: как смоделировать агента для своего проекта на платформе AI OS.</p>
+      </div>
+    </div>
+
+    <div class="row" data-start="2026-09-24T17:15:00+03:00" data-end="2026-09-24T17:25:00+03:00">
+      <div class="tl-time"><div class="clock">17:15<br>17:25</div><div class="tl-node"></div><div class="tl-line"></div></div>
+      <div class="card step">
+        <div class="step-top"><h3>Вход и запуск конструктора</h3><span class="dur">10 мин</span></div>
+        <p class="desc">Вход на платформу и запуск навыка «Конструктор агентов» в рабочем чате. Проект и гипотезы конструктор находит сам.</p>
+      </div>
+    </div>
+
+    <div class="row" data-start="2026-09-24T17:25:00+03:00" data-end="2026-09-24T17:50:00+03:00">
+      <div class="tl-time"><div class="clock">17:25<br>17:50</div><div class="tl-node"></div><div class="tl-line"></div></div>
+      <div class="card step">
+        <div class="step-top"><h3>Моделирование агента</h3><span class="dur">25 мин</span></div>
+        <p class="desc">Диалог из нескольких коротких шагов: замысел, порядок работы, ограничения, возможности, проверочные вопросы. Можно собирать агента по своей гипотезе или попросить конструктор предложить идею.</p>
+      </div>
+    </div>
+
+    <div class="row" data-start="2026-09-24T17:50:00+03:00" data-end="2026-09-24T18:15:00+03:00">
+      <div class="tl-time"><div class="clock">17:50<br>18:15</div><div class="tl-node"></div><div class="tl-line"></div></div>
+      <div class="card step">
+        <div class="step-top"><h3>Работа с агентом на своей задаче</h3><span class="dur">25 мин</span></div>
+        <p class="desc">Проверка агента на настоящем рабочем вопросе. Агент показывает ход работы по шагам и выдаёт результат – расчёт, таблицу, подборку источников или документ.</p>
+      </div>
+    </div>
+
+    <div class="row" data-start="2026-09-24T18:15:00+03:00" data-end="2026-09-24T18:25:00+03:00">
+      <div class="tl-time"><div class="clock">18:15<br>18:25</div><div class="tl-node"></div><div class="tl-line"></div></div>
+      <div class="card step">
+        <div class="step-top"><h3>Доработка и публикация</h3><span class="dur">10 мин</span></div>
+        <p class="desc">Настройка агента обычными фразами, прогон проверочных вопросов и публикация для команды проекта.</p>
+      </div>
+    </div>
+
+    <div class="row" data-start="2026-09-24T18:25:00+03:00" data-end="2026-09-24T18:30:00+03:00">
+      <div class="tl-time"><div class="clock">18:25<br>18:30</div><div class="tl-node" style="background:var(--gold)"></div></div>
+      <div class="card step">
+        <div class="step-top"><h3>Итоги и вопросы</h3><span class="dur">5 мин</span></div>
+        <p class="desc">Обсуждение результатов, ближайшие возможности платформы и вопросы участников.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <p class="hint-key">Подсказка: <kbd>↑</kbd> <kbd>↓</kbd> — перейти к этапу, <kbd>Home</kbd>/<kbd>End</kbd> — начало и конец программы.</p>
+
+  <footer>
+    <span>AIOS Технологического института</span>
+    <span>24 сентября 2026 · ИТ-лаборатория</span>
+  </footer>
+
+</div>
+
+<div class="nowbar" id="nowbar">
+  <div>
+    <div class="nowbar-label">Сейчас идёт</div>
+    <div class="nowbar-title" id="nowbar-title">—</div>
+  </div>
+  <div class="nowbar-left" id="nowbar-left">—</div>
+  <button class="nowbar-close" id="nowbar-close" type="button" aria-label="Скрыть">✕</button>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* === Доступ: только роль «Администратор» (тот же ключ сессии, что и в admin.js).
+     Данные топа отдаёт только /api/admin/users (сервер сам проверяет роль),
+     здесь дубль проверки — чтобы страницу не показывать остальным ролям. === */
+  var AUTH_KEY = "aios-auth-v1";
+
+  function getSession() {
+    try {
+      var raw = localStorage.getItem(AUTH_KEY);
+      var s = raw ? JSON.parse(raw) : null;
+      return s && s.token ? s : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  var session = getSession();
+  var page = document.getElementById("page");
+  var gate = document.getElementById("gate");
+  var gateMsg = document.getElementById("gate-msg");
+  var denied = false;
+
+  function deny(text) {
+    if (denied) return;
+    denied = true;
+    if (page) page.hidden = true;
+    document.body.classList.add("no-access");
+    if (gate) gate.hidden = false;
+    if (gateMsg && text) gateMsg.textContent = text;
+  }
+
+  if (!session) {
+    deny("Эта страница служебная. Войдите на платформе под учётной записью администратора.");
+  } else if (session.role !== "Администратор") {
+    deny("Эта страница служебная и доступна только роли «Администратор».");
+  }
+
+  /* === Токен-максинг: топ-3 участника и топ-3 проекта по расходу за сегодня.
+     Источник — существующий админ-эндпоинт GET /api/admin/users:
+     у каждой строки есть tokens_today (prompt+completion за текущие сутки,
+     московское время) и привязка к активному проекту. === */
+  var REFRESH_MS = 20000;
+  var tmUpdated = document.getElementById("tm-updated");
+  var tmUsers = document.getElementById("tm-users");
+  var tmProjects = document.getElementById("tm-projects");
+  var tmTotal = document.getElementById("tm-total");
+  var inflight = false;
+
+  function esc(s) {
+    return String(s == null ? "" : s)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function fmtNum(n) {
+    var v = Math.round(Number(n) || 0);
+    return String(v).replace(/\B(?=(\d{3})+(?!\d))/g, "\u2009");
+  }
+
+  function displayName(u) {
+    return u.fio || u.name || u.login || "Участник";
+  }
+
+  function rowHtml(rank, title, caption, tokens, maxTokens) {
+    var pct = maxTokens > 0 ? Math.max(4, Math.round(tokens / maxTokens * 100)) : 0;
+    return '<li class="tm-row rank-' + rank + (tokens > 0 ? "" : " is-empty") + '">' +
+      '<span class="tm-rank">' + rank + "</span>" +
+      '<span class="tm-name">' + esc(title) +
+      (caption ? "<small>" + esc(caption) + "</small>" : "") +
+      "</span>" +
+      '<span class="tm-val">' + (tokens > 0 ? fmtNum(tokens) : "—") + "</span>" +
+      '<span class="tm-bar"><span style="width:' + pct + '%"></span></span>' +
+      "</li>";
+  }
+
+  function placeholderRow(rank) {
+    return '<li class="tm-row is-empty rank-' + rank + '">' +
+      '<span class="tm-rank">' + rank + "</span>" +
+      '<span class="tm-name">—</span>' +
+      '<span class="tm-val">—</span>' +
+      '<span class="tm-bar"><span style="width:0%"></span></span>' +
+      "</li>";
+  }
+
+  function fillList(el, entries, captionOf) {
+    if (!el) return;
+    var max = entries.length ? entries[0].tokens : 0;
+    var html = "";
+    for (var i = 0; i < 3; i++) {
+      var e = entries[i];
+      if (e && e.tokens > 0) {
+        html += rowHtml(i + 1, e.title, captionOf ? captionOf(e) : "", e.tokens, max);
+      } else {
+        html += placeholderRow(i + 1);
+      }
+    }
+    el.innerHTML = html;
+  }
+
+  function render(data) {
+    var items = (data && Array.isArray(data.items)) ? data.items : [];
+
+    /* в топах — участники мастерской; администраторы (организаторы)
+       не участвуют, их расход виден только в общей сумме платформы */
+    var participants = items.filter(function (u) {
+      return u.role !== "Администратор";
+    });
+
+    /* топ участников: tokens_today > 0, по убыванию */
+    var users = participants
+      .filter(function (u) { return (Number(u.tokens_today) || 0) > 0; })
+      .sort(function (a, b) { return (b.tokens_today || 0) - (a.tokens_today || 0); })
+      .slice(0, 3)
+      .map(function (u) {
+        return { title: displayName(u), tokens: Number(u.tokens_today) || 0 };
+      });
+    fillList(tmUsers, users);
+
+    /* топ проектов: сумма токенов участников одного проекта за сегодня */
+    var byProject = {};
+    participants.forEach(function (u) {
+      var t = Number(u.tokens_today) || 0;
+      if (t <= 0 || !u.project_id) return;
+      var key = String(u.project_id);
+      if (!byProject[key]) {
+        byProject[key] = { title: u.project_title || "Без названия", tokens: 0 };
+      }
+      byProject[key].tokens += t;
+    });
+    var projects = Object.keys(byProject)
+      .map(function (k) { return byProject[k]; })
+      .sort(function (a, b) { return b.tokens - a.tokens; })
+      .slice(0, 3);
+    fillList(tmProjects, projects);
+
+    var total = items.reduce(function (sum, u) {
+      return sum + (Number(u.tokens_today) || 0);
+    }, 0);
+    if (tmTotal) {
+      tmTotal.textContent = items.length
+        ? "Всего токенов за сегодня на платформе: " + fmtNum(total)
+        : "Данных пока нет.";
+    }
+  }
+
+  function markUpdated(error) {
+    if (!tmUpdated) return;
+    var t = new Date();
+    function p(n) { return (n < 10 ? "0" : "") + n; }
+    var hh = p(t.getHours()) + ":" + p(t.getMinutes()) + ":" + p(t.getSeconds());
+    tmUpdated.innerHTML = error
+      ? '<span class="tm-error">не удалось обновить, повторяем…</span>'
+      : "обновлено в " + hh + " · автообновление каждые 20 с";
+  }
+
+  function load() {
+    if (!session || inflight) return;
+    inflight = true;
+    fetch("/api/admin/users", {
+      headers: {
+        "Accept": "application/json",
+        "Authorization": "Bearer " + session.token
+      }
+    }).then(function (res) {
+      if (res.status === 401) {
+        deny("Сессия истекла. Войдите заново под учётной записью администратора.");
+        return null;
+      }
+      if (res.status === 403) {
+        deny("Эта страница служебная и доступна только роли «Администратор».");
+        return null;
+      }
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      return res.json();
+    }).then(function (data) {
+      if (data) {
+        render(data);
+        markUpdated(false);
+      }
+    }).catch(function () {
+      markUpdated(true); /* показываем последний успешный топ */
+    }).finally(function () {
+      inflight = false;
+    });
+  }
+
+  if (session && session.role === "Администратор") {
+    load();
+    setInterval(load, REFRESH_MS);
+    document.addEventListener("visibilitychange", function () {
+      if (!document.hidden) load();
+    });
+  }
+
+  /* === Программа: подсветка текущего этапа, прогресс, полоса «сейчас» === */
+  var rows = Array.prototype.slice.call(document.querySelectorAll("#timeline .row"));
+  var rowData = rows.map(function (row) {
+    return {
+      row: row,
+      step: row.querySelector(".step"),
+      top: row.querySelector(".step-top"),
+      title: row.querySelector("h3").textContent,
+      start: new Date(row.getAttribute("data-start")),
+      end: new Date(row.getAttribute("data-end"))
+    };
+  });
+
+  var eventStart = rowData.length ? rowData[0].start : null;
+  var eventEnd = rowData.length ? rowData[rowData.length - 1].end : null;
+
+  var liveChip = document.getElementById("live-status");
+  var liveText = document.getElementById("live-status-text");
+  var progressFill = document.getElementById("agenda-progress-fill");
+  var nowbar = document.getElementById("nowbar");
+  var nowbarTitle = document.getElementById("nowbar-title");
+  var nowbarLeft = document.getElementById("nowbar-left");
+  var nowbarHidden = false;
+
+  document.getElementById("nowbar-close").addEventListener("click", function () {
+    nowbarHidden = true;
+    nowbar.classList.remove("show");
+  });
+
+  function pad(n) { return n < 10 ? "0" + n : "" + n; }
+
+  function countdown(ms) {
+    var s = Math.max(0, Math.floor(ms / 1000));
+    var d = Math.floor(s / 86400);
+    var h = Math.floor((s % 86400) / 3600);
+    var m = Math.floor((s % 3600) / 60);
+    var sec = s % 60;
+    if (d > 0) return d + " дн " + pad(h) + ":" + pad(m) + ":" + pad(sec);
+    return pad(h) + ":" + pad(m) + ":" + pad(sec);
+  }
+
+  function shortLeft(ms) {
+    var m = Math.ceil(ms / 60000);
+    return m > 0 ? "осталось " + m + " мин" : "заканчивается";
+  }
+
+  function tick() {
+    if (denied) return;
+    var now = new Date();
+    var current = null;
+
+    rowData.forEach(function (r) {
+      var isNow = now >= r.start && now < r.end;
+      var isDone = now >= r.end;
+      if (isNow) current = r;
+
+      r.row.classList.toggle("is-now", isNow);
+      r.row.classList.toggle("is-done", isDone);
+      r.step.classList.toggle("is-now", isNow);
+      r.step.classList.toggle("is-done", isDone);
+
+      var badge = r.step.querySelector(".now-badge");
+      var left = r.step.querySelector(".step-left");
+
+      if (isNow) {
+        if (!badge) {
+          badge = document.createElement("span");
+          badge.className = "now-badge";
+          badge.textContent = "Сейчас";
+          r.top.appendChild(badge);
+        }
+        if (!left) {
+          left = document.createElement("span");
+          left.className = "step-left";
+          r.top.appendChild(left);
+        }
+        left.textContent = shortLeft(r.end - now);
+      } else {
+        if (badge) badge.remove();
+        if (left) left.remove();
+      }
+    });
+
+    if (liveChip && liveText && eventStart && eventEnd) {
+      if (now < eventStart) {
+        liveChip.classList.add("is-idle");
+        liveText.textContent = "До семинара: " + countdown(eventStart - now);
+      } else if (now >= eventEnd) {
+        liveChip.classList.add("is-idle");
+        liveText.textContent = "Семинар завершён";
+      } else {
+        liveChip.classList.remove("is-idle");
+        liveText.textContent = "Сейчас: " + (current ? current.title : "идёт семинар");
+      }
+    }
+
+    if (progressFill && eventStart && eventEnd) {
+      var pct = (now - eventStart) / (eventEnd - eventStart) * 100;
+      progressFill.style.width = Math.min(100, Math.max(0, pct)) + "%";
+    }
+
+    if (nowbar && !nowbarHidden) {
+      if (current) {
+        nowbar.classList.add("show");
+        nowbarTitle.textContent = current.title;
+        nowbarLeft.textContent = countdown(current.end - now);
+      } else {
+        nowbar.classList.remove("show");
+      }
+    }
+  }
+
+  tick();
+  setInterval(tick, 1000);
+
+  var focused = -1;
+
+  function focusStep(index) {
+    if (!rowData.length) return;
+    focused = Math.max(0, Math.min(rowData.length - 1, index));
+    rowData[focused].row.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  document.addEventListener("keydown", function (e) {
+    if (e.target.matches("input, textarea, select")) return;
+    if (e.key === "ArrowDown") { e.preventDefault(); focusStep(focused + 1); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); focusStep(focused - 1); }
+    else if (e.key === "Home") { e.preventDefault(); focusStep(0); }
+    else if (e.key === "End") { e.preventDefault(); focusStep(rowData.length - 1); }
+  });
+})();
+</script>
+</body>
+</html>

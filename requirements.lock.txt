@@ -1,0 +1,61 @@
+# Точный состав окружения, на котором платформа доказанно работает.
+# Снят с сервера 176.108.244.194 (Python 3.12.3) 23 сентября 2026 — это
+# pip freeze рабочей .venv после переноса, собранный М. Харитоновым.
+#
+# Зачем отдельный файл, а не пины в requirements.txt. Там перечислены
+# ПРЯМЫЕ зависимости кода — их девять, и диапазоны версий у них нарочно
+# широкие: обновление pypdf не должно требовать правки файла. Здесь —
+# транзитивное замыкание с точными версиями, чтобы при разборе «на том
+# сервере работало, на этом нет» было с чем сверяться и чем воспроизвести.
+#
+# Ставить обычно нужно requirements.txt. Этот файл — для точного
+# воспроизведения:  pip install -r requirements.lock.txt
+#
+# Прямые зависимости кода (проверено разбором импортов по AST всего api/
+# и scripts/): fastapi, uvicorn, pydantic, httpx, python-multipart, pypdf,
+# qdrant-client, openpyxl, python-docx. Всё остальное ниже подтянуто ими.
+
+annotated-doc==0.0.5
+annotated-types==0.8.0
+anyio==4.15.1
+certifi==2026.7.22
+click==8.5.0
+esprima==4.0.1
+et_xmlfile==2.0.0
+fastapi==0.141.1
+grpcio==1.83.1
+h11==0.16.0
+h2==4.4.1
+hpack==4.2.0
+httpcore==1.0.9
+httptools==0.8.0
+httpx==0.28.1
+hyperframe==6.1.0
+idna==3.19
+iniconfig==2.3.0
+lxml==6.1.3
+numpy==2.5.3
+openpyxl==3.1.5
+packaging==26.3
+pluggy==1.6.0
+portalocker==3.2.0
+protobuf==7.36.1
+pydantic==2.13.5
+pydantic_core==2.46.5
+Pygments==2.21.0
+pypdf==6.18.0
+pytest==9.1.1
+python-docx==1.2.0
+python-dotenv==1.2.3
+python-multipart==0.0.32
+PyYAML==6.0.3
+qdrant-client==1.19.0
+quickjs==1.19.4
+starlette==1.6.0
+typing_extensions==4.16.0
+typing-inspection==0.4.4
+urllib3==2.7.0
+uvicorn==0.52.4
+uvloop==0.22.1
+watchfiles==1.2.0
+websockets==17.1
