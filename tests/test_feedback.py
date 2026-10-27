@@ -8,7 +8,7 @@ import pytest
 
 from api.runtime.config import get_settings
 
-ADMIN_LOGIN = "m.kharitonov@csr-nw.ru"
+ADMIN_LOGIN = "a.ponomareva@csr-nw.ru"
 ADMIN_PASSWORD = "1234"
 
 

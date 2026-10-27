@@ -20,7 +20,7 @@ from api.runtime import compute_sandbox, model_engine, model_registry
 from api.runtime.config import get_settings
 from api.runtime.users import UserStore
 
-ADMIN_LOGIN = "m.kharitonov@csr-nw.ru"
+ADMIN_LOGIN = "a.ponomareva@csr-nw.ru"
 ADMIN_PASSWORD = "1234"
 
 

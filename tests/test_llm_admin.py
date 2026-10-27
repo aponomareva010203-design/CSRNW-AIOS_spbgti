@@ -10,7 +10,7 @@ from api.runtime.llm_settings import (
     mask_key,
 )
 
-ADMIN_LOGIN = "m.kharitonov@csr-nw.ru"
+ADMIN_LOGIN = "a.ponomareva@csr-nw.ru"
 ADMIN_PASSWORD = "1234"
 
 

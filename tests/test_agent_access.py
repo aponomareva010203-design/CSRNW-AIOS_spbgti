@@ -20,7 +20,7 @@ from api.runtime.config import get_settings
 from api.runtime.projects import ProjectStore
 from api.runtime.users import UserStore
 
-ADMIN_LOGIN = "m.kharitonov@csr-nw.ru"
+ADMIN_LOGIN = "a.ponomareva@csr-nw.ru"
 ADMIN_PASSWORD = "1234"
 
 SKILL_ID = "venture-builder"  # навык каталога data/skills.json

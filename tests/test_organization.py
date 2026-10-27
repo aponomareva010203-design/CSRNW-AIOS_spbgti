@@ -10,7 +10,7 @@ from api.runtime.config import get_settings
 from api.runtime.loop import grant_pending_permissions
 from api.runtime.organization import OrganizationStore
 
-ADMIN_LOGIN = "m.kharitonov@csr-nw.ru"
+ADMIN_LOGIN = "a.ponomareva@csr-nw.ru"
 ADMIN_PASSWORD = "1234"
 
 DATE_RE = re.compile(r"^\d{2}\.\d{2}\.\d{4}$")

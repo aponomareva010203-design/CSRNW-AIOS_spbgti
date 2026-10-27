@@ -126,7 +126,7 @@ def test_admin_only_skill_hidden_from_suggestions_and_launch():
 
     # эндпоинт: админ получает агента в подсказках (seed-админ свежего рантайма)
     store = users.UserStore(get_settings().runtime_dir / "users")
-    admin_id = store.get_by_login("m.kharitonov@csr-nw.ru")["id"]
+    admin_id = store.get_by_login("a.ponomareva@csr-nw.ru")["id"]
     token = auth_router.get_token_store().issue(admin_id)
     items = client.get(
         "/api/chat/skills-suggest",
@@ -156,7 +156,7 @@ def test_chat_rejects_admin_only_skill_for_regular_user(tmp_path, monkeypatch):
     from api.runtime.users import UserStore
 
     store = UserStore(get_settings().runtime_dir / "users")
-    admin_id = store.get_by_login("m.kharitonov@csr-nw.ru")["id"]
+    admin_id = store.get_by_login("a.ponomareva@csr-nw.ru")["id"]
     from api.routers import auth as auth_router
 
     token = auth_router.get_token_store().issue(admin_id)

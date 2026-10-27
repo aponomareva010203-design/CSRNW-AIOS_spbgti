@@ -27,7 +27,7 @@ from api.runtime.team import TeamStore, get_store as get_team_store
 from api.runtime.user_context import run_user_context_job
 from api.runtime.users import UserStore
 
-ADMIN_LOGIN = "m.kharitonov@csr-nw.ru"
+ADMIN_LOGIN = "a.ponomareva@csr-nw.ru"
 ADMIN_PASSWORD = "1234"
 
 
