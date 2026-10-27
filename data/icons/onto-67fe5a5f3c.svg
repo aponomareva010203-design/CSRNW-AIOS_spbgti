@@ -1,10 +1,10 @@
 <svg viewBox="0 0 64 64" width="64" height="64" xmlns="http://www.w3.org/2000/svg">
-  <g fill="none" stroke="#5D6C50" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">
+  <g fill="none" stroke="#163F78" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">
     <polygon points="18,22 26.7,27 26.7,37 18,42 9.3,37 9.3,27" />
     <polygon points="46,22 54.7,27 54.7,37 46,42 37.3,37 37.3,27" />
     <line x1="26.7" y1="32" x2="37.3" y2="32" />
   </g>
-  <g fill="#2C3128">
+  <g fill="#1B2A41">
     <circle cx="18" cy="22" r="2.2" />
     <circle cx="26.7" cy="27" r="2.2" />
     <circle cx="26.7" cy="37" r="2.2" />
@@ -18,5 +18,5 @@
     <circle cx="37.3" cy="37" r="2.2" />
     <circle cx="37.3" cy="27" r="2.2" />
   </g>
-  <circle cx="32" cy="32" r="3.5" fill="#C2A054" stroke="#2C3128" stroke-width="1.5" />
+  <circle cx="32" cy="32" r="3.5" fill="#2E9D5B" stroke="#1B2A41" stroke-width="1.5" />
 </svg>

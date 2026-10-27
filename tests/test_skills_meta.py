@@ -7,31 +7,31 @@ from api.runtime.config import get_settings
 
 
 def test_frontmatter_parsed_and_body_stripped():
-    """Онтологический навык несёт рантайм-метаданные; тело начинается
+    """Шаблон агента несёт рантайм-метаданные; тело начинается
     с заголовка, а не с YAML-блока (frontmatter — не часть протокола)."""
-    meta = datarepo.skill_meta("ontology-engineer")
-    assert meta.get("stage") == "ontology"
+    meta = datarepo.skill_meta("portfolio-analyst")
+    assert meta.get("stage") == "portfolio"
     assert isinstance(meta.get("triggers"), list) and meta["triggers"]
-    assert meta.get("status") == "verified"
+    assert meta.get("status") == "template"
 
-    body = datarepo.skill_body(datarepo.get_skill("ontology-engineer"))
+    body = datarepo.skill_body(datarepo.get_skill("portfolio-analyst"))
     assert not body.startswith("---")
-    assert body.startswith("# Навык")
+    assert body.startswith("# Агент")
 
 
 def test_suggest_skills_matches_triggers():
     """Триггер-фраза в тексте предлагает навык; короткий текст и exclude
     отсекаются; регистр не важен."""
-    found = datarepo.suggest_skills("Нужно собрать Базу знаний по статьям проекта")
-    assert [s["id"] for s in found] == ["rag-builder"]
+    found = datarepo.suggest_skills("Нужен АНАЛИЗ ПАТЕНТОВ нашего университета")
+    assert [s["id"] for s in found] == ["portfolio-analyst"]
 
-    assert datarepo.suggest_skills("онтолог") == []  # короче порога
+    assert datarepo.suggest_skills("патент") == []  # короче порога
     assert datarepo.suggest_skills("коротко") == []
 
-    excluded = datarepo.suggest_skills(
-        "хочу построить онтологию предметной области", exclude=["ontology-engineer"]
-    )
-    assert all(s["id"] != "ontology-engineer" for s in excluded)
+    query = "подготовьте план достройки экосистемы вуза"
+    assert [s["id"] for s in datarepo.suggest_skills(query)] == ["ecosystem-analyst"]
+    excluded = datarepo.suggest_skills(query, exclude=["ecosystem-analyst"])
+    assert all(s["id"] != "ecosystem-analyst" for s in excluded)
 
 
 def test_stage_map_chain_and_hot_reload(tmp_path, monkeypatch):
@@ -39,14 +39,20 @@ def test_stage_map_chain_and_hot_reload(tmp_path, monkeypatch):
     конвейера; правка файла подхватывается без перезапуска (кэш по mtime)."""
     stages = datarepo.stage_map()["stages"]
     keys = [s["key"] for s in stages]
-    assert keys[0] == "ontology" and "rag" in keys and "models" in keys
+    assert keys[0] == "onboarding" and "portfolio" in keys and "agents" in keys
 
-    rag = datarepo.stage_entry("rag")
-    assert rag["next"] == "agents"
-    assert datarepo.stage_of_skill("rag-builder")["key"] == "rag"
-    assert datarepo.stage_next("rag")["key"] == "agents"
-    # навыки вне линейного конвейера этапа не имеют
-    assert datarepo.stage_of_skill("aios-hypotheses-skill") is None
+    portfolio = datarepo.stage_entry("portfolio")
+    assert portfolio["next"] == "ecosystem"
+    assert datarepo.stage_of_skill("portfolio-analyst")["key"] == "portfolio"
+    assert datarepo.stage_of_skill("venture-builder")["key"] == "ecosystem"
+    assert datarepo.stage_next("portfolio")["key"] == "ecosystem"
+    # каждый навык карты есть в каталоге, а его frontmatter указывает на свой этап
+    for stage in stages:
+        for skill_id in stage["skills"]:
+            assert datarepo.get_skill(skill_id), skill_id
+            assert datarepo.stage_of_skill(skill_id)["key"] == stage["key"], skill_id
+    # неизвестный навык этапа не имеет
+    assert datarepo.stage_of_skill("no-such-skill") is None
 
     # hot-reload: подменяем каталог данных, меняем файл — карта обновляется
     monkeypatch.setattr(datarepo, "DATA_DIR", tmp_path)
@@ -78,12 +84,12 @@ def test_skills_suggest_endpoint_public():
     from api.main import app
 
     client = TestClient(app)
-    resp = client.get("/api/chat/skills-suggest", params={"q": "нужна база знаний по документам"})
+    resp = client.get("/api/chat/skills-suggest", params={"q": "нужен трекер стартапов студии"})
     assert resp.status_code == 200
     items = resp.json()["items"]
-    assert items and items[0]["id"] == "rag-builder"
+    assert items and items[0]["id"] == "venture-builder"
 
-    short = client.get("/api/chat/skills-suggest", params={"q": "база"})
+    short = client.get("/api/chat/skills-suggest", params={"q": "трекер"})
     assert short.status_code == 200
     assert short.json()["items"] == []
 
@@ -183,14 +189,14 @@ def test_chat_sets_session_stage_for_skill(tmp_path, monkeypatch):
     client = TestClient(app)
     resp = client.post(
         "/api/chat",
-        json={"message": "настройте базу знаний", "skill_ids": ["rag-builder"]},
+        json={"message": "разберём портфель РИД", "skill_ids": ["portfolio-analyst"]},
     )
     assert resp.status_code == 200
-    assert '"stage":"rag"' in resp.text.replace(" ", "")
+    assert '"stage":"portfolio"' in resp.text.replace(" ", "")
 
     sid = client.get("/api/sessions").json()["items"][0]["id"]
     full = client.get(f"/api/sessions/{sid}").json()
-    assert full["stage"] == "rag"
+    assert full["stage"] == "portfolio"
     kinds = [e.get("kind") for e in full.get("decision_log", [])]
     assert "stage_set" in kinds
 
@@ -230,58 +236,54 @@ def test_approval_registry_marks_configured_tools(tmp_path, monkeypatch):
     get_settings.cache_clear()
 
 
-def test_research_skills_cards_and_bodies():
-    """Исследовательские навыки (перенос практик Dr.Claw): карточки в каталоге
-    (категория general), frontmatter с триггерами, обязательные секции тела,
-    все упоминаемые инструменты существуют в реестре рантайма."""
+TEMPLATE_IDS = ("portfolio-analyst", "ecosystem-analyst", "venture-builder")
+TEMPLATE_SECTIONS = ("Назначение", "Роль", "Навыки (skills)", "Входные данные",
+                     "Выходные данные", "Ограничения")
+
+
+def test_research_skills_cards_and_bodies(monkeypatch):
+    """Шаблоны агентов проректора: карточки в каталоге (категория general,
+    файл data/skills/<id через _>.md), frontmatter с триггерами, обязательные
+    разделы тела; все инструменты, упомянутые в «Навыках», есть в рантайме."""
+    import re
+
+    from api.runtime import compute_sandbox
     from api.runtime.tools import build_default_registry
 
-    expectations = {
-        "literature-survey": {
-            "name": "Обзор литературы",
-            "tools": ["literature_search", "write_file", "read_file",
-                      "make_document", "get_projects", "format_table", "chart_generate"],
-        },
-        "experiment-plan": {
-            "name": "План эксперимента",
-            "tools": ["run_calc", "get_recipe", "compound_lookup", "read_data_file",
-                      "write_file", "read_file", "make_document", "get_projects",
-                      "format_table"],
-        },
-    }
     catalog = {s["id"]: s for s in datarepo.skills()}
-    for skill_id, exp in expectations.items():
+    mentioned = set()
+    for skill_id in TEMPLATE_IDS:
         card = catalog.get(skill_id)
-        assert card and card["name"] == exp["name"]
-        assert card.get("category") == "general"
+        assert card and card.get("category") == "general" and card.get("source") == "template"
+        assert card["file_url"] == f"/data/skills/{skill_id.replace('-', '_')}.md"
+        assert datarepo.skill_path(card) is not None, f"{skill_id}: нет файла"
         meta = datarepo.skill_meta(skill_id)
+        assert meta.get("name") == card["name"]
         assert isinstance(meta.get("triggers"), list) and meta["triggers"]
-        assert not meta.get("stage")  # исследовательский цикл, вне конвейера артефактов
         body = datarepo.skill_body(card)
-        for section in ("Протокол быстрых ответов", "Подгрузка контекста",
-                        "Формат", "Шаги", "Финал"):
-            assert section in body, f"{skill_id}: нет секции «{section}»"
+        for section in TEMPLATE_SECTIONS:
+            assert f"## {section}" in body, f"{skill_id}: нет раздела «{section}»"
+        skills_part = body.split("## Навыки (skills)", 1)[1].split("\n## ", 1)[0]
+        mentioned |= set(re.findall(r"`([a-z_]+)`", skills_part))
 
-    # инструменты, на которые ссылаются навыки, зарегистрированы в рантайме
+    # расчётные инструменты регистрируются только при установленной песочнице —
+    # проверяем полный арсенал, как на сервере
+    monkeypatch.setattr(compute_sandbox, "sandbox_available", lambda: True)
     registry = build_default_registry(get_settings().tools_root)
-    for exp in expectations.values():
-        for tool_name in exp["tools"]:
-            assert registry.has(tool_name), f"инструмент не зарегистрирован: {tool_name}"
+    assert mentioned, "в разделах «Навыки» должны быть инструменты платформы"
+    for tool_name in sorted(mentioned):
+        assert registry.has(tool_name), f"инструмент не зарегистрирован: {tool_name}"
 
 
 def test_research_skills_in_prompt_and_suggestions():
     from api.runtime.prompts import build_system_prompt
 
-    prompt = build_system_prompt(skill_ids=["literature-survey"])
-    assert "Обзор литературы" in prompt and "literature_search" in prompt
-    prompt = build_system_prompt(skill_ids=["experiment-plan"])
-    assert "План эксперимента" in prompt and "run_calc" in prompt
+    prompt = build_system_prompt(skill_ids=["portfolio-analyst"])
+    assert "Портфельный аналитик" in prompt and "read_data_file" in prompt
+    prompt = build_system_prompt(skill_ids=["ecosystem-analyst"])
+    assert "Аналитик экосистемы" in prompt and "get_organization" in prompt
 
-    found = datarepo.suggest_skills("сделай обзор литературы по катодным материалам")
-    ids = [s["id"] for s in found]
-    # каталог пополняется участниками (recipe-scout тоже ловит слово «материал»),
-    # поэтому фиксируем намерение теста — «Обзор литературы» первый, — а не состав выдачи
-    assert ids[0] == "literature-survey"
-    found = datarepo.suggest_skills("составим план эксперимента по этой гипотезе")
-    ids = [s["id"] for s in found]
-    assert ids[0] == "experiment-plan"  # в выдаче и «Формулировка гипотез» (слово «гипотез») — это корректно
+    found = datarepo.suggest_skills("какие бесперспективные патенты стоит закрыть в этом году")
+    assert [s["id"] for s in found][0] == "portfolio-analyst"
+    found = datarepo.suggest_skills("оцените инновационная экосистема вуза: чего не хватает вузу")
+    assert [s["id"] for s in found][0] == "ecosystem-analyst"

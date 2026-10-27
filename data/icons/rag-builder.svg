@@ -1,12 +1,12 @@
 <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-  <path d="M19 10 H37 L45 18 V54 H19 Z" fill="#F4F6EF" stroke="#2C3128" stroke-width="2.5" stroke-linejoin="round" />
-  <path d="M37 10 V18 H45" fill="none" stroke="#2C3128" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
-  <g stroke="#5D6C50" stroke-width="2" stroke-linecap="round">
+  <path d="M19 10 H37 L45 18 V54 H19 Z" fill="#F2F6FC" stroke="#1B2A41" stroke-width="2.5" stroke-linejoin="round" />
+  <path d="M37 10 V18 H45" fill="none" stroke="#1B2A41" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+  <g stroke="#163F78" stroke-width="2" stroke-linecap="round">
     <line x1="26" y1="35" x2="38" y2="29" />
     <line x1="38" y1="29" x2="31" y2="46" />
     <line x1="26" y1="35" x2="31" y2="46" />
   </g>
-  <circle cx="26" cy="35" r="3" fill="#7C8B6C" />
-  <circle cx="31" cy="46" r="3" fill="#7C8B6C" />
-  <circle cx="38" cy="29" r="4.5" fill="#C2A054" stroke="#2C3128" stroke-width="1.5" />
+  <circle cx="26" cy="35" r="3" fill="#1F5AA6" />
+  <circle cx="31" cy="46" r="3" fill="#1F5AA6" />
+  <circle cx="38" cy="29" r="4.5" fill="#2E9D5B" stroke="#1B2A41" stroke-width="1.5" />
 </svg>

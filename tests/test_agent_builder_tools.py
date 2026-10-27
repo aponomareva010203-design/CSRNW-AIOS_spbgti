@@ -121,9 +121,14 @@ def test_save_skill_draft_upsert_and_list():
     assert "Расчёт зитрактиона v2" in one["текст"]
 
 
-def test_registry_knows_all_constructor_tools():
+def test_registry_knows_all_constructor_tools(monkeypatch):
     """Инструменты из арсенала конструктора существуют на сервере: если
-    какой-то не зарегистрирован, конструктор начнёт обещать несуществующее."""
+    какой-то не зарегистрирован, конструктор начнёт обещать несуществующее.
+    Расчётные инструменты регистрируются только при установленной песочнице
+    (на сервере она есть) — здесь её наличие имитируем."""
+    from api.runtime import compute_sandbox
+
+    monkeypatch.setattr(compute_sandbox, "sandbox_available", lambda: True)
     registry = build_default_registry(get_settings().runtime_dir / "tools")
     for name in ("run_calc", "get_recipe", "read_data_file", "literature_search",
                  "compound_lookup", "make_document", "get_projects",

@@ -1,17 +1,17 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <!-- Эмблема AIOS Технологического института: фирменный сигил из вордмарка
        (css .wordmark .sigil) в размере аватара. Палитра платформы:
-       --green #7C8B6C, --green-deep #5D6C50, --gold-soft #E9DCBB.
+       --green #1F5AA6, --green-deep #163F78, --gold-soft #CDEBD9.
        Полный квадрат без скругления — Telegram обрезает аватар в круг.
        PNG для /setuserpic: frontend/assets/aios-emblem-512.png
        (генерируется scripts/aios_emblem_png.py, stdlib без зависимостей). -->
   <defs>
     <linearGradient id="g" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#7C8B6C"/>
-      <stop offset="1" stop-color="#5D6C50"/>
+      <stop offset="0" stop-color="#1F5AA6"/>
+      <stop offset="1" stop-color="#163F78"/>
     </linearGradient>
   </defs>
   <rect width="512" height="512" fill="url(#g)"/>
   <rect x="153.6" y="153.6" width="204.8" height="204.8" rx="51.2"
-        fill="none" stroke="#E9DCBB" stroke-width="34.13"/>
+        fill="none" stroke="#CDEBD9" stroke-width="34.13"/>
 </svg>

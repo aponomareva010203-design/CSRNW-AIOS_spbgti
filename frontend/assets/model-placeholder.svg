@@ -1,11 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200" role="img" aria-label="Изображение модели отсутствует">
   <rect width="320" height="200" fill="#F1EEE4"/>
-  <g fill="none" stroke="#7C8B6C" stroke-width="2.5" stroke-linecap="round">
-    <circle cx="160" cy="100" r="13" fill="#7C8B6C" stroke="none"/>
-    <circle cx="112" cy="66" r="9" fill="#C2A054" stroke="none"/>
-    <circle cx="208" cy="66" r="9" fill="#C2A054" stroke="none"/>
-    <circle cx="112" cy="136" r="9" fill="#5D6C50" stroke="none"/>
-    <circle cx="208" cy="136" r="9" fill="#5D6C50" stroke="none"/>
+  <g fill="none" stroke="#1F5AA6" stroke-width="2.5" stroke-linecap="round">
+    <circle cx="160" cy="100" r="13" fill="#1F5AA6" stroke="none"/>
+    <circle cx="112" cy="66" r="9" fill="#2E9D5B" stroke="none"/>
+    <circle cx="208" cy="66" r="9" fill="#2E9D5B" stroke="none"/>
+    <circle cx="112" cy="136" r="9" fill="#163F78" stroke="none"/>
+    <circle cx="208" cy="136" r="9" fill="#163F78" stroke="none"/>
     <line x1="150" y1="91" x2="120" y2="73"/>
     <line x1="170" y1="91" x2="200" y2="73"/>
     <line x1="150" y1="109" x2="120" y2="129"/>

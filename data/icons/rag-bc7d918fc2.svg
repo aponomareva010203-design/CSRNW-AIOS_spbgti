@@ -1,8 +1,8 @@
 <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-  <rect x="12" y="9" width="28" height="38" rx="3" fill="#F4F6EF" stroke="#2C3128" stroke-width="2" />
-  <line x1="18" y1="17" x2="34" y2="17" stroke="#5D6C50" stroke-width="2.5" stroke-linecap="round" />
-  <line x1="18" y1="24" x2="31" y2="24" stroke="#5D6C50" stroke-width="2.5" stroke-linecap="round" />
-  <line x1="18" y1="31" x2="27" y2="31" stroke="#5D6C50" stroke-width="2.5" stroke-linecap="round" />
-  <path d="M42 22 C39 27 31 35 31 44 C31 49.5 35.5 54 42 54 C48.5 54 53 49.5 53 44 C53 35 45 27 42 22 Z" fill="#C2A054" stroke="#2C3128" stroke-width="2" stroke-linejoin="round" />
-  <line x1="37" y1="44" x2="37" y2="49" stroke="#E9DCBB" stroke-width="2.5" stroke-linecap="round" />
+  <rect x="12" y="9" width="28" height="38" rx="3" fill="#F2F6FC" stroke="#1B2A41" stroke-width="2" />
+  <line x1="18" y1="17" x2="34" y2="17" stroke="#163F78" stroke-width="2.5" stroke-linecap="round" />
+  <line x1="18" y1="24" x2="31" y2="24" stroke="#163F78" stroke-width="2.5" stroke-linecap="round" />
+  <line x1="18" y1="31" x2="27" y2="31" stroke="#163F78" stroke-width="2.5" stroke-linecap="round" />
+  <path d="M42 22 C39 27 31 35 31 44 C31 49.5 35.5 54 42 54 C48.5 54 53 49.5 53 44 C53 35 45 27 42 22 Z" fill="#2E9D5B" stroke="#1B2A41" stroke-width="2" stroke-linejoin="round" />
+  <line x1="37" y1="44" x2="37" y2="49" stroke="#CDEBD9" stroke-width="2.5" stroke-linecap="round" />
 </svg>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Агенты — AIOS Технологического института</title>
+<title>Агенты — AIOS · Инновации университета</title>
 <link rel="stylesheet" href="css/style.css?v=20260929m">
 </head>
 <body>
@@ -18,9 +18,8 @@
       <div class="side-group side-group--collapsible" data-side-group="dashboards">
         <button class="side-group-title side-group-toggle" type="button" aria-expanded="true" aria-controls="sideGroupDashboards">Дашборды</button>
         <div class="side-group-items" id="sideGroupDashboards">
-        <a class="side-link" id="menuPish" href="pish.html" hidden>ПИШ «Химический инжиниринг»</a>
-        <span class="side-link side-link--disabled" id="menuPishLock">ПИШ «Химический инжиниринг» <span class="side-note">в разработке</span></span>
-        <a class="side-link" href="pilot.html">Статус пилотного проекта</a>
+        <a class="side-link" href="index.html">Рабочий стол проректора</a>
+        <a class="side-link" href="pilot.html">Статус внедрения AIOS</a>
         </div>
       </div>
 
@@ -68,16 +67,54 @@
   <div class="page">
 
   <section class="section-head">
-    <a class="backlink" href="index.html">← AIOS Технологического института</a>
+    <a class="backlink" href="index.html">← AIOS · Инновации университета</a>
     <h1>Агенты</h1>
     <div class="rule"></div>
+  </section>
+
+  <!-- Шаблоны агентов проректора и конструктор MD-файла (js/agent_templates.js) -->
+  <section class="tpl-section" id="templates">
+    <h2>Шаблоны агентов для проректора</h2>
+    <p>Возьмите шаблон за основу: скачайте готовый .md или откройте его в конструкторе ниже, впишите особенности своего вуза и выгрузите собственный MD-файл агента.</p>
+    <div class="tpl-grid" id="tplGrid"></div>
+  </section>
+
+  <section class="tpl-section" id="builder">
+    <h2>Конструктор агента</h2>
+    <p>Каждый агент описывается одинаковой структурой: назначение, роль, навыки (skills), входные и выходные данные, ограничения. Справа — итоговый файл, он обновляется по мере ввода.</p>
+    <div class="tpl-builder">
+      <form class="tpl-form" id="tplForm" autocomplete="off">
+        <label>Основа
+          <select id="tplBase"><option value="">Пустой шаблон</option></select>
+        </label>
+        <label>Название агента<input name="name" required placeholder="Например: Аналитик МТК"></label>
+        <label>Краткое описание<small>Одна фраза для каталога</small><textarea name="description" rows="2"></textarea></label>
+        <label>Назначение<small>Какую управленческую задачу решает и что получает пользователь</small><textarea name="purpose" rows="3"></textarea></label>
+        <label>Роль<small>Кем агент себя считает и как говорит</small><textarea name="role" rows="3"></textarea></label>
+        <label>Навыки (skills)<small>По одному на строку: инструмент платформы и что он делает</small><textarea name="skills" rows="5"></textarea></label>
+        <label>Входные данные<small>По одному пункту на строку</small><textarea name="inputs" rows="4"></textarea></label>
+        <label>Выходные данные<small>По одному пункту на строку</small><textarea name="outputs" rows="4"></textarea></label>
+        <label>Ограничения<small>По одному пункту на строку</small><textarea name="limits" rows="4"></textarea></label>
+        <label>Сценарий работы<small>Необязательно: шаги диалога, по одному на строку</small><textarea name="flow" rows="4"></textarea></label>
+        <label>Фразы-триггеры<small>Через запятую: по ним чат предложит агента</small><input name="triggers"></label>
+      </form>
+      <div class="tpl-preview">
+        <pre id="tplPreview" aria-live="polite"></pre>
+        <div class="tpl-card-actions">
+          <button class="btn-primary mm-btn" id="tplDownload" type="button">Скачать .md</button>
+          <button class="btn-primary mm-btn" id="tplCopy" type="button">Скопировать</button>
+          <button class="btn-primary mm-btn" id="tplChat" type="button">Доработать в «Конструкторе агентов»</button>
+        </div>
+        <div class="tpl-status" id="tplStatus"></div>
+      </div>
+    </div>
   </section>
 
   <div class="spoiler" id="spoilerGeneral">
     <button class="spoiler-toggle" type="button" aria-expanded="false" aria-controls="spoilerGeneralBody">
       <span class="spoiler-head">
-        <span class="spoiler-title">Общие агенты</span>
-        <span class="spoiler-note">Агенты общего научного пайплайна: работа с литературой и знаниями, онтологии, RAG-базы, планирование экспериментов</span>
+        <span class="spoiler-title">Шаблоны агентов для управления инновациями</span>
+        <span class="spoiler-note">Готовые агенты-шаблоны для проректора: портфель РИД, экосистема вуза, трекинг стартапов</span>
       </span>
       <span class="spoiler-chevron" aria-hidden="true"></span>
     </button>
@@ -89,8 +126,8 @@
   <div class="spoiler" id="spoilerSpecial">
     <button class="spoiler-toggle" type="button" aria-expanded="false" aria-controls="spoilerSpecialBody">
       <span class="spoiler-head">
-        <span class="spoiler-title">Специальные агенты</span>
-        <span class="spoiler-note">Агенты, для которых критична привязка к предметной области</span>
+        <span class="spoiler-title">Агенты вашего университета</span>
+        <span class="spoiler-note">Агенты, которые соберёт команда вуза: из шаблона в конструкторе или в диалоге с «Конструктором агентов»</span>
       </span>
       <span class="spoiler-chevron" aria-hidden="true"></span>
     </button>
@@ -103,7 +140,7 @@
     <button class="spoiler-toggle" type="button" aria-expanded="false" aria-controls="spoilerServiceBody">
       <span class="spoiler-head">
         <span class="spoiler-title">Служебные агенты</span>
-        <span class="spoiler-note">Агенты, управляющие пользовательским опытом платформы: онбординг, формулировка гипотез, конструктор агентов</span>
+        <span class="spoiler-note">Агенты, управляющие работой с платформой: онбординг проекта вуза, конструктор агентов</span>
       </span>
       <span class="spoiler-chevron" aria-hidden="true"></span>
     </button>
@@ -177,6 +214,7 @@
 <script src="js/api.js?v=20260929m"></script>
 <script src="js/auth.js?v=20260925zq"></script>
 <script src="js/agents.js?v=20260925zq"></script>
+<script src="js/agent_templates.js?v=20261027a"></script>
 <script src="js/agent_views.js?v=20260929m"></script>
 <script src="js/thinking.js?v=20260925zq"></script>
 <script src="js/workspace.js?v=20260929m"></script>

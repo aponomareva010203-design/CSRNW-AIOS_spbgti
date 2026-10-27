@@ -1,10 +1,10 @@
 /* ============================================================
    Страница «Модели».
-   - Доступ: только роль «Администратор» (как страница ПИШ).
+   - Доступ: только роль «Администратор» (закрытый раздел).
      Гостям и обычным пользователям — экран блокировки; переключение
      живое, по событию 'aios-auth-change' из auth.js.
-   - «Модели коллективов» — реестр моделей, обученных на опытах
-     коллективов (GET /api/models/registry): карточка с погрешностью,
+   - «Модели проектов» — реестр моделей, обученных на опытах
+     проектных команд (GET /api/models/registry): карточка с погрешностью,
      точностью относительно угадывания средним и статусом; клик ведёт
      на страницу модели model.html?id=…; «Создать модель» запускает
      в чате агента «Конструктор моделей»; «Импортировать ONNX» — модель,
@@ -109,7 +109,7 @@
       }
       items.forEach(function (m) { teamGrid.appendChild(teamCard(m)); });
     }).catch(function () {
-      teamGrid.innerHTML = '<div class="models-error">Не удалось загрузить модели коллективов.</div>';
+      teamGrid.innerHTML = '<div class="models-error">Не удалось загрузить модели проектов.</div>';
     });
   }
 
@@ -212,12 +212,12 @@
 (function () {
   var PLACEHOLDER_IMG = 'assets/model-placeholder.svg';
   var SOURCE_LABELS = {
-    spbti: 'Технологический институт',
+    spbti: 'Университет',
     huggingface: 'Hugging Face'
   };
 
   var sections = [
-    { source: 'spbti', grid: document.getElementById('gridSpbti'), empty: 'Пока здесь пусто — скоро появятся модели Технологического института.' },
+    { source: 'spbti', grid: document.getElementById('gridSpbti'), empty: 'Пока здесь пусто — скоро появятся модели университета.' },
     { source: 'huggingface', grid: document.getElementById('gridOpen'), empty: 'Каталог открытых моделей пуст.' }
   ];
 

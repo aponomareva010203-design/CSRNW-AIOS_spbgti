@@ -30,6 +30,22 @@ data/skills/*
 # «Конструктор моделей» — по тому же доводу, что и «Конструктор агентов»:
 # его текст определяет, как участники собирают все модели коллективов.
 !data/skills/model-builder.md
+# Сессия «Агентный инжиниринг для управления инновациями в вузе»: шаблоны
+# агентов проректора и онбординг проекта вуза идут вместе с кодом — участники
+# скачивают их .md с первого запуска, без серверной копии.
+!data/skills/project-onboarding.md
+!data/skills/portfolio_analyst.md
+!data/skills/ecosystem_analyst.md
+!data/skills/venture_builder.md
+# Тестовые данные «Рабочего стола проректора» — участники правят их под свой вуз
+!data/dashboard.json
+# Карта этапов конвейера навыков (бейдж этапа и «следующий шаг» в чате)
+!data/stage-map.json
+# Демо-профиль университета для раздела «Об организации»
+!data/organization/
+data/organization/*
+!data/organization/profile.json
+!data/organization/metrics.json
 
 # Python
 __pycache__/

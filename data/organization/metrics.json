@@ -1,0 +1,43 @@
+{
+  "type": "university",
+  "title": "Показатели деятельности",
+  "items": [
+    {
+      "id": "rd_income",
+      "title": "Объем доходов от НИОКР",
+      "unit": "тыс. руб",
+      "type": "number",
+      "value": 850000
+    },
+    {
+      "id": "faculty_count",
+      "title": "Число профессорско-преподавательского состава",
+      "unit": "чел.",
+      "type": "integer",
+      "value": 1200
+    },
+    {
+      "id": "researchers_count",
+      "title": "Число научных работников",
+      "unit": "чел.",
+      "type": "integer",
+      "value": 350
+    },
+    {
+      "id": "students_count",
+      "title": "Численность студентов",
+      "unit": "чел.",
+      "type": "integer",
+      "value": 14000
+    },
+    {
+      "id": "ege_avg",
+      "title": "Средний балл ЕГЭ",
+      "unit": "баллов",
+      "type": "number",
+      "value": 78.5
+    }
+  ],
+  "source": "Демо-данные платформы AIOS",
+  "updated_at": "27.10.2026"
+}

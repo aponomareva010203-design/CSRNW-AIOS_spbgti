@@ -1,0 +1,430 @@
+{
+  "_comment": "Тестовые данные «Рабочего стола проректора». Замените их данными своего вуза: структура описана в README.md (раздел «Как настроить дашборд под свой вуз»). Суммы — тыс. руб.",
+  "university": "Университет (демо-данные)",
+  "as_of": null,
+  "stale_years": 2,
+  "patents": [
+    {
+      "id": "RU2781234",
+      "title": "Способ очистки сточных вод мембранным модулем",
+      "type": "Патент на изобретение",
+      "year": 2019,
+      "department": "Институт экологии",
+      "perspective": "high",
+      "support_cost": 95,
+      "licensee": "ООО «АкваТех»"
+    },
+    {
+      "id": "RU2790011",
+      "title": "Датчик износа подшипника на МЭМС",
+      "type": "Патент на изобретение",
+      "year": 2020,
+      "department": "Факультет приборостроения",
+      "perspective": "high",
+      "support_cost": 80,
+      "licensee": "АО «Промдиагностика»"
+    },
+    {
+      "id": "RU2801456",
+      "title": "Композитный материал для 3D-печати",
+      "type": "Патент на изобретение",
+      "year": 2021,
+      "department": "Институт материалов",
+      "perspective": "high",
+      "support_cost": 72,
+      "licensee": ""
+    },
+    {
+      "id": "2022611234",
+      "title": "ПО «Цифровой двойник котельной»",
+      "type": "Программа для ЭВМ",
+      "year": 2022,
+      "department": "ИТ-факультет",
+      "perspective": "high",
+      "support_cost": 15,
+      "licensee": "МТК «ТеплоЦифра»"
+    },
+    {
+      "id": "2023615678",
+      "title": "Платформа адаптивного обучения",
+      "type": "Программа для ЭВМ",
+      "year": 2023,
+      "department": "ИТ-факультет",
+      "perspective": "high",
+      "support_cost": 12,
+      "licensee": ""
+    },
+    {
+      "id": "RU2755321",
+      "title": "Способ получения биоудобрения",
+      "type": "Патент на изобретение",
+      "year": 2017,
+      "department": "Агробиофакультет",
+      "perspective": "low",
+      "support_cost": 110,
+      "licensee": ""
+    },
+    {
+      "id": "RU2741200",
+      "title": "Устройство для сушки зерна",
+      "type": "Патент на изобретение",
+      "year": 2016,
+      "department": "Агробиофакультет",
+      "perspective": "low",
+      "support_cost": 120,
+      "licensee": ""
+    },
+    {
+      "id": "RU198765",
+      "title": "Крепление солнечной панели",
+      "type": "Полезная модель",
+      "year": 2018,
+      "department": "Энергетический институт",
+      "perspective": "low",
+      "support_cost": 45,
+      "licensee": ""
+    },
+    {
+      "id": "RU2768800",
+      "title": "Метод неразрушающего контроля сварных швов",
+      "type": "Патент на изобретение",
+      "year": 2019,
+      "department": "Машиностроительный факультет",
+      "perspective": "low",
+      "support_cost": 88,
+      "licensee": ""
+    },
+    {
+      "id": "НХ-014",
+      "title": "Ноу-хау: рецептура антикоррозионного покрытия",
+      "type": "Ноу-хау",
+      "year": 2021,
+      "department": "Институт материалов",
+      "perspective": "high",
+      "support_cost": 0,
+      "licensee": "ООО «ПокрытиеПро»"
+    },
+    {
+      "id": "RU2810022",
+      "title": "Биоразлагаемая упаковочная плёнка",
+      "type": "Патент на изобретение",
+      "year": 2023,
+      "department": "Институт материалов",
+      "perspective": "high",
+      "support_cost": 60,
+      "licensee": ""
+    },
+    {
+      "id": "RU201133",
+      "title": "Учебный стенд гидравлики",
+      "type": "Полезная модель",
+      "year": 2020,
+      "department": "Машиностроительный факультет",
+      "perspective": "low",
+      "support_cost": 38,
+      "licensee": ""
+    }
+  ],
+  "projects": [
+    {
+      "id": "P-01",
+      "title": "Мембранная очистка воды",
+      "department": "Институт экологии",
+      "trl": 7,
+      "trl_since": "2025-11-01",
+      "funding_stage": "venture",
+      "budget": 18000
+    },
+    {
+      "id": "P-02",
+      "title": "МЭМС-диагностика подшипников",
+      "department": "Факультет приборостроения",
+      "trl": 6,
+      "trl_since": "2025-03-15",
+      "funding_stage": "studio",
+      "budget": 9500
+    },
+    {
+      "id": "P-03",
+      "title": "Цифровой двойник котельной",
+      "department": "ИТ-факультет",
+      "trl": 8,
+      "trl_since": "2026-02-01",
+      "funding_stage": "venture",
+      "budget": 24000
+    },
+    {
+      "id": "P-04",
+      "title": "Композиты для 3D-печати",
+      "department": "Институт материалов",
+      "trl": 5,
+      "trl_since": "2024-01-20",
+      "funding_stage": "grant",
+      "budget": 6000
+    },
+    {
+      "id": "P-05",
+      "title": "Биоразлагаемая плёнка",
+      "department": "Институт материалов",
+      "trl": 4,
+      "trl_since": "2025-09-01",
+      "funding_stage": "grant",
+      "budget": 4500
+    },
+    {
+      "id": "P-06",
+      "title": "Адаптивное обучение",
+      "department": "ИТ-факультет",
+      "trl": 6,
+      "trl_since": "2026-04-10",
+      "funding_stage": "studio",
+      "budget": 7000
+    },
+    {
+      "id": "P-07",
+      "title": "Биоудобрение нового поколения",
+      "department": "Агробиофакультет",
+      "trl": 3,
+      "trl_since": "2022-06-01",
+      "funding_stage": "rnf",
+      "budget": 3000
+    },
+    {
+      "id": "P-08",
+      "title": "Сушка зерна ИК-излучением",
+      "department": "Агробиофакультет",
+      "trl": 4,
+      "trl_since": "2023-03-01",
+      "funding_stage": "grant",
+      "budget": 2500
+    },
+    {
+      "id": "P-09",
+      "title": "Неразрушающий контроль швов",
+      "department": "Машиностроительный факультет",
+      "trl": 5,
+      "trl_since": "2024-05-01",
+      "funding_stage": "grant",
+      "budget": 3800
+    },
+    {
+      "id": "P-10",
+      "title": "Квантовые сенсоры магнитного поля",
+      "department": "Физический факультет",
+      "trl": 2,
+      "trl_since": "2025-12-01",
+      "funding_stage": "rnf",
+      "budget": 12000
+    },
+    {
+      "id": "P-11",
+      "title": "Нейроинтерфейс для реабилитации",
+      "department": "Медико-биологический факультет",
+      "trl": 3,
+      "trl_since": "2025-06-01",
+      "funding_stage": "rnf",
+      "budget": 8000
+    },
+    {
+      "id": "P-12",
+      "title": "Накопитель энергии на суперконденсаторах",
+      "department": "Энергетический институт",
+      "trl": 4,
+      "trl_since": "2024-02-01",
+      "funding_stage": "rnf",
+      "budget": 5000
+    },
+    {
+      "id": "P-13",
+      "title": "Антикоррозионное покрытие",
+      "department": "Институт материалов",
+      "trl": 9,
+      "trl_since": "2025-01-15",
+      "funding_stage": "venture",
+      "budget": 15000
+    },
+    {
+      "id": "P-14",
+      "title": "Беспилотный мониторинг посевов",
+      "department": "Агробиофакультет",
+      "trl": 5,
+      "trl_since": "2026-03-01",
+      "funding_stage": "studio",
+      "budget": 5500
+    },
+    {
+      "id": "P-15",
+      "title": "Солнечные трекеры",
+      "department": "Энергетический институт",
+      "trl": 6,
+      "trl_since": "2023-09-01",
+      "funding_stage": "studio",
+      "budget": 4000
+    },
+    {
+      "id": "P-16",
+      "title": "Голосовой ассистент для приёмной комиссии",
+      "department": "ИТ-факультет",
+      "trl": 1,
+      "trl_since": "2026-06-01",
+      "funding_stage": "rnf",
+      "budget": 1500
+    }
+  ],
+  "funding_stages": [
+    {
+      "key": "rnf",
+      "title": "РНФ",
+      "subtitle": "Фундаментальный задел, УГТ 1–3"
+    },
+    {
+      "key": "grant",
+      "title": "Гранты",
+      "subtitle": "ФСИ, Минобрнауки, индустриальные гранты, УГТ 3–5"
+    },
+    {
+      "key": "studio",
+      "title": "Стартап-студия",
+      "subtitle": "Упаковка в продукт, MVP, команда, УГТ 5–7"
+    },
+    {
+      "key": "venture",
+      "title": "Венчур",
+      "subtitle": "Фонды, бизнес-ангелы, корпорации, УГТ 7–9"
+    }
+  ],
+  "teams": [
+    {
+      "name": "АкваТех Лаб",
+      "funding": "grant",
+      "members": 5,
+      "project": "P-01"
+    },
+    {
+      "name": "ВиброСенс",
+      "funding": "grant",
+      "members": 4,
+      "project": "P-02"
+    },
+    {
+      "name": "ТеплоЦифра",
+      "funding": "internal",
+      "members": 7,
+      "project": "P-03"
+    },
+    {
+      "name": "ПринтКомпозит",
+      "funding": "state",
+      "members": 6,
+      "project": "P-04"
+    },
+    {
+      "name": "ЭкоПлёнка",
+      "funding": "grant",
+      "members": 3,
+      "project": "P-05"
+    },
+    {
+      "name": "EduAdapt",
+      "funding": "internal",
+      "members": 4,
+      "project": "P-06"
+    },
+    {
+      "name": "АгроДрон",
+      "funding": "internal",
+      "members": 5,
+      "project": "P-14"
+    },
+    {
+      "name": "КвантМаг",
+      "funding": "state",
+      "members": 8,
+      "project": "P-10"
+    },
+    {
+      "name": "НейроРеаб",
+      "funding": "state",
+      "members": 6,
+      "project": "P-11"
+    },
+    {
+      "name": "СанТрек",
+      "funding": "grant",
+      "members": 3,
+      "project": "P-15"
+    },
+    {
+      "name": "ПокрытиеПро",
+      "funding": "internal",
+      "members": 9,
+      "project": "P-13"
+    }
+  ],
+  "venture_tracker": [
+    {
+      "startup": "ТеплоЦифра",
+      "commitment": "Выручка 10 млн ₽ за 2026 год",
+      "owner": "Петров А.С.",
+      "due": "2026-12-31",
+      "progress": 72,
+      "status": "on_track"
+    },
+    {
+      "startup": "АкваТех Лаб",
+      "commitment": "Закрыть раунд pre-seed 30 млн ₽",
+      "owner": "Иванова Е.В.",
+      "due": "2026-11-30",
+      "progress": 40,
+      "status": "risk"
+    },
+    {
+      "startup": "ВиброСенс",
+      "commitment": "Пилот на 2 предприятиях",
+      "owner": "Сидоров К.М.",
+      "due": "2026-09-30",
+      "progress": 50,
+      "status": "overdue"
+    },
+    {
+      "startup": "EduAdapt",
+      "commitment": "MVP и 3 платящих вуза",
+      "owner": "Кузнецова О.Н.",
+      "due": "2027-03-01",
+      "progress": 35,
+      "status": "on_track"
+    },
+    {
+      "startup": "АгроДрон",
+      "commitment": "Регистрация МТК с долей вуза",
+      "owner": "Смирнов Д.И.",
+      "due": "2026-10-15",
+      "progress": 100,
+      "status": "done"
+    },
+    {
+      "startup": "ЭкоПлёнка",
+      "commitment": "Подать заявку «Старт-2» ФСИ",
+      "owner": "Морозова А.А.",
+      "due": "2026-08-01",
+      "progress": 20,
+      "status": "overdue"
+    },
+    {
+      "startup": "СанТрек",
+      "commitment": "Индустриальный партнёр, LOI",
+      "owner": "Волков П.Р.",
+      "due": "2026-12-15",
+      "progress": 10,
+      "status": "risk"
+    },
+    {
+      "startup": "ПокрытиеПро",
+      "commitment": "Лицензионный договор с вузом",
+      "owner": "Николаев С.Г.",
+      "due": "2026-06-30",
+      "progress": 100,
+      "status": "done"
+    }
+  ]
+}

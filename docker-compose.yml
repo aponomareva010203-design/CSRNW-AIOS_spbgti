@@ -1,0 +1,24 @@
+# Локальный запуск платформы одной командой: docker compose up --build
+# Откройте http://localhost:8000 и войдите стартовым администратором
+# (логин и пароль ниже; поменяйте их в файле .env рядом с этим файлом).
+services:
+  aios:
+    build: .
+    ports:
+      - "${PORT:-8000}:8000"
+    environment:
+      AIOS_ADMIN_LOGIN: "${AIOS_ADMIN_LOGIN:-admin@university.local}"
+      AIOS_ADMIN_PASSWORD: "${AIOS_ADMIN_PASSWORD:-admin12345}"
+      AIOS_LLM_BASE_URL: "${AIOS_LLM_BASE_URL:-}"
+      AIOS_LLM_API_KEY: "${AIOS_LLM_API_KEY:-}"
+      AIOS_LLM_MODEL: "${AIOS_LLM_MODEL:-}"
+      AIOS_RUNTIME_DIR: /app/.aios-runtime
+    volumes:
+      # пользователи, проекты, сессии чата — переживают перезапуск контейнера
+      - aios-runtime:/app/.aios-runtime
+      # данные вуза: правки data/dashboard.json и data/skills/*.md видны сразу
+      - ./data:/app/data
+    restart: unless-stopped
+
+volumes:
+  aios-runtime:
