@@ -54,6 +54,9 @@ quickjs==1.19.4
 starlette==1.6.0
 typing_extensions==4.16.0
 typing-inspection==0.4.4
+# не из серверного freeze: на Linux база часовых поясов системная, на Windows
+# без этого пакета zoneinfo не находит Europe/Moscow и платформа не стартует
+tzdata==2026.5
 urllib3==2.7.0
 uvicorn==0.52.4
 uvloop==0.22.1

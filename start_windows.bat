@@ -133,6 +133,7 @@ echo requirements.txt не найден - создаю базовый списо
     echo openpyxl
     echo python-docx
     echo pyyaml
+    echo tzdata
     echo pillow
 )
 goto :eof

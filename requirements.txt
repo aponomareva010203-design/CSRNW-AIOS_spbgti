@@ -12,6 +12,10 @@ openpyxl
 python-docx
 # Парсинг YAML-frontmatter навыков (триггеры подсказок, этапы конвейера).
 pyyaml
+# База часовых поясов для zoneinfo (api/runtime/user_context.py, Europe/Moscow).
+# На Linux/macOS она берётся из системы, на Windows её нет — без пакета
+# платформа падает при старте с ZoneInfoNotFoundError.
+tzdata
 
 # Прогон тестов на сервере — часть штатной проверки после переноса и после
 # каждой выкладки (Architecture_V5 §6.9), поэтому pytest ставится вместе с
