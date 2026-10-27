@@ -27,7 +27,7 @@ from api.runtime import agent_feedback, cabinet, projects
 from api.runtime.config import get_settings
 from api.runtime.tools import build_default_registry
 
-ADMIN_LOGIN = "m.kharitonov@csr-nw.ru"
+ADMIN_LOGIN = "a.ponomareva@csr-nw.ru"
 ADMIN_PASSWORD = "1234"
 
 ONBOARDING = "project-onboarding"  # агент каталога (data/skills.json)

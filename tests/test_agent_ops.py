@@ -21,7 +21,7 @@ from api.runtime.config import get_settings
 from api.runtime.mail_settings import MailConfig
 from api.runtime.mailer import MailError, send_with_config
 
-ADMIN_LOGIN = "m.kharitonov@csr-nw.ru"
+ADMIN_LOGIN = "a.ponomareva@csr-nw.ru"
 ADMIN_PASSWORD = "1234"
 
 

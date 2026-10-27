@@ -9,7 +9,7 @@ from api.runtime.confirmations import ConfirmationStore
 from api.runtime.tokens import TokenStore
 from api.runtime.users import DuplicateLogin, UserError, UserStore
 
-ADMIN_LOGIN = "m.kharitonov@csr-nw.ru"
+ADMIN_LOGIN = "a.ponomareva@csr-nw.ru"
 ADMIN_PASSWORD = "1234"
 
 
