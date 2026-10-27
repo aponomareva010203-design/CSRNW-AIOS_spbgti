@@ -30,8 +30,8 @@
     AIOS_RAG_DATA_DIR        — каталог публичных данных RAG-баз (./data): сюда навык
                                «Конструктор RAG» публикует карточки (rag_bases.json);
                                в тестах — временный;
-    AIOS_ADMIN_LOGIN         — логин стартового администратора (m.kharitonov@csr-nw.ru);
-    AIOS_ADMIN_PASSWORD      — его пароль. Задаётся на сервере в .env; по умолчанию «1234»
+    AIOS_ADMIN_LOGIN         — логин стартового администратора (admin@university.local);
+    AIOS_ADMIN_PASSWORD      — его пароль. Задаётся на сервере в .env; по умолчанию «admin12345»
                                — только для локальной разработки, в открытых исходниках.
 
     Подтверждение e-mail при регистрации (SMTP):
@@ -206,8 +206,8 @@ def get_settings() -> Settings:
         icon_data_dir=Path(
             _env("AIOS_ICON_DATA_DIR") or (BASE_DIR / "data")
         ).resolve(),
-        admin_login=_env("AIOS_ADMIN_LOGIN") or "m.kharitonov@csr-nw.ru",
-        admin_password=_env("AIOS_ADMIN_PASSWORD") or "1234",
+        admin_login=_env("AIOS_ADMIN_LOGIN") or "admin@university.local",
+        admin_password=_env("AIOS_ADMIN_PASSWORD") or "admin12345",
         smtp_host=_env("AIOS_SMTP_HOST"),
         smtp_port=_env_int("AIOS_SMTP_PORT", 465),
         smtp_user=_env("AIOS_SMTP_USER"),
