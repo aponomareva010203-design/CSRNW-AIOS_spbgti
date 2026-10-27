@@ -1,0 +1,5 @@
+# Скрипты запуска в один клик: .bat нужен с CRLF (иначе cmd путается в метках),
+# .sh/.command — с LF (иначе bash на macOS не запустит их)
+*.bat text eol=crlf
+*.sh text eol=lf
+*.command text eol=lf
