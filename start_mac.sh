@@ -99,6 +99,7 @@ qdrant-client
 openpyxl
 python-docx
 pyyaml
+tzdata
 pillow
 REQ
 fi
