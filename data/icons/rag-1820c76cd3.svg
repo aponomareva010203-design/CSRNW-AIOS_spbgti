@@ -1,10 +1,10 @@
 <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-  <rect x="12" y="8" width="30" height="38" rx="3" fill="#F4F6EF" stroke="#2C3128" stroke-width="2" />
-  <line x1="18" y1="16" x2="36" y2="16" stroke="#5D6C50" stroke-width="2" stroke-linecap="round" />
-  <line x1="18" y1="22" x2="36" y2="22" stroke="#5D6C50" stroke-width="2" stroke-linecap="round" />
-  <line x1="18" y1="28" x2="24" y2="28" stroke="#5D6C50" stroke-width="2" stroke-linecap="round" />
-  <rect x="26" y="28" width="28" height="27" rx="4" fill="#5D6C50" stroke="#2C3128" stroke-width="2" />
-  <path d="M32 34 H48 V42 H32 V50" fill="none" stroke="#F4F6EF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-  <circle cx="32" cy="34" r="2.5" fill="#C2A054" />
-  <circle cx="32" cy="50" r="2.5" fill="#C2A054" />
+  <rect x="12" y="8" width="30" height="38" rx="3" fill="#F2F6FC" stroke="#1B2A41" stroke-width="2" />
+  <line x1="18" y1="16" x2="36" y2="16" stroke="#163F78" stroke-width="2" stroke-linecap="round" />
+  <line x1="18" y1="22" x2="36" y2="22" stroke="#163F78" stroke-width="2" stroke-linecap="round" />
+  <line x1="18" y1="28" x2="24" y2="28" stroke="#163F78" stroke-width="2" stroke-linecap="round" />
+  <rect x="26" y="28" width="28" height="27" rx="4" fill="#163F78" stroke="#1B2A41" stroke-width="2" />
+  <path d="M32 34 H48 V42 H32 V50" fill="none" stroke="#F2F6FC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+  <circle cx="32" cy="34" r="2.5" fill="#2E9D5B" />
+  <circle cx="32" cy="50" r="2.5" fill="#2E9D5B" />
 </svg>

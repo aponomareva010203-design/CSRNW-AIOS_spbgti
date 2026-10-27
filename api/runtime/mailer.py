@@ -37,7 +37,7 @@ CONFIRM_SUBJECT = "Подтверждение регистрации в AIOS"
 
 CONFIRM_BODY_TEMPLATE = """Здравствуйте!
 
-Вы зарегистрировались в AIOS Технологического института.
+Вы зарегистрировались в AIOS · Инновации университета.
 
 Подтвердите адрес электронной почты — перейдите по ссылке:
 
@@ -88,7 +88,7 @@ def send_confirmation_email(to: str, link: str) -> str:
     from_addr = settings.smtp_from or settings.smtp_user
     msg = EmailMessage()
     msg["Subject"] = CONFIRM_SUBJECT
-    msg["From"] = formataddr(("AIOS Технологического института", from_addr))
+    msg["From"] = formataddr(("AIOS · Инновации университета", from_addr))
     msg["To"] = to
     msg.set_content(CONFIRM_BODY_TEMPLATE.format(link=link))
 

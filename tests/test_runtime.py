@@ -52,7 +52,7 @@ def test_build_system_prompt_from_files():
     base = build_system_prompt()
     assert "Рабочего пространства" in base
 
-    with_skill = build_system_prompt(skill_ids=["scimlchem-architect"])
+    with_skill = build_system_prompt(skill_ids=["portfolio-analyst"])
     assert "Навык:" in with_skill
     assert len(with_skill) > len(base)
 
@@ -455,16 +455,16 @@ def test_skill_launch_starts_new_session(tmp_path, monkeypatch):
     )
     assert session_id_of(resp.text) == first_sid
 
-    # 3) запрос навыка «Формулировка гипотез» — автоматом новая сессия
+    # 3) запрос другого навыка («Портфельный аналитик») — автоматом новая сессия
     resp = client.post(
         "/api/chat",
-        json={"message": "запусти формулировку гипотез", "session_id": first_sid,
-              "skill_ids": ["aios-hypotheses-skill"]},
+        json={"message": "запусти портфельного аналитика", "session_id": first_sid,
+              "skill_ids": ["portfolio-analyst"]},
     )
     sid3 = session_id_of(resp.text)
     assert sid3 != first_sid
     new_session = client.get(f"/api/sessions/{sid3}").json()
-    assert new_session["skill_ids"] == ["aios-hypotheses-skill"]
+    assert new_session["skill_ids"] == ["portfolio-analyst"]
     # пайплайн пошёл с первого шага: в новой сессии только это сообщение
     assert [m["role"] for m in new_session["messages"]] == ["user", "assistant"]
     # старая сессия не тронута

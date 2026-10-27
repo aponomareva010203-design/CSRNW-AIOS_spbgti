@@ -57,7 +57,7 @@
 
   var PANEL_HTML = [
     '<div class="ws-overlay" id="wsOverlay" hidden></div>',
-    '<button class="ws-edge-tab" id="wsEdgeTab" type="button" aria-label="Открыть рабочий чат" hidden><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 5.94 2 10.8c0 2.72 1.47 5.14 3.79 6.76-.13.9-.5 2.1-1.44 3.44a.5.5 0 0 0 .58.77c1.94-.63 3.4-1.53 4.32-2.19.86.2 1.77.31 2.75.31 5.52 0 10-3.94 10-8.8S17.52 2 12 2Z"></path><circle cx="8.3" cy="10.8" r="1.15" fill="var(--green-deep, #2c3128)"></circle><circle cx="12" cy="10.8" r="1.15" fill="var(--green-deep, #2c3128)"></circle><circle cx="15.7" cy="10.8" r="1.15" fill="var(--green-deep, #2c3128)"></circle></svg></button>',
+    '<button class="ws-edge-tab" id="wsEdgeTab" type="button" aria-label="Открыть рабочий чат" hidden><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 5.94 2 10.8c0 2.72 1.47 5.14 3.79 6.76-.13.9-.5 2.1-1.44 3.44a.5.5 0 0 0 .58.77c1.94-.63 3.4-1.53 4.32-2.19.86.2 1.77.31 2.75.31 5.52 0 10-3.94 10-8.8S17.52 2 12 2Z"></path><circle cx="8.3" cy="10.8" r="1.15" fill="var(--green-deep, #1B2A41)"></circle><circle cx="12" cy="10.8" r="1.15" fill="var(--green-deep, #1B2A41)"></circle><circle cx="15.7" cy="10.8" r="1.15" fill="var(--green-deep, #1B2A41)"></circle></svg></button>',
     '<button class="ws-ready-badge" id="wsReadyBadge" type="button" hidden aria-live="polite">✦ Ответ готов</button>',
     '<button class="ws-reminder-badge" id="wsReminderBadge" type="button" hidden aria-live="polite"></button>',
     '<div class="ws-panel" id="wsPanel" role="dialog" aria-modal="true" aria-labelledby="wsTitle" hidden>',
@@ -1119,7 +1119,7 @@
 
     /* Справка «Чем займемся сегодня» — карточки возможностей по
        инструментам платформы (api.js, AIOS_TOOL_TITLES): расчёты,
-       химия, литература, RAG-базы, онтологии, документы. Иконки —
+       инновационные проекты, литература, RAG-базы, онтологии, документы. Иконки —
        линейные SVG в стиле платформы (штрих currentColor, скругления).
        Клик подставляет в поле ввода стартовую формулировку. */
     var tips = document.createElement('div');

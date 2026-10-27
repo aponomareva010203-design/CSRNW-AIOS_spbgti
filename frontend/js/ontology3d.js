@@ -84,8 +84,8 @@
 
   /* приглушённая палитра в духе дизайн-токенов AIOS */
   var PALETTE = [
-    '#7C8B6C', '#C2A054', '#6C8B8B', '#8B7C6C', '#7C6C8B',
-    '#8B8B6C', '#5D6C50', '#A08B5D', '#6C7C8B', '#8B6C7C',
+    '#1F5AA6', '#2E9D5B', '#6C8B8B', '#8B7C6C', '#7C6C8B',
+    '#8B8B6C', '#163F78', '#A08B5D', '#6C7C8B', '#8B6C7C',
     '#6C8B7C', '#8B8B7C'
   ];
 
@@ -423,8 +423,8 @@
         ctx.setLineDash([4, 5]);
       } else {
         ctx.strokeStyle = lit
-          ? 'rgba(93, 108, 80, ' + (0.85 * depth).toFixed(3) + ')'
-          : 'rgba(124, 139, 108, ' + (0.34 * depth).toFixed(3) + ')';
+          ? 'rgba(22, 63, 120, ' + (0.85 * depth).toFixed(3) + ')'
+          : 'rgba(31, 90, 166, ' + (0.34 * depth).toFixed(3) + ')';
         ctx.setLineDash([]);
       }
       ctx.lineWidth = lit ? 1.8 : 1;
@@ -435,7 +435,7 @@
         var mx = (e.pa.sx + e.pb.sx) / 2;
         var my = (e.pa.sy + e.pb.sy) / 2;
         ctx.font = '11px Segoe UI, Arial, sans-serif';
-        ctx.fillStyle = 'rgba(93, 108, 80, .95)';
+        ctx.fillStyle = 'rgba(22, 63, 120, .95)';
         ctx.textAlign = 'center';
         ctx.fillText(e.l.rel.name, mx, my - 4);
       }
@@ -463,7 +463,7 @@
       ctx.fill();
       if (isSel || isHov) {
         ctx.lineWidth = 2;
-        ctx.strokeStyle = isSel ? '#2C3128' : 'rgba(44, 49, 40, .55)';
+        ctx.strokeStyle = isSel ? '#1B2A41' : 'rgba(27, 42, 65, .55)';
         ctx.stroke();
       }
       ctx.globalAlpha = 1;
@@ -472,7 +472,7 @@
       if (fs > 9.4) {
         ctx.font = (isSel ? '600 ' : '') + fs + 'px Segoe UI, Arial, sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillStyle = 'rgba(44, 49, 40, ' + (0.5 + 0.5 * depth).toFixed(3) + ')';
+        ctx.fillStyle = 'rgba(27, 42, 65, ' + (0.5 + 0.5 * depth).toFixed(3) + ')';
         ctx.fillText(String(n.cls.name || n.id), p.sx, p.sy + r + fs * 0.95);
       }
     });

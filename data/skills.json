@@ -2,108 +2,67 @@
   "categories": [
     {
       "key": "general",
-      "title_ru": "Общие агенты",
-      "description_ru": "Агенты общего научного пайплайна: работа с литературой и знаниями, онтологии, RAG-базы, планирование экспериментов"
+      "title_ru": "Шаблоны агентов для управления инновациями",
+      "description_ru": "Готовые агенты-шаблоны для проректора: портфель РИД, экосистема вуза, трекинг стартапов. Скачайте .md и доработайте под свой вуз"
     },
     {
       "key": "special",
-      "title_ru": "Специальные агенты",
-      "description_ru": "Агенты, для которых критична привязка к предметной области"
+      "title_ru": "Агенты вашего университета",
+      "description_ru": "Агенты, которые соберёт команда вуза на сессии: из шаблона в конструкторе или в диалоге с «Конструктором агентов»"
     },
     {
       "key": "service",
       "title_ru": "Служебные агенты",
-      "description_ru": "Агенты, управляющие пользовательским опытом платформы: онбординг, формулировка гипотез, конструктор агентов"
+      "description_ru": "Агенты, управляющие работой с платформой: онбординг проекта вуза, конструктор агентов"
     }
   ],
   "items": [
     {
-      "id": "ontology-engineer",
+      "id": "portfolio-analyst",
       "category": "general",
-      "name": "Конструктор онтологий",
-      "domain": "Данные и знания",
-      "description_ru": "Диалоговое конструирование онтологии предметной области проекта: компетентностные вопросы → классы → атрибуты → отношения → публикация в каталог с 3D-визуализацией. Основа будущей RAG-системы.",
+      "name": "Портфельный аналитик",
+      "domain": "Портфель РИД и инновационных проектов",
+      "description_ru": "Анализирует РИДы и проекты вуза, распределяет их по портфелям и предлагает закрыть бесперспективные с расчётом экономии на поддержке.",
       "author": "Команда AIOS",
       "recommended_model": "—",
-      "file_url": "/data/skills/ontology-engineer.md",
-      "image_url": "/data/icons/ontology-engineer.svg"
+      "file_url": "/data/skills/portfolio-analyst.md",
+      "image_url": "/data/icons/portfolio-analyst.svg",
+      "source": "template"
     },
     {
-      "id": "rag-builder",
+      "id": "ecosystem-analyst",
       "category": "general",
-      "name": "Конструктор RAG",
-      "domain": "Данные и знания",
-      "description_ru": "Диалоговая настройка RAG-базы проекта в связке с онтологией: состав корпуса, ограничения доступа, типовые вопросы → загрузка документов на отдельной странице → публикация в каталог с открытым доступом.",
+      "name": "Аналитик экосистемы",
+      "domain": "Инновационная экосистема университета",
+      "description_ru": "Оценивает, каких элементов не хватает вузу (акселератор, кафедра, фонд, стартап-студия, МТК), и предлагает план достройки на 12–24 месяца.",
       "author": "Команда AIOS",
       "recommended_model": "—",
-      "file_url": "/data/skills/rag-builder.md",
-      "image_url": "/data/icons/rag-builder.svg"
+      "file_url": "/data/skills/ecosystem-analyst.md",
+      "image_url": "/data/icons/ecosystem-analyst.svg",
+      "source": "template"
     },
     {
-      "id": "ontology-reviewer",
+      "id": "venture-builder",
       "category": "general",
-      "name": "Аудит и доработка онтологии",
-      "domain": "Данные и знания",
-      "description_ru": "Диалоговый аудит уже существующей онтологии проекта: покрытие компетентностных вопросов, классы-сироты, задвоения, полнота синонимов и ключевых слов → конкретные правки с подтверждением перед сохранением. Предупреждает о риске для привязанных RAG-баз и напоминает актуализировать их разметку после правок.",
+      "name": "Венчурный билдер",
+      "domain": "Стартап-студия и технологическое предпринимательство",
+      "description_ru": "Сверяет прогресс стартап-коллективов с принятыми обязательствами, выделяет отстающих и готовит повестку трекинг-сессии.",
       "author": "Команда AIOS",
       "recommended_model": "—",
-      "file_url": "/data/skills/ontology-reviewer.md",
-      "image_url": "/data/icons/ontology-reviewer.svg"
-    },
-    {
-      "id": "literature-survey",
-      "category": "general",
-      "name": "Обзор литературы",
-      "domain": "Работа с литературой",
-      "description_ru": "Систематический обзор мировой литературы по теме проекта: вопросы обзора → границы → поиск в открытых базах (OpenAlex, arXiv, PubMed, Crossref, Semantic Scholar) → отбор источников → таблица находок с DOI и пробелы; сохраняется документом, финал можно забрать в Word.",
-      "author": "Команда AIOS",
-      "recommended_model": "—",
-      "file_url": "/data/skills/literature-survey.md",
-      "image_url": "/data/icons/literature-survey.svg"
-    },
-    {
-      "id": "experiment-plan",
-      "category": "general",
-      "name": "План эксперимента",
-      "domain": "Планирование экспериментов",
-      "description_ru": "Диалоговое планирование эксперимента по гипотезе проекта: цель и отклик, вещества со справками PubChem, факторы и уровни, методика института, обязательные расчёты, матрица опытов, безопасность и критерии успеха; сохраняется документом, финал можно забрать в Word.",
-      "author": "Команда AIOS",
-      "recommended_model": "—",
-      "file_url": "/data/skills/experiment-plan.md",
-      "image_url": "/data/icons/experiment-plan.svg"
-    },
-    {
-      "id": "scimlchem-architect",
-      "category": "special",
-      "name": "Архитектор PINN моделей",
-      "domain": "Химия, материалы, химическая технология",
-      "description_ru": "Вход: научная задача исследователя. Выход: архитектура модели и Colab-MVP.",
-      "author": "Максим Беляков",
-      "recommended_model": "ChemLLM-7B",
-      "file_url": "/data/skills/scimlchem-architect.md",
-      "image_url": "/data/icons/scimlchem-architect.svg"
+      "file_url": "/data/skills/venture-builder.md",
+      "image_url": "/data/icons/venture-builder.svg",
+      "source": "template"
     },
     {
       "id": "project-onboarding",
       "category": "service",
       "name": "Онбординг проекта",
       "domain": "Рабочее пространство",
-      "description_ru": "Диалоговый сбор карточки проекта за 7 шагов с сохранением в «Проекты»: тема, результат, стадия, бюджет, задел.",
+      "description_ru": "Диалоговое создание карточки проекта университета за 7 шагов с сохранением в «Проекты»: вуз, цель, метрики, команда, подразделения, бюджет, задел.",
       "author": "Команда AIOS",
       "recommended_model": "—",
       "file_url": "/data/skills/project-onboarding.md",
       "image_url": "/data/icons/project-onboarding.svg"
-    },
-    {
-      "id": "aios-hypotheses-skill",
-      "category": "service",
-      "name": "Формулировка гипотез",
-      "domain": "Рабочее пространство",
-      "description_ru": "Диалоговая формулировка проверяемых гипотез для шести артефактов проекта (онтология → RAG → модель → агенты → полигон → дашборды): единый шаблон «если-то-проверим», таблица гипотез и сохранение в проект с публикацией по роли.",
-      "author": "Команда AIOS",
-      "recommended_model": "—",
-      "file_url": "/data/skills/aios-hypotheses-skill.md",
-      "image_url": "/data/icons/aios-hypotheses-skill.svg"
     },
     {
       "id": "agent-builder",
@@ -120,216 +79,13 @@
       "id": "model-builder",
       "category": "service",
       "name": "Конструктор моделей",
-      "domain": "Модели коллективов",
-      "description_ru": "Диалоговое интервью для создания модели коллектива — расчётного прибора «условия → результат»: таблица опытов, вид модели, порог приёмки, обучение и проверка платформой, проба на живом вопросе, страница модели.",
+      "domain": "Модели проектов",
+      "description_ru": "Диалоговое интервью для создания модели проекта — расчётного прибора «условия → результат»: таблица опытов, вид модели, порог приёмки, обучение и проверка платформой, проба на живом вопросе, страница модели.",
       "author": "Команда AIOS",
       "recommended_model": "—",
       "file_url": "/data/skills/model-builder.md",
       "image_url": "/data/icons/model-builder.svg",
       "admin_only": true
-    },
-    {
-      "id": "epoxy-recipe-selector",
-      "category": "special",
-      "name": "Подборщик рецептур",
-      "domain": "Эпоксидные системы малотоннажной химии",
-      "description_ru": "По целевым характеристикам эпоксидной системы выдаёт 2-3 варианта диапазонной рецептуры со стехиометрией отвердителя и аналогами из мировой литературы; по существующей рецептуре — предложения по модификации. Опирается на базу знаний проекта rag-fa45855b54.",
-      "author": "Сторожек Георгий Олегович",
-      "recommended_model": "—",
-      "file_url": "/data/skills/epoxy-recipe-selector.md",
-      "image_url": "/data/icons/epoxy-recipe-selector.svg"
-    },
-    {
-      "id": "literature-radar",
-      "category": "special",
-      "name": "Литературный радар",
-      "domain": "Работа с литературой",
-      "description_ru": "Свежие мировые публикации по вашей теме одним обзором — таблица с DOI и ссылками, тренд по годам и сводка о чём пишут.",
-      "author": "Аксенов Даниил Дмитриевич",
-      "recommended_model": "—",
-      "file_url": "/data/skills/literature-radar.md",
-      "image_url": "/assets/icons/agent/default.svg",
-      "source": "draft"
-    },
-    {
-      "id": "reaction-balance-check",
-      "category": "special",
-      "name": "Проверка реакции",
-      "domain": "Химия: стехиометрия и безопасность веществ",
-      "description_ru": "Проверяет реакцию формулами: атомный баланс по элементам с вердиктом, молярные массы веществ и карта опасности, по просьбе — файл Word со сводкой.",
-      "author": "Беляков Максим",
-      "recommended_model": "—",
-      "file_url": "/data/skills/reaction-balance-check.md",
-      "image_url": "/assets/icons/agent/default.svg",
-      "source": "draft"
-    },
-    {
-      "id": "recipe-scout",
-      "category": "special",
-      "name": "Технолог-разведчик",
-      "domain": "Разработка рецептур полимерных материалов и композиций",
-      "description_ru": "Разведывает данные по целевым свойствам полимерного материала в базах знаний и мировой литературе, сопоставляет их с замерами пользователя и выдаёт 2–3 варианта рецептуры с обоснованием и планом лабораторной проверки.",
-      "author": "Аликин Михаил Борисович",
-      "recommended_model": "—",
-      "file_url": "/data/skills/recipe-scout.md",
-      "image_url": "/assets/icons/agent/default.svg",
-      "source": "draft"
-    },
-    {
-      "id": "tech-scouting",
-      "category": "special",
-      "name": "Оценка технологического направления",
-      "domain": "Оценка технологий и R&D-направлений по открытым научным публикациям",
-      "description_ru": "Оценка технологического направления по открытым публикациям: мировые участники и стадии работ, показатели цифрами с DOI, барьеры до промышленности и направления подготовки с опорой на задел института.",
-      "author": "Исмагилова Дарья Эдуардовна",
-      "recommended_model": "—",
-      "file_url": "/data/skills/tech-scouting.md",
-      "image_url": "/assets/icons/agent/default.svg",
-      "source": "draft"
-    },
-    {
-      "id": "nanoprecipitation-mode",
-      "category": "special",
-      "name": "Режим нанопреципитации",
-      "domain": "Химия и материаловедение: полимерные наночастицы",
-      "description_ru": "Подбор режимов нанопреципитации для частиц ПМК (PLA) под целевой диаметр: таблица режимов, методология синтеза, протокол файлом.",
-      "author": "Сахабеев Родион Григорьевич",
-      "recommended_model": "—",
-      "file_url": "/data/skills/nanoprecipitation-mode.md",
-      "image_url": "/assets/icons/agent/default.svg",
-      "source": "draft"
-    },
-    {
-      "id": "science-frontier",
-      "category": "general",
-      "name": "Фронтир науки",
-      "domain": "наукометрия и технологическое прогнозирование",
-      "description_ru": "Строит 2D-карту фронтира научного направления: работы точками в осях двух показателей, линия границы поля, ведущие группы с DOI и ссылками.",
-      "author": "Пушкарев Михаил Алексеевич",
-      "recommended_model": "—",
-      "file_url": "/data/skills/science-frontier.md",
-      "image_url": "/assets/icons/agent/default.svg",
-      "source": "draft"
-    },
-    {
-      "id": "junior-pro-researcher",
-      "category": "special",
-      "name": "Младший ПРОнаучный сотрудник",
-      "domain": "Обработка экспериментальных данных в химической технологии и массообменных процессах",
-      "description_ru": "Сводит журналы опытов в чистую таблицу, считает показатели по методикам с показанным расчётом и собирает протокол испытаний файлом.",
-      "author": "Светлов Станислав Дмитриеви",
-      "recommended_model": "—",
-      "file_url": "/data/skills/junior-pro-researcher.md",
-      "image_url": "/assets/icons/agent/default.svg",
-      "source": "draft"
-    },
-    {
-      "id": "konkurentomer",
-      "category": "special",
-      "name": "Конкурентомер",
-      "domain": "Медицинская химия, поиск лекарственных кандидатов",
-      "description_ru": "По названной мишени или подходу выдаёт карту мировых игроков со стадиями кандидатов, барьеры направления и сравнение с мировым уровнем со ссылками на публикации.",
-      "author": "Григорьева Татьяна Алексеевна",
-      "recommended_model": "—",
-      "file_url": "/data/skills/konkurentomer.md",
-      "image_url": "/assets/icons/agent/default.svg",
-      "source": "draft"
-    },
-    {
-      "id": "ald-reagent-curation",
-      "category": "special",
-      "name": "Подбор реагентов для молекулярного наслаивания",
-      "domain": "Молекулярное наслаивание: подбор реагентов для оксидных, сульфидных и органических нанослоёв",
-      "description_ru": "По заданному составу покрытия и подложке находит 3–4 наиболее вероятных реагента для молекулярного наслаивания: сравнительная таблица, 2D-структурные формулы, диаграмма летучести, паспорт опасности, риск неконформного роста, вердикт и файл со сводкой с источниками",
-      "author": "Дроздов Евгений Олегович",
-      "recommended_model": "—",
-      "file_url": "/data/skills/ald-reagent-curation.md",
-      "image_url": "/assets/icons/agent/default.svg",
-      "source": "draft"
-    },
-    {
-      "id": "polymer-kinetics",
-      "category": "special",
-      "name": "Кинетик",
-      "domain": "Кинетика отверждения и термодеструкции полимерных связующих",
-      "description_ru": "Считает кинетические параметры отверждения и деструкции полимеров по кривым ДСК, ТГА и ИК: энергию активации, модель, прогноз отверждения для технологического режима.",
-      "author": "Аликин Михаил Борисович",
-      "recommended_model": "—",
-      "file_url": "/data/skills/polymer-kinetics.md",
-      "image_url": "/assets/icons/agent/default.svg",
-      "source": "draft"
-    },
-    {
-      "id": "universal-lab-protocols",
-      "category": "special",
-      "name": "Универсальный лабораторный помощник",
-      "domain": "Биохимия и молекулярная биология: экспрессия и очистка белков, электрофорезы, вестерн-блоты, ПЦР, тр",
-      "description_ru": "Собирает готовую методику лабораторного эксперимента файлом Word: от уточнения исходных данных и расчёта реактивов до контрольных точек и источников.",
-      "author": "Зенина Анастасия Денисовна",
-      "recommended_model": "—",
-      "file_url": "/data/skills/universal-lab-protocols.md",
-      "image_url": "/assets/icons/agent/default.svg",
-      "source": "draft"
-    },
-    {
-      "id": "double-emulsion-size",
-      "category": "special",
-      "name": "Режим двойной эмульсии",
-      "domain": "Химия и материаловедение: полимерные микрочастицы",
-      "description_ru": "Подбор режимов двойной эмульсии В/М/В для частиц ПМК (PLA) под целевой диаметр: таблица режимов, методология синтеза, протокол файлом.",
-      "author": "Сахабеев Родион Григорьевич",
-      "recommended_model": "—",
-      "file_url": "/data/skills/double-emulsion-size.md",
-      "image_url": "/assets/icons/agent/default.svg",
-      "source": "draft"
-    },
-    {
-      "id": "ampk-lab-assistant",
-      "category": "special",
-      "name": "Сборщик методик AMPK",
-      "domain": "Биотехнологическое получение рекомбинантных белков",
-      "description_ru": "За один диалог собирает методику лабораторного эксперимента по AMPK (экспрессия, очистка, SDS-PAGE, активность) файлом Word — с рассчитанными количествами реактивов, контрольными точками и источниками.",
-      "author": "Зенина Анастасия Денисовна",
-      "recommended_model": "—",
-      "file_url": "/data/skills/ampk-lab-assistant.md",
-      "image_url": "/assets/icons/agent/default.svg",
-      "source": "draft"
-    },
-    {
-      "id": "series-quality-checker",
-      "category": "special",
-      "name": "Контролёр качества серии",
-      "domain": "Контроль качества лекарственных средств",
-      "description_ru": "Проверяет результаты испытаний серии лекарственного препарата на соответствие нормативной документации и выдаёт таблицу вердиктов с запасом до границы.",
-      "author": "Калета Алёна Алексеевна",
-      "recommended_model": "—",
-      "file_url": "/data/skills/series-quality-checker.md",
-      "image_url": "/assets/icons/agent/default.svg",
-      "source": "draft"
-    },
-    {
-      "id": "rkd-completeness",
-      "category": "special",
-      "name": "Комплектовщик РКД",
-      "domain": "Проектная документация по ЕСКД и ЕСТД для технологий и оборудования",
-      "description_ru": "Оценивает, какие разделы комплекта документации технологии закрываются имеющимися данными, чего не хватает, и формирует план полного комплекта и черновики документов с контролем исполнителя.",
-      "author": "Семикин Кирилл Вадимович",
-      "recommended_model": "—",
-      "file_url": "/data/skills/rkd-completeness.md",
-      "image_url": "/assets/icons/agent/default.svg",
-      "source": "draft"
-    },
-    {
-      "id": "direction-scout",
-      "category": "special",
-      "name": "Научная разведка",
-      "domain": "разведка технологических направлений",
-      "description_ru": "Собирает разведывательную сводку по технологическому направлению: игроки, зрелость, барьеры, публикации с DOI, графики и таблицы по запросу, вывод о нишах.",
-      "author": "Кузьмин Владислав Владимирович",
-      "recommended_model": "—",
-      "file_url": "/data/skills/direction-scout.md",
-      "image_url": "/assets/icons/agent/default.svg",
-      "source": "draft"
     }
   ]
 }

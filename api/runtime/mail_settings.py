@@ -117,7 +117,7 @@ def effective_mail_config() -> MailConfig:
             user=str(admin.get("user") or ""),
             password=str(admin.get("password") or ""),
             from_email=str(admin.get("from_email") or admin.get("user") or ""),
-            from_name=str(admin.get("from_name") or "AIOS Технологического института"),
+            from_name=str(admin.get("from_name") or "AIOS · Инновации университета"),
             source="admin",
         )
     return MailConfig(

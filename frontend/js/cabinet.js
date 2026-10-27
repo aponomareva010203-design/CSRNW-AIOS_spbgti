@@ -1359,15 +1359,15 @@
   /* ---------- карточки проектов (блок 1): SVG-иконка + модалка ---------- */
 
   var PLACEHOLDER_ICON_SVG = '<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">' +
-    '<circle cx="32" cy="32" r="5" fill="#C2A054"/>' +
-    '<circle cx="14" cy="18" r="3" fill="#7C8B6C"/>' +
-    '<circle cx="50" cy="18" r="3" fill="#7C8B6C"/>' +
-    '<circle cx="14" cy="46" r="3" fill="#7C8B6C"/>' +
-    '<circle cx="50" cy="46" r="3" fill="#7C8B6C"/>' +
-    '<line x1="32" y1="32" x2="14" y2="18" stroke="#C2A054" stroke-width="1.5"/>' +
-    '<line x1="32" y1="32" x2="50" y2="18" stroke="#C2A054" stroke-width="1.5"/>' +
-    '<line x1="32" y1="32" x2="14" y2="46" stroke="#C2A054" stroke-width="1.5"/>' +
-    '<line x1="32" y1="32" x2="50" y2="46" stroke="#C2A054" stroke-width="1.5"/>' +
+    '<circle cx="32" cy="32" r="5" fill="#2E9D5B"/>' +
+    '<circle cx="14" cy="18" r="3" fill="#1F5AA6"/>' +
+    '<circle cx="50" cy="18" r="3" fill="#1F5AA6"/>' +
+    '<circle cx="14" cy="46" r="3" fill="#1F5AA6"/>' +
+    '<circle cx="50" cy="46" r="3" fill="#1F5AA6"/>' +
+    '<line x1="32" y1="32" x2="14" y2="18" stroke="#2E9D5B" stroke-width="1.5"/>' +
+    '<line x1="32" y1="32" x2="50" y2="18" stroke="#2E9D5B" stroke-width="1.5"/>' +
+    '<line x1="32" y1="32" x2="14" y2="46" stroke="#2E9D5B" stroke-width="1.5"/>' +
+    '<line x1="32" y1="32" x2="50" y2="46" stroke="#2E9D5B" stroke-width="1.5"/>' +
     '</svg>';
 
   var iconRequested = {};
