@@ -34,11 +34,18 @@ data/skills/*
 # агентов проректора и онбординг проекта вуза идут вместе с кодом — участники
 # скачивают их .md с первого запуска, без серверной копии.
 !data/skills/project-onboarding.md
-!data/skills/portfolio-analyst.md
-!data/skills/ecosystem-analyst.md
-!data/skills/venture-builder.md
+!data/skills/portfolio_analyst.md
+!data/skills/ecosystem_analyst.md
+!data/skills/venture_builder.md
 # Тестовые данные «Рабочего стола проректора» — участники правят их под свой вуз
 !data/dashboard.json
+# Карта этапов конвейера навыков (бейдж этапа и «следующий шаг» в чате)
+!data/stage-map.json
+# Демо-профиль университета для раздела «Об организации»
+!data/organization/
+data/organization/*
+!data/organization/profile.json
+!data/organization/metrics.json
 
 # Python
 __pycache__/

@@ -25,7 +25,7 @@
       "description_ru": "Анализирует РИДы и проекты вуза, распределяет их по портфелям и предлагает закрыть бесперспективные с расчётом экономии на поддержке.",
       "author": "Команда AIOS",
       "recommended_model": "—",
-      "file_url": "/data/skills/portfolio-analyst.md",
+      "file_url": "/data/skills/portfolio_analyst.md",
       "image_url": "/data/icons/portfolio-analyst.svg",
       "source": "template"
     },
@@ -37,7 +37,7 @@
       "description_ru": "Оценивает, каких элементов не хватает вузу (акселератор, кафедра, фонд, стартап-студия, МТК), и предлагает план достройки на 12–24 месяца.",
       "author": "Команда AIOS",
       "recommended_model": "—",
-      "file_url": "/data/skills/ecosystem-analyst.md",
+      "file_url": "/data/skills/ecosystem_analyst.md",
       "image_url": "/data/icons/ecosystem-analyst.svg",
       "source": "template"
     },
@@ -49,7 +49,7 @@
       "description_ru": "Сверяет прогресс стартап-коллективов с принятыми обязательствами, выделяет отстающих и готовит повестку трекинг-сессии.",
       "author": "Команда AIOS",
       "recommended_model": "—",
-      "file_url": "/data/skills/venture-builder.md",
+      "file_url": "/data/skills/venture_builder.md",
       "image_url": "/data/icons/venture-builder.svg",
       "source": "template"
     },

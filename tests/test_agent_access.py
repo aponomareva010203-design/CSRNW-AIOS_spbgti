@@ -10,7 +10,7 @@
 
 Проверяется: список /api/agents (кто видит), карточка /api/agents/{id}
 (404 для посторонних), _agent_card_for_user (чат с agent_id — только свои),
-и что навык literature-radar при этом доступен всем как навык чата.
+и что навык каталога (шаблон «Венчурный билдер») при этом доступен всем как навык чата.
 """
 
 import pytest
@@ -23,7 +23,7 @@ from api.runtime.users import UserStore
 ADMIN_LOGIN = "m.kharitonov@csr-nw.ru"
 ADMIN_PASSWORD = "1234"
 
-SKILL_ID = "literature-radar"
+SKILL_ID = "venture-builder"  # навык каталога data/skills.json
 
 
 @pytest.fixture(autouse=True)
@@ -135,15 +135,15 @@ def scenario(tmp_path):
 
 
 def test_radar_stays_a_chat_skill_for_everyone():
-    """Другая половина сценария: навык остаётся в каталоге «Агенты» и
-    подсказывается всем в чате независимо от агентных прав."""
+    """Другая половина сценария: навык каталога «Агенты» подсказывается всем
+    в чате независимо от агентных прав (проверяем на шаблоне каталога)."""
     from api.runtime.datarepo import get_skill
 
-    assert get_skill(SKILL_ID) is not None, "навык литературного радара в каталоге"
+    assert get_skill(SKILL_ID) is not None, "навык в каталоге"
 
     client = _client()
     # минимум длины запроса для подсказок — 8 символов (короче отсекается)
-    resp = client.get("/api/chat/skills-suggest", params={"q": "радар публикаций"})
+    resp = client.get("/api/chat/skills-suggest", params={"q": "трекер стартапов"})
     assert resp.status_code == 200
     ids = [s.get("id") for s in resp.json()["items"]]
     assert SKILL_ID in ids, "чипы навыка доступны любому пользователю чата"

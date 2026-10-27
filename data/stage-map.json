@@ -1,0 +1,50 @@
+{
+  "stages": [
+    {
+      "key": "onboarding",
+      "name_ru": "Онбординг проекта вуза",
+      "order": 1,
+      "skills": [
+        "project-onboarding"
+      ],
+      "next": "portfolio"
+    },
+    {
+      "key": "portfolio",
+      "name_ru": "Портфель РИД и проектов",
+      "order": 2,
+      "skills": [
+        "portfolio-analyst"
+      ],
+      "next": "ecosystem"
+    },
+    {
+      "key": "ecosystem",
+      "name_ru": "Экосистема и стартапы",
+      "order": 3,
+      "skills": [
+        "ecosystem-analyst",
+        "venture-builder"
+      ],
+      "next": "agents"
+    },
+    {
+      "key": "agents",
+      "name_ru": "Агенты вуза",
+      "order": 4,
+      "skills": [
+        "agent-builder"
+      ],
+      "next": "models"
+    },
+    {
+      "key": "models",
+      "name_ru": "Модели",
+      "order": 5,
+      "skills": [
+        "model-builder"
+      ],
+      "next": null
+    }
+  ]
+}

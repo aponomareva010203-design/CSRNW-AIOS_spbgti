@@ -199,7 +199,7 @@
       var dl = document.createElement('a');
       dl.className = 'btn-primary mm-btn';
       dl.href = t.file_url;
-      dl.setAttribute('download', t.id + '.md');
+      dl.setAttribute('download', t.file_url.split('/').pop());
       dl.textContent = 'Скачать .md';
       var edit = document.createElement('button');
       edit.type = 'button';

@@ -178,21 +178,22 @@ def test_onboarding_skill_body_fits_limit():
     assert "Онбординг проекта" in prompt and "save_project_card" in prompt
 
 
-def test_hypotheses_skill_body_fits_limit():
-    """Навык формулировки гипотез — самый большой (53k символов): не режется."""
+def test_template_skill_bodies_fit_limit():
+    """Шаблоны агентов проректора читаются целиком и попадают в промпт."""
     from api.runtime import datarepo
     from api.runtime.prompts import SKILL_BODY_LIMIT, build_system_prompt
 
-    skill = datarepo.get_skill("aios-hypotheses-skill")
-    assert skill, "навык aios-hypotheses-skill должен быть в data/skills.json"
-    body = datarepo.skill_body(skill, limit=SKILL_BODY_LIMIT)
-    assert "aios-choices" in body
-    assert "Гипотезы дашбордов" in body
-    assert "save_hypotheses" in body
-    assert "усечён" not in body
+    for skill_id, name in (("portfolio-analyst", "Портфельный аналитик"),
+                           ("ecosystem-analyst", "Аналитик экосистемы"),
+                           ("venture-builder", "Венчурный билдер")):
+        skill = datarepo.get_skill(skill_id)
+        assert skill, f"навык {skill_id} должен быть в data/skills.json"
+        body = datarepo.skill_body(skill, limit=SKILL_BODY_LIMIT)
+        assert "## Роль" in body and "## Навыки (skills)" in body and "## Ограничения" in body
+        assert "усечён" not in body
 
-    prompt = build_system_prompt(skill_ids=["aios-hypotheses-skill"])
-    assert "Формулировка гипотез" in prompt and "save_hypotheses" in prompt
+        prompt = build_system_prompt(skill_ids=[skill_id])
+        assert name in prompt
 
 
 def test_skill_context_blocks_by_mentions(_projects_env):
