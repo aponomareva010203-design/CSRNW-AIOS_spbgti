@@ -1474,6 +1474,7 @@ window.AIOS_TOOL_TITLES = {
   save_record: 'Сохранение записи',
   format_table: 'Оформление таблицы',
   chart_generate: 'Построение графика',
+  run_polygon: 'Прогон полигона',
   /* инженерные (api/runtime/engineering_tools.py) */
   read_data_file: 'Разбор таблицы данных',
   literature_search: 'Поиск в мировой литературе',

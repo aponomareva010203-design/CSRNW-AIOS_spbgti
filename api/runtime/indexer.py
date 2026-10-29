@@ -15,6 +15,7 @@ RAG-базу — размер вектора берётся из реально�
 вызывающего кода (фоновая задача), не на уровне этого модуля.
 """
 
+import os
 import re
 import uuid
 from functools import lru_cache
@@ -22,7 +23,7 @@ from functools import lru_cache
 from qdrant_client import QdrantClient
 from qdrant_client.http import models as qmodels
 
-from . import ontologies, rag
+from . import ontologies, rag, text_search
 from .embeddings import embed_texts, EmbeddingError
 
 CHUNK_MAX_CHARS = 800
@@ -40,8 +41,12 @@ class SearchError(RuntimeError):
 
 @lru_cache(maxsize=1)
 def get_qdrant_client() -> QdrantClient:
-    """Синглтон клиента Qdrant; в тестах сбрасывается cache_clear()."""
-    return QdrantClient(url="http://127.0.0.1:6333")
+    """Синглтон клиента Qdrant; в тестах сбрасывается cache_clear().
+
+    Адрес — AIOS_QDRANT_URL (в docker-compose — сервис qdrant), по умолчанию
+    локальный Qdrant на 6333. Таймаут короткий: если Qdrant не поднят,
+    поиск быстро уходит в текстовый режим (text_search), а не висит."""
+    return QdrantClient(url=os.getenv("AIOS_QDRANT_URL") or "http://127.0.0.1:6333", timeout=5)
 
 
 def fetch_collection_points(client: QdrantClient, collection_name: str) -> list:
@@ -144,10 +149,14 @@ async def index_document(
     если не нужна дополнительная реакция на ошибку.
     """
     store = rag.get_store()
+    chunks: list = []
     try:
         chunks = chunk_text(text)
         if not chunks:
             raise IndexingError("Документ пуст после извлечения текста")
+        # текст сохраняется всегда: по нему работает текстовый поиск, если
+        # Qdrant или модель эмбеддингов недоступны (text_search.py)
+        text_search.save_text(rag_id, doc_id, filename, text)
 
         vectors: list = []
         for i in range(0, len(chunks), EMBED_BATCH_SIZE):
@@ -193,12 +202,32 @@ async def index_document(
         )
         return {"ok": True, "chunks_count": len(chunks)}
 
-    except (IndexingError, EmbeddingError) as exc:
+    except IndexingError as exc:
         store.update_document(
             user_id, rag_id, doc_id,
             {"status": rag.DOC_STATUS_ERROR, "error": str(exc)[:500]},
         )
         return {"ok": False, "error": str(exc)}
+    except Exception as exc:  # эмбеддинги или Qdrant недоступны
+        if not chunks:
+            store.update_document(
+                user_id, rag_id, doc_id,
+                {"status": rag.DOC_STATUS_ERROR, "error": str(exc)[:500]},
+            )
+            return {"ok": False, "error": str(exc)}
+        # документ остаётся доступен текстовому поиску; векторный индекс
+        # достраивается повторной загрузкой, когда Qdrant/эмбеддинги появятся
+        store.update_document(
+            user_id, rag_id, doc_id,
+            {
+                "status": rag.DOC_STATUS_READY,
+                "chunks_count": len(chunks),
+                "error": "",
+                "search_mode": "text",
+            },
+        )
+        return {"ok": True, "chunks_count": len(chunks), "search_mode": "text",
+                "note": f"Векторный индекс недоступен ({type(exc).__name__}) — документ доступен текстовому поиску"}
 
 
 async def search(
@@ -229,6 +258,47 @@ async def search(
     if not query:
         raise SearchError("Пустой запрос")
 
+    try:
+        return await _vector_search(rag_id, query, limit, class_ids, ontology_id)
+    except Exception as exc:
+        if not text_search.has_corpus(rag_id):
+            if isinstance(exc, SearchError):
+                raise
+            raise SearchError(f"Поиск недоступен: {exc}") from exc
+        reason = str(exc) if isinstance(exc, SearchError) else type(exc).__name__
+    return {
+        "hits": text_search.search(rag_id, query, limit=limit),
+        "ontology_context": _ontology_definitions(ontology_id, query),
+        "search_mode": "text",
+        "note": f"Текстовый поиск по корпусу базы (векторный недоступен: {reason})",
+    }
+
+
+def _ontology_definitions(ontology_id: str | None, query: str) -> list:
+    """Определения понятий онтологии, упомянутых в запросе (для текстового режима)."""
+    if not ontology_id:
+        return []
+    try:
+        graph = ontologies.get_store().get_published(ontology_id)
+    except Exception:
+        graph = None
+    if not graph:
+        return []
+    q = set(text_search.terms(query))
+    hit_ids = []
+    for cls in graph.get("classes") or []:
+        names = [cls.get("name", "")] + list(cls.get("synonyms") or [])
+        if any(set(text_search.terms(n)) & q for n in names if n):
+            hit_ids.append(cls.get("id"))
+    if not hit_ids:
+        return []
+    try:
+        return ontologies.class_definitions(graph, hit_ids[:5])
+    except Exception:
+        return []
+
+
+async def _vector_search(rag_id, query, limit, class_ids, ontology_id) -> dict:
     vectors = await embed_texts([query])
     vector = vectors[0]
 
@@ -272,4 +342,5 @@ async def search(
             for hit in hits
         ],
         "ontology_context": ontology_context,
+        "search_mode": "vector",
     }

@@ -1,0 +1,451 @@
+{
+  "id": "onto-1a0e5c0002",
+  "name": "Онтология жизненного цикла технологического стартапа",
+  "domain": "Развитие университетского стартапа: от гипотезы до инвестиционного раунда",
+  "description": "Модель пути стартапа в стартап-студии или акселераторе вуза: гипотезы и их проверка (CustDev, MVP, пилот), продуктовые и финансовые метрики, контрольные точки (stage-gate), трекинг и инвестиционные раунды. Используется трекерами, агентом «Венчурный билдер» и полигонами для проверки гипотез.",
+  "author": "Команда AIOS",
+  "tags": [
+    "стартап",
+    "стартап-студия",
+    "акселерация",
+    "гипотезы",
+    "инвестиции"
+  ],
+  "classes": [
+    {
+      "id": "startup",
+      "name": "Стартап",
+      "description": "Временная организация, ищущая воспроизводимую и масштабируемую бизнес-модель.",
+      "synonyms": [
+        "проект",
+        "технологический стартап"
+      ],
+      "attributes": [
+        {
+          "id": "stage",
+          "name": "Стадия",
+          "type": "enum"
+        },
+        {
+          "id": "irl",
+          "name": "Уровень инвестиционной готовности",
+          "type": "int"
+        }
+      ]
+    },
+    {
+      "id": "stage",
+      "name": "Стадия развития",
+      "description": "Этап жизненного цикла стартапа.",
+      "synonyms": [
+        "фаза"
+      ]
+    },
+    {
+      "id": "st_idea",
+      "name": "Идея",
+      "description": "Есть технология или проблема, но нет подтверждённого клиента.",
+      "parent": "stage"
+    },
+    {
+      "id": "st_preseed",
+      "name": "Pre-seed",
+      "description": "Подтверждена проблема, собран MVP, первые пилоты.",
+      "parent": "stage",
+      "synonyms": [
+        "предпосевная стадия"
+      ]
+    },
+    {
+      "id": "st_seed",
+      "name": "Seed",
+      "description": "Первые продажи, подтверждена юнит-экономика на малых объёмах.",
+      "parent": "stage",
+      "synonyms": [
+        "посевная стадия"
+      ]
+    },
+    {
+      "id": "st_growth",
+      "name": "Раунд A и рост",
+      "description": "Масштабирование продаж, выход на новые рынки.",
+      "parent": "stage"
+    },
+    {
+      "id": "hypothesis",
+      "name": "Гипотеза",
+      "description": "Проверяемое предположение о клиенте, проблеме, ценности, канале или цене.",
+      "attributes": [
+        {
+          "id": "statement",
+          "name": "Формулировка",
+          "type": "string"
+        },
+        {
+          "id": "criterion",
+          "name": "Критерий успеха",
+          "type": "string"
+        },
+        {
+          "id": "status",
+          "name": "Статус",
+          "type": "enum"
+        }
+      ]
+    },
+    {
+      "id": "h_problem",
+      "name": "Гипотеза о проблеме",
+      "description": "Сегмент клиентов действительно испытывает проблему.",
+      "parent": "hypothesis"
+    },
+    {
+      "id": "h_value",
+      "name": "Гипотеза ценности",
+      "description": "Решение снимает проблему лучше альтернатив.",
+      "parent": "hypothesis"
+    },
+    {
+      "id": "h_growth",
+      "name": "Гипотеза роста",
+      "description": "Существует канал привлечения с приемлемой стоимостью.",
+      "parent": "hypothesis"
+    },
+    {
+      "id": "experiment",
+      "name": "Эксперимент",
+      "description": "Действие для проверки гипотезы с заранее заданным критерием.",
+      "attributes": [
+        {
+          "id": "method",
+          "name": "Метод",
+          "type": "string"
+        },
+        {
+          "id": "sample",
+          "name": "Объём выборки",
+          "type": "int"
+        },
+        {
+          "id": "result",
+          "name": "Результат",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "id": "custdev",
+      "name": "Интервью с клиентами",
+      "description": "Проблемное и решенческое интервью (CustDev).",
+      "parent": "experiment",
+      "synonyms": [
+        "CustDev",
+        "кастдев"
+      ]
+    },
+    {
+      "id": "mvp",
+      "name": "MVP",
+      "description": "Минимальный жизнеспособный продукт для проверки ценности.",
+      "parent": "experiment",
+      "synonyms": [
+        "минимальный продукт",
+        "прототип"
+      ]
+    },
+    {
+      "id": "pilot",
+      "name": "Пилот",
+      "description": "Опытное внедрение у индустриального партнёра.",
+      "parent": "experiment",
+      "synonyms": [
+        "пилотный проект",
+        "опытная эксплуатация"
+      ]
+    },
+    {
+      "id": "segment",
+      "name": "Сегмент клиентов",
+      "description": "Группа клиентов с общей проблемой и каналом.",
+      "synonyms": [
+        "ЦА",
+        "клиент"
+      ]
+    },
+    {
+      "id": "metric",
+      "name": "Метрика",
+      "description": "Измеримый показатель стартапа.",
+      "attributes": [
+        {
+          "id": "value",
+          "name": "Значение",
+          "type": "float"
+        }
+      ]
+    },
+    {
+      "id": "m_cac",
+      "name": "CAC",
+      "description": "Стоимость привлечения клиента.",
+      "parent": "metric"
+    },
+    {
+      "id": "m_ltv",
+      "name": "LTV",
+      "description": "Пожизненная ценность клиента.",
+      "parent": "metric"
+    },
+    {
+      "id": "m_mrr",
+      "name": "Выручка (MRR/ARR)",
+      "description": "Регулярная выручка.",
+      "parent": "metric",
+      "synonyms": [
+        "выручка",
+        "MRR"
+      ]
+    },
+    {
+      "id": "m_runway",
+      "name": "Runway",
+      "description": "Сколько месяцев компания проживёт на текущих деньгах.",
+      "parent": "metric"
+    },
+    {
+      "id": "team",
+      "name": "Команда основателей",
+      "description": "Основатели и ключевые сотрудники.",
+      "attributes": [
+        {
+          "id": "ceo",
+          "name": "CEO",
+          "type": "string"
+        },
+        {
+          "id": "cto",
+          "name": "CTO",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "id": "tracker",
+      "name": "Трекер",
+      "description": "Наставник стартап-студии, ведущий команду по контрольным точкам.",
+      "synonyms": [
+        "трекинг"
+      ]
+    },
+    {
+      "id": "gate",
+      "name": "Контрольная точка (stage-gate)",
+      "description": "Решение «продолжить / изменить / закрыть» по итогам стадии.",
+      "synonyms": [
+        "go/no-go",
+        "гейт"
+      ],
+      "attributes": [
+        {
+          "id": "decision",
+          "name": "Решение",
+          "type": "enum"
+        },
+        {
+          "id": "date",
+          "name": "Дата",
+          "type": "datetime"
+        }
+      ]
+    },
+    {
+      "id": "round",
+      "name": "Инвестиционный раунд",
+      "description": "Привлечение денег в обмен на долю.",
+      "attributes": [
+        {
+          "id": "amount",
+          "name": "Сумма, тыс. ₽",
+          "type": "float"
+        },
+        {
+          "id": "valuation",
+          "name": "Оценка pre-money, тыс. ₽",
+          "type": "float"
+        }
+      ]
+    },
+    {
+      "id": "investor",
+      "name": "Инвестор",
+      "description": "Бизнес-ангел, венчурный фонд, корпорация.",
+      "synonyms": [
+        "фонд",
+        "ангел"
+      ]
+    },
+    {
+      "id": "cap_table",
+      "name": "Таблица долей",
+      "description": "Распределение долей между основателями, вузом и инвесторами.",
+      "synonyms": [
+        "cap table",
+        "структура капитала"
+      ]
+    },
+    {
+      "id": "technology",
+      "name": "Технология вуза",
+      "description": "РИД или ноу-хау, на котором построен продукт.",
+      "synonyms": [
+        "РИД",
+        "технологический задел"
+      ]
+    }
+  ],
+  "relations": [
+    {
+      "id": "at_stage",
+      "name": "находится на стадии",
+      "domain_class": "startup",
+      "range_class": "stage"
+    },
+    {
+      "id": "tests",
+      "name": "проверяет гипотезу",
+      "domain_class": "startup",
+      "range_class": "hypothesis"
+    },
+    {
+      "id": "checked_by",
+      "name": "проверяется экспериментом",
+      "domain_class": "hypothesis",
+      "range_class": "experiment"
+    },
+    {
+      "id": "about_segment",
+      "name": "касается сегмента",
+      "domain_class": "hypothesis",
+      "range_class": "segment"
+    },
+    {
+      "id": "measured",
+      "name": "измеряется метрикой",
+      "domain_class": "experiment",
+      "range_class": "metric"
+    },
+    {
+      "id": "tracks",
+      "name": "ведёт",
+      "domain_class": "tracker",
+      "range_class": "startup"
+    },
+    {
+      "id": "passes_gate",
+      "name": "проходит контрольную точку",
+      "domain_class": "startup",
+      "range_class": "gate"
+    },
+    {
+      "id": "raises",
+      "name": "привлекает раунд",
+      "domain_class": "startup",
+      "range_class": "round"
+    },
+    {
+      "id": "participates",
+      "name": "участвует в раунде",
+      "domain_class": "investor",
+      "range_class": "round"
+    },
+    {
+      "id": "changes_cap",
+      "name": "меняет",
+      "domain_class": "round",
+      "range_class": "cap_table"
+    },
+    {
+      "id": "founded_by",
+      "name": "основан командой",
+      "domain_class": "startup",
+      "range_class": "team"
+    },
+    {
+      "id": "built_on",
+      "name": "построен на технологии",
+      "domain_class": "startup",
+      "range_class": "technology"
+    },
+    {
+      "id": "kpi_of",
+      "name": "ключевая метрика",
+      "domain_class": "startup",
+      "range_class": "metric"
+    }
+  ],
+  "competency_questions": [
+    {
+      "id": "cq-1",
+      "question": "Какие гипотезы стартапа ещё не проверены и каким экспериментом их проверить?",
+      "coverage": [
+        "hypothesis",
+        "experiment"
+      ]
+    },
+    {
+      "id": "cq-2",
+      "question": "Готов ли стартап к посевному раунду: какие метрики и гейты пройдены?",
+      "coverage": [
+        "startup",
+        "gate",
+        "metric",
+        "round"
+      ]
+    },
+    {
+      "id": "cq-3",
+      "question": "Сколько месяцев runway у команды и когда нужен следующий раунд?",
+      "coverage": [
+        "m_runway",
+        "round"
+      ]
+    },
+    {
+      "id": "cq-4",
+      "question": "Какие стартапы студии застряли на одной стадии и кто их трекер?",
+      "coverage": [
+        "startup",
+        "stage",
+        "tracker"
+      ]
+    },
+    {
+      "id": "cq-5",
+      "question": "Как изменится доля вуза в таблице долей после раунда?",
+      "coverage": [
+        "cap_table",
+        "round",
+        "investor"
+      ]
+    }
+  ],
+  "rag_hints": {
+    "extraction_targets": [
+      "hypothesis",
+      "experiment",
+      "metric",
+      "gate",
+      "round",
+      "segment"
+    ],
+    "retrieval_paths": [
+      "startup → tests → hypothesis → checked_by → experiment"
+    ],
+    "sources": [
+      "Методика стартап-студии",
+      "Протоколы трекинга",
+      "Питч-деки"
+    ]
+  },
+  "status": "active"
+}

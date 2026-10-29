@@ -3,6 +3,17 @@ data/*
 !data/agents.json
 !data/models.json
 !data/ontologies.json
+# графы демо-онтологий (3D-просмотр) и корпуса демо-RAG-баз — scripts/seed_innovation_knowledge.py
+!data/ontologies/
+data/ontologies/*
+!data/ontologies/objects/
+data/ontologies/objects/*
+!data/ontologies/objects/onto-1a0e5c000*.json
+!data/rag/
+data/rag/*
+!data/rag/corpus/
+# примеры полигонов (симуляционная среда) — только чтение, свои полигоны в .aios-runtime
+!data/polygons/
 !data/rag_bases.json
 !data/skills.json
 # SVG-логотипы артефактов (data/icons/{id}.svg): каталоги skills.json и
@@ -37,6 +48,9 @@ data/skills/*
 !data/skills/portfolio_analyst.md
 !data/skills/ecosystem_analyst.md
 !data/skills/venture_builder.md
+# Конструкторы онтологий и RAG раздела «Данные и знания» под тему платформы
+!data/skills/ontology-engineer.md
+!data/skills/rag-builder.md
 # Тестовые данные «Рабочего стола проректора» — участники правят их под свой вуз
 !data/dashboard.json
 # Карта этапов конвейера навыков (бейдж этапа и «следующий шаг» в чате)

@@ -98,6 +98,10 @@ def projects_block(user_id: str | None) -> str:
     for card in cards[:PROJECTS_LIMIT]:
         title = card.get("title") or card["id"]
         bits = [f"«{title}»", f"id: {card['id']}"]
+        if card.get("project_type") in projects.PROJECT_TYPE_TITLES:
+            bits.append(projects.PROJECT_TYPE_TITLES[card["project_type"]].lower())
+        if card.get("trl"):
+            bits.append(f"УГТ {card['trl']}")
         if card.get("goal"):
             goal = card["goal"]
             if len(goal) > 100:

@@ -58,7 +58,7 @@
       "category": "service",
       "name": "Онбординг проекта",
       "domain": "Рабочее пространство",
-      "description_ru": "Диалоговое создание карточки проекта университета за 7 шагов с сохранением в «Проекты»: вуз, цель, метрики, команда, подразделения, бюджет, задел.",
+      "description_ru": "Диалоговое создание проекта офиса проректора: технологический проект / стартап (РИД, УГТ, рынок, финансирование) или управленческая инициатива (цель, KPI, этапы, риски) — с гипотезами по артефактам.",
       "author": "Команда AIOS",
       "recommended_model": "—",
       "file_url": "/data/skills/project-onboarding.md",
@@ -86,6 +86,28 @@
       "file_url": "/data/skills/model-builder.md",
       "image_url": "/data/icons/model-builder.svg",
       "admin_only": true
+    },
+    {
+      "id": "ontology-engineer",
+      "category": "service",
+      "name": "Конструктор онтологий",
+      "domain": "Данные и знания",
+      "description_ru": "Собирает в диалоге онтологию области инноваций вуза (понятия, связи, вопросы) и публикует её в «Данные и знания» с 3D-просмотром.",
+      "author": "Команда AIOS",
+      "recommended_model": "—",
+      "file_url": "/data/skills/ontology-engineer.md",
+      "image_url": "/data/icons/ontology-engineer.svg"
+    },
+    {
+      "id": "rag-builder",
+      "category": "service",
+      "name": "Конструктор RAG",
+      "domain": "Данные и знания",
+      "description_ru": "Настраивает базу знаний по документам офиса проректора: назначение, корпус, онтология, доступ — и публикует её в «Данные и знания».",
+      "author": "Команда AIOS",
+      "recommended_model": "—",
+      "file_url": "/data/skills/rag-builder.md",
+      "image_url": "/data/icons/rag-builder.svg"
     }
   ]
 }

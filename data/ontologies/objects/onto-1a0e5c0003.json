@@ -1,0 +1,403 @@
+{
+  "id": "onto-1a0e5c0003",
+  "name": "Онтология трансфера технологий и управления РИД",
+  "domain": "Выявление, охрана, оценка и коммерциализация результатов интеллектуальной деятельности вуза",
+  "description": "Процесс ЦТТ: уведомление о служебном РИД, решение о способе охраны, патентный поиск, подача заявки, поддержание или отказ от патента, оценка, лицензирование, отчуждение и внесение права в уставный капитал МТК, учёт как НМА и вознаграждение авторов. Основа агента «Портфельный аналитик» и RAG-базы по нормативке трансфера.",
+  "author": "Команда AIOS",
+  "tags": [
+    "трансфер технологий",
+    "РИД",
+    "патенты",
+    "лицензирование",
+    "ЦТТ"
+  ],
+  "classes": [
+    {
+      "id": "rid",
+      "name": "РИД",
+      "description": "Результат интеллектуальной деятельности, созданный в вузе.",
+      "synonyms": [
+        "ИС",
+        "объект ИС"
+      ],
+      "attributes": [
+        {
+          "id": "title",
+          "name": "Название",
+          "type": "string"
+        },
+        {
+          "id": "kind",
+          "name": "Вид",
+          "type": "enum"
+        },
+        {
+          "id": "service",
+          "name": "Служебный",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "id": "invention",
+      "name": "Изобретение",
+      "description": "Техническое решение, охраняемое патентом (новизна, изобретательский уровень, промприменимость).",
+      "parent": "rid"
+    },
+    {
+      "id": "utility_model",
+      "name": "Полезная модель",
+      "description": "Техническое решение, относящееся к устройству; упрощённая охрана.",
+      "parent": "rid"
+    },
+    {
+      "id": "program",
+      "name": "Программа для ЭВМ",
+      "description": "Охраняется авторским правом; может быть зарегистрирована в Роспатенте.",
+      "parent": "rid"
+    },
+    {
+      "id": "knowhow",
+      "name": "Ноу-хау",
+      "description": "Охраняется режимом коммерческой тайны.",
+      "parent": "rid",
+      "synonyms": [
+        "секрет производства"
+      ]
+    },
+    {
+      "id": "author",
+      "name": "Автор",
+      "description": "Работник, творческим трудом которого создан РИД.",
+      "synonyms": [
+        "изобретатель"
+      ]
+    },
+    {
+      "id": "notice",
+      "name": "Уведомление о создании служебного РИД",
+      "description": "Сообщение автора работодателю о созданном результате.",
+      "synonyms": [
+        "уведомление"
+      ],
+      "attributes": [
+        {
+          "id": "date",
+          "name": "Дата",
+          "type": "datetime"
+        }
+      ]
+    },
+    {
+      "id": "decision",
+      "name": "Решение о правовой охране",
+      "description": "Выбор: патентовать, оставить ноу-хау, передать права автору.",
+      "attributes": [
+        {
+          "id": "option",
+          "name": "Вариант",
+          "type": "enum"
+        },
+        {
+          "id": "deadline",
+          "name": "Срок",
+          "type": "datetime"
+        }
+      ]
+    },
+    {
+      "id": "search",
+      "name": "Патентный поиск",
+      "description": "Анализ уровня техники и патентной чистоты.",
+      "synonyms": [
+        "патентные исследования",
+        "ГОСТ Р 15.011"
+      ]
+    },
+    {
+      "id": "application",
+      "name": "Заявка",
+      "description": "Заявка на выдачу патента или регистрацию.",
+      "attributes": [
+        {
+          "id": "number",
+          "name": "Номер",
+          "type": "string"
+        },
+        {
+          "id": "filed",
+          "name": "Дата подачи",
+          "type": "datetime"
+        }
+      ]
+    },
+    {
+      "id": "patent",
+      "name": "Патент",
+      "description": "Охранный документ.",
+      "attributes": [
+        {
+          "id": "number",
+          "name": "Номер",
+          "type": "string"
+        },
+        {
+          "id": "valid_until",
+          "name": "Действует до",
+          "type": "datetime"
+        },
+        {
+          "id": "fee",
+          "name": "Пошлина в год, тыс. ₽",
+          "type": "float"
+        }
+      ]
+    },
+    {
+      "id": "valuation",
+      "name": "Оценка стоимости",
+      "description": "Определение рыночной стоимости права (доходный, затратный, сравнительный подходы).",
+      "synonyms": [
+        "оценка ИС"
+      ]
+    },
+    {
+      "id": "nma",
+      "name": "Нематериальный актив",
+      "description": "Учёт исключительного права на балансе вуза.",
+      "synonyms": [
+        "НМА"
+      ]
+    },
+    {
+      "id": "deal",
+      "name": "Распоряжение правом",
+      "description": "Сделка с исключительным правом.",
+      "synonyms": [
+        "коммерциализация"
+      ]
+    },
+    {
+      "id": "license",
+      "name": "Лицензионный договор",
+      "description": "Предоставление права использования (ст. 1235 ГК РФ).",
+      "parent": "deal",
+      "attributes": [
+        {
+          "id": "exclusive",
+          "name": "Исключительная",
+          "type": "bool"
+        },
+        {
+          "id": "royalty",
+          "name": "Роялти, %",
+          "type": "float"
+        },
+        {
+          "id": "territory",
+          "name": "Территория",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "id": "alienation",
+      "name": "Договор отчуждения",
+      "description": "Полная передача исключительного права (ст. 1234 ГК РФ).",
+      "parent": "deal"
+    },
+    {
+      "id": "contribution",
+      "name": "Вклад в уставный капитал МТК",
+      "description": "Внесение права использования РИД в капитал хозяйственного общества.",
+      "parent": "deal"
+    },
+    {
+      "id": "mtk",
+      "name": "МТК",
+      "description": "Хозяйственное общество с участием вуза (ст. 103 273-ФЗ).",
+      "synonyms": [
+        "малое инновационное предприятие"
+      ]
+    },
+    {
+      "id": "licensee",
+      "name": "Лицензиат",
+      "description": "Компания, получившая право использования.",
+      "synonyms": [
+        "приобретатель"
+      ]
+    },
+    {
+      "id": "reward",
+      "name": "Вознаграждение автору",
+      "description": "Выплата автору служебного РИД при использовании или распоряжении.",
+      "synonyms": [
+        "авторское вознаграждение"
+      ]
+    },
+    {
+      "id": "portfolio_review",
+      "name": "Ревизия патентного портфеля",
+      "description": "Периодическое решение: поддерживать, продать, отказаться.",
+      "attributes": [
+        {
+          "id": "period",
+          "name": "Период",
+          "type": "string"
+        },
+        {
+          "id": "result",
+          "name": "Итог",
+          "type": "string"
+        }
+      ]
+    }
+  ],
+  "relations": [
+    {
+      "id": "created_by",
+      "name": "создан автором",
+      "domain_class": "rid",
+      "range_class": "author"
+    },
+    {
+      "id": "notified",
+      "name": "оформлен уведомлением",
+      "domain_class": "rid",
+      "range_class": "notice"
+    },
+    {
+      "id": "decided",
+      "name": "решение",
+      "domain_class": "notice",
+      "range_class": "decision"
+    },
+    {
+      "id": "checked",
+      "name": "проверен поиском",
+      "domain_class": "rid",
+      "range_class": "search"
+    },
+    {
+      "id": "filed_as",
+      "name": "подан как",
+      "domain_class": "rid",
+      "range_class": "application"
+    },
+    {
+      "id": "granted",
+      "name": "выдан",
+      "domain_class": "application",
+      "range_class": "patent"
+    },
+    {
+      "id": "valued",
+      "name": "оценён",
+      "domain_class": "rid",
+      "range_class": "valuation"
+    },
+    {
+      "id": "booked",
+      "name": "учтён как",
+      "domain_class": "rid",
+      "range_class": "nma"
+    },
+    {
+      "id": "object_of",
+      "name": "предмет сделки",
+      "domain_class": "deal",
+      "range_class": "rid"
+    },
+    {
+      "id": "to_licensee",
+      "name": "в пользу",
+      "domain_class": "license",
+      "range_class": "licensee"
+    },
+    {
+      "id": "into_mtk",
+      "name": "в капитал",
+      "domain_class": "contribution",
+      "range_class": "mtk"
+    },
+    {
+      "id": "rewards",
+      "name": "порождает вознаграждение",
+      "domain_class": "deal",
+      "range_class": "reward"
+    },
+    {
+      "id": "reviewed",
+      "name": "пересматривается",
+      "domain_class": "patent",
+      "range_class": "portfolio_review"
+    }
+  ],
+  "competency_questions": [
+    {
+      "id": "cq-1",
+      "question": "Что делать с патентом без лицензиата, который поддерживается больше пяти лет?",
+      "coverage": [
+        "patent",
+        "portfolio_review",
+        "license"
+      ]
+    },
+    {
+      "id": "cq-2",
+      "question": "Какие сроки и шаги после получения уведомления о служебном изобретении?",
+      "coverage": [
+        "notice",
+        "decision",
+        "application"
+      ]
+    },
+    {
+      "id": "cq-3",
+      "question": "Как внести права на РИД в уставный капитал МТК и нужна ли оценка?",
+      "coverage": [
+        "contribution",
+        "mtk",
+        "valuation"
+      ]
+    },
+    {
+      "id": "cq-4",
+      "question": "Чем лицензия отличается от отчуждения и что выгоднее вузу?",
+      "coverage": [
+        "license",
+        "alienation"
+      ]
+    },
+    {
+      "id": "cq-5",
+      "question": "Как рассчитывается вознаграждение автору при лицензировании?",
+      "coverage": [
+        "reward",
+        "license",
+        "author"
+      ]
+    }
+  ],
+  "rag_hints": {
+    "extraction_targets": [
+      "notice",
+      "patent",
+      "license",
+      "alienation",
+      "contribution",
+      "valuation",
+      "reward"
+    ],
+    "retrieval_paths": [
+      "rid → object_of ← deal → rewards → reward"
+    ],
+    "sources": [
+      "ГК РФ, часть 4",
+      "273-ФЗ ст. 103",
+      "Положение вуза об ИС"
+    ]
+  },
+  "status": "active"
+}
