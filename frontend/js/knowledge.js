@@ -207,6 +207,29 @@
     }
     var actions = document.getElementById('ragModalActions');
     actions.innerHTML = '';
+    /* демо-базы платформы: документы корпуса открываются прямо из карточки */
+    if (base.corpus && base.documents && base.documents.length) {
+      var list = document.createElement('div');
+      list.className = 'mm-source rag-corpus-list';
+      list.appendChild(document.createTextNode('Документы: '));
+      base.documents.forEach(function (name, i) {
+        if (i) list.appendChild(document.createTextNode(' · '));
+        var a = document.createElement('a');
+        a.href = base.corpus + encodeURIComponent(name);
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        a.textContent = name.replace(/^\d+_/, '').replace(/\.(md|txt)$/, '').replace(/_/g, ' ');
+        list.appendChild(a);
+      });
+      actions.appendChild(list);
+    }
+    if (base.ontology_id) {
+      var onto = document.createElement('a');
+      onto.className = 'btn-register mm-btn';
+      onto.href = 'ontology.html?id=' + encodeURIComponent(base.ontology_id);
+      onto.textContent = 'Онтология базы в 3D';
+      actions.appendChild(onto);
+    }
     if (base.access_url) {
       var link = document.createElement('a');
       link.className = 'btn-primary mm-btn';

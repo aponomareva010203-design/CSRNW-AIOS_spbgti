@@ -13,12 +13,26 @@ services:
       AIOS_LLM_API_KEY: "${AIOS_LLM_API_KEY:-}"
       AIOS_LLM_MODEL: "${AIOS_LLM_MODEL:-}"
       AIOS_RUNTIME_DIR: /app/.aios-runtime
+      # RAG: векторная база Qdrant (сервис ниже) и модель эмбеддингов на том же
+      # OpenAI-совместимом эндпоинте, что и LLM. Без них базы знаний работают
+      # текстовым поиском по тем же документам.
+      AIOS_QDRANT_URL: "http://qdrant:6333"
+      AIOS_EMBEDDING_MODEL: "${AIOS_EMBEDDING_MODEL:-text-embedding-3-small}"
     volumes:
       # пользователи, проекты, сессии чата — переживают перезапуск контейнера
       - aios-runtime:/app/.aios-runtime
       # данные вуза: правки data/dashboard.json и data/skills/*.md видны сразу
       - ./data:/app/data
+    depends_on:
+      - qdrant
+    restart: unless-stopped
+
+  qdrant:
+    image: qdrant/qdrant:v1.12.4
+    volumes:
+      - qdrant-storage:/qdrant/storage
     restart: unless-stopped
 
 volumes:
   aios-runtime:
+  qdrant-storage:

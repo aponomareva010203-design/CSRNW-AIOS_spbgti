@@ -1,191 +1,333 @@
 {
   "items": [
     {
-      "id": "microfludicsCSRNW",
-      "name": "Модель проектирования микрофлюидных чипов",
-      "source": "spbti",
-      "provider": "maxbelCSRNW",
-      "model_id": "maxbelCSRNW/microfludicsCSRNW",
-      "image_url": "https://cdn-thumbnails.huggingface.co/social-thumbnails/models/maxbelCSRNW/microfludicsCSRNW.png",
-      "description_ru": "Исследовательский MVP для расчёта и проектирования крупных микрофлюидных систем.Модель сочетает точный сетевой расчёт, локальные PINN/XPINN-модули, анализ неопределённости и обратное проектирование.",
+      "id": "qwen2-5-7b-instruct",
+      "name": "Qwen2.5-7B-Instruct",
+      "source": "huggingface",
+      "provider": "Qwen",
+      "model_id": "Qwen/Qwen2.5-7B-Instruct",
+      "image_url": "https://cdn-thumbnails.huggingface.co/social-thumbnails/models/Qwen/Qwen2.5-7B-Instruct.png",
+      "description_ru": "Универсальная LLM с хорошим русским: основа агентов проректора — сводки по портфелю, разбор заявок, черновики писем и регламентов.",
       "tags": [
-        "микрофлюидика",
-        "PINN"
+        "LLM",
+        "агенты",
+        "русский язык"
       ],
-      "access_url": "https://huggingface.co/maxbelCSRNW/microfludicsCSRNW",
+      "access_url": "https://huggingface.co/Qwen/Qwen2.5-7B-Instruct",
       "is_placeholder": false
     },
     {
-      "id": "chemllm-7b",
-      "name": "ChemLLM-7B",
+      "id": "qwen3-8b",
+      "name": "Qwen3-8B",
       "source": "huggingface",
-      "provider": "AI4Chem",
-      "model_id": "AI4Chem/ChemLLM-7B-Chat-1_5-DPO",
-      "image_url": "https://cdn-thumbnails.huggingface.co/social-thumbnails/models/AI4Chem/ChemLLM-7B-Chat-1_5-DPO.png",
-      "description_ru": "Диалоговая химическая языковая модель: объясняет свойства молекул, помогает с реакциями, основа химического RAG-ассистента.",
+      "provider": "Qwen",
+      "model_id": "Qwen/Qwen3-8B",
+      "image_url": "https://cdn-thumbnails.huggingface.co/social-thumbnails/models/Qwen/Qwen3-8B.png",
+      "description_ru": "LLM с режимом рассуждений: анализ бизнес-моделей стартапов, экспертиза проектов по чек-листу, ИИ-эксперты полигона.",
       "tags": [
-        "химия",
-        "RAG",
-        "LLM"
+        "LLM",
+        "рассуждения",
+        "полигоны"
       ],
-      "access_url": "https://huggingface.co/AI4Chem/ChemLLM-7B-Chat-1_5-DPO",
+      "access_url": "https://huggingface.co/Qwen/Qwen3-8B",
       "is_placeholder": false
     },
     {
-      "id": "chemvlm-26b",
-      "name": "ChemVLM-26B",
+      "id": "t-lite-it",
+      "name": "T-lite-it-1.0",
       "source": "huggingface",
-      "provider": "AI4Chem",
-      "model_id": "AI4Chem/ChemVLM-26B",
-      "image_url": "https://cdn-thumbnails.huggingface.co/social-thumbnails/models/AI4Chem/ChemVLM-26B.png",
-      "description_ru": "Мультимодальная химическая модель: понимает молекулярные структуры, схемы реакций и изображения, отвечает на вопросы.",
+      "provider": "T-Tech",
+      "model_id": "t-tech/T-lite-it-1.0",
+      "image_url": "https://cdn-thumbnails.huggingface.co/social-thumbnails/models/t-tech/T-lite-it-1.0.png",
+      "description_ru": "Русскоязычная LLM на базе Qwen: деловые тексты, ответы по RAG-базам нормативки, работа с инструментами.",
       "tags": [
-        "химия",
-        "LLM"
-      ],
-      "access_url": "https://huggingface.co/AI4Chem/ChemVLM-26B",
-      "is_placeholder": false
-    },
-    {
-      "id": "molformer-xl",
-      "name": "MoLFormer-XL",
-      "source": "huggingface",
-      "provider": "IBM Research",
-      "model_id": "ibm-research/MoLFormer-XL-both-10pct",
-      "image_url": "https://cdn-thumbnails.huggingface.co/social-thumbnails/models/ibm-research/MoLFormer-XL-both-10pct.png",
-      "description_ru": "Модель представлений молекул по SMILES: строит эмбеддинги и предсказывает молекулярные свойства для скрининга соединений.",
-      "tags": [
-        "химия",
-        "предсказание свойств",
-        "фармакология"
-      ],
-      "access_url": "https://huggingface.co/ibm-research/MoLFormer-XL-both-10pct",
-      "is_placeholder": false
-    },
-    {
-      "id": "chemberta",
-      "name": "ChemBERTa",
-      "source": "huggingface",
-      "provider": "DeepChem",
-      "model_id": "DeepChem/ChemBERTa-10M-MTR",
-      "image_url": "https://cdn-thumbnails.huggingface.co/social-thumbnails/models/DeepChem/ChemBERTa-10M-MTR.png",
-      "description_ru": "Лёгкая модель SMILES-представлений для дообучения под прикладные задачи: свойства молекул, токсичность, активность.",
-      "tags": [
-        "химия",
-        "предсказание свойств",
-        "PROTAC"
-      ],
-      "access_url": "https://huggingface.co/DeepChem/ChemBERTa-10M-MTR",
-      "is_placeholder": false
-    },
-    {
-      "id": "reactiont5-forward",
-      "name": "ReactionT5 Forward",
-      "source": "huggingface",
-      "provider": "sagawa",
-      "model_id": "sagawa/ReactionT5v2-forward",
-      "image_url": "https://cdn-thumbnails.huggingface.co/social-thumbnails/models/sagawa/ReactionT5v2-forward.png",
-      "description_ru": "Предсказывает продукты химической реакции по исходным реагентам: ускоряет планирование синтеза.",
-      "tags": [
-        "химия",
-        "химические технологии",
-        "предсказание свойств"
-      ],
-      "access_url": "https://huggingface.co/sagawa/ReactionT5v2-forward",
-      "is_placeholder": false
-    },
-    {
-      "id": "reactiont5-retro",
-      "name": "ReactionT5 Retrosynthesis",
-      "source": "huggingface",
-      "provider": "sagawa",
-      "model_id": "sagawa/ReactionT5v2-retrosynthesis",
-      "image_url": "https://cdn-thumbnails.huggingface.co/social-thumbnails/models/sagawa/ReactionT5v2-retrosynthesis.png",
-      "description_ru": "Ретросинтез: предлагает исходные реагенты и пути получения целевой молекулы.",
-      "tags": [
-        "химия",
-        "химические технологии"
-      ],
-      "access_url": "https://huggingface.co/sagawa/ReactionT5v2-retrosynthesis",
-      "is_placeholder": false
-    },
-    {
-      "id": "polybert",
-      "name": "polyBERT",
-      "source": "huggingface",
-      "provider": "HAYDERphd",
-      "model_id": "HAYDERphd/polyBERT",
-      "image_url": "https://cdn-thumbnails.huggingface.co/social-thumbnails/models/HAYDERphd/polyBERT.png",
-      "description_ru": "Языковая модель полимеров: кодирует структуры PSMILES и прогнозирует свойства полимерных материалов.",
-      "tags": [
-        "полимеры",
-        "композиционные материалы",
-        "предсказание свойств"
-      ],
-      "access_url": "https://huggingface.co/HAYDERphd/polyBERT",
-      "is_placeholder": false
-    },
-    {
-      "id": "mattergen",
-      "name": "MatterGen",
-      "source": "huggingface",
-      "provider": "Microsoft",
-      "model_id": "microsoft/mattergen",
-      "image_url": "https://cdn-thumbnails.huggingface.co/social-thumbnails/models/microsoft/mattergen.png",
-      "description_ru": "Генеративная модель неорганических материалов: предлагает новые структуры с заданными свойствами.",
-      "tags": [
-        "генерация материалов",
-        "композиционные материалы",
-        "ALD и наноматериалы"
-      ],
-      "access_url": "https://huggingface.co/microsoft/mattergen",
-      "is_placeholder": false
-    },
-    {
-      "id": "omat24",
-      "name": "OMAT24",
-      "source": "huggingface",
-      "provider": "Meta (FAIR)",
-      "model_id": "facebook/OMAT24",
-      "image_url": "https://cdn-thumbnails.huggingface.co/social-thumbnails/models/facebook/OMAT24.png",
-      "description_ru": "Атомистический потенциал для материалов и поверхностей: энергии и силы для моделирования катализа.",
-      "tags": [
-        "катализ",
-        "композиционные материалы",
-        "предсказание свойств"
-      ],
-      "access_url": "https://huggingface.co/facebook/OMAT24",
-      "is_placeholder": false
-    },
-    {
-      "id": "batterybert",
-      "name": "BatteryBERT",
-      "source": "huggingface",
-      "provider": "Cambridge Molecular Engineering",
-      "model_id": "CambridgeMolecularEngineering/batterybert",
-      "image_url": "https://cdn-thumbnails.huggingface.co/social-thumbnails/models/CambridgeMolecularEngineering/batterybert.png",
-      "description_ru": "Модель обработки научных текстов по литий-ионным батареям: извлекает данные из статей и патентов.",
-      "tags": [
-        "литий-ионные аккумуляторы",
+        "LLM",
+        "русский язык",
         "RAG"
       ],
-      "access_url": "https://huggingface.co/CambridgeMolecularEngineering/batterybert",
+      "access_url": "https://huggingface.co/t-tech/T-lite-it-1.0",
       "is_placeholder": false
     },
     {
-      "id": "esm2",
-      "name": "ESM-2",
+      "id": "t-pro-it",
+      "name": "T-pro-it-1.0",
       "source": "huggingface",
-      "provider": "Meta (FAIR)",
-      "model_id": "facebook/esm2_t33_650M_UR50D",
-      "image_url": "https://cdn-thumbnails.huggingface.co/social-thumbnails/models/facebook/esm2_t33_650M_UR50D.png",
-      "description_ru": "Белковая языковая модель: анализ последовательностей, эффектов мутаций и свойств ферментов.",
+      "provider": "T-Tech",
+      "model_id": "t-tech/T-pro-it-1.0",
+      "image_url": "https://cdn-thumbnails.huggingface.co/social-thumbnails/models/t-tech/T-pro-it-1.0.png",
+      "description_ru": "Крупная русскоязычная LLM для сложных задач: аналитические записки, отчёты по программе развития, due diligence.",
       "tags": [
-        "белки",
-        "биокатализ",
-        "фармакология"
+        "LLM",
+        "аналитика",
+        "русский язык"
       ],
-      "access_url": "https://huggingface.co/facebook/esm2_t33_650M_UR50D",
+      "access_url": "https://huggingface.co/t-tech/T-pro-it-1.0",
+      "is_placeholder": false
+    },
+    {
+      "id": "yandexgpt-5-lite",
+      "name": "YandexGPT-5-Lite-8B-instruct",
+      "source": "huggingface",
+      "provider": "Yandex",
+      "model_id": "yandex/YandexGPT-5-Lite-8B-instruct",
+      "image_url": "https://cdn-thumbnails.huggingface.co/social-thumbnails/models/yandex/YandexGPT-5-Lite-8B-instruct.png",
+      "description_ru": "Открытая версия YandexGPT 5 Lite: суммаризация протоколов, ответы на вопросы команд стартапов, классификация обращений.",
+      "tags": [
+        "LLM",
+        "русский язык"
+      ],
+      "access_url": "https://huggingface.co/yandex/YandexGPT-5-Lite-8B-instruct",
+      "is_placeholder": false
+    },
+    {
+      "id": "gigachat-20b",
+      "name": "GigaChat-20B-A3B-instruct",
+      "source": "huggingface",
+      "provider": "SberDevices",
+      "model_id": "ai-sage/GigaChat-20B-A3B-instruct",
+      "image_url": "https://cdn-thumbnails.huggingface.co/social-thumbnails/models/ai-sage/GigaChat-20B-A3B-instruct.png",
+      "description_ru": "MoE-модель GigaChat с открытыми весами: быстрые ответы на русском при умеренных требованиях к памяти.",
+      "tags": [
+        "LLM",
+        "MoE",
+        "русский язык"
+      ],
+      "access_url": "https://huggingface.co/ai-sage/GigaChat-20B-A3B-instruct",
+      "is_placeholder": false
+    },
+    {
+      "id": "vikhr-nemo-12b",
+      "name": "Vikhr-Nemo-12B-Instruct",
+      "source": "huggingface",
+      "provider": "Vikhr",
+      "model_id": "Vikhrmodels/Vikhr-Nemo-12B-Instruct-R-21-09-24",
+      "image_url": "https://cdn-thumbnails.huggingface.co/social-thumbnails/models/Vikhrmodels/Vikhr-Nemo-12B-Instruct-R-21-09-24.png",
+      "description_ru": "Русифицированная Mistral Nemo, обученная работе с RAG: ответы строго по найденным документам со ссылками.",
+      "tags": [
+        "LLM",
+        "RAG",
+        "русский язык"
+      ],
+      "access_url": "https://huggingface.co/Vikhrmodels/Vikhr-Nemo-12B-Instruct-R-21-09-24",
+      "is_placeholder": false
+    },
+    {
+      "id": "bge-m3",
+      "name": "BGE-M3",
+      "source": "huggingface",
+      "provider": "BAAI",
+      "model_id": "BAAI/bge-m3",
+      "image_url": "https://cdn-thumbnails.huggingface.co/social-thumbnails/models/BAAI/bge-m3.png",
+      "description_ru": "Мультиязычные эмбеддинги для RAG: поиск по положениям, договорам и заявкам, длинные документы до 8192 токенов.",
+      "tags": [
+        "эмбеддинги",
+        "RAG",
+        "поиск"
+      ],
+      "access_url": "https://huggingface.co/BAAI/bge-m3",
+      "is_placeholder": false
+    },
+    {
+      "id": "qwen3-embedding",
+      "name": "Qwen3-Embedding-0.6B",
+      "source": "huggingface",
+      "provider": "Qwen",
+      "model_id": "Qwen/Qwen3-Embedding-0.6B",
+      "image_url": "https://cdn-thumbnails.huggingface.co/social-thumbnails/models/Qwen/Qwen3-Embedding-0.6B.png",
+      "description_ru": "Компактная модель эмбеддингов Qwen3 для векторного поиска в Qdrant; подходит для прокси-API платформы.",
+      "tags": [
+        "эмбеддинги",
+        "RAG",
+        "Qdrant"
+      ],
+      "access_url": "https://huggingface.co/Qwen/Qwen3-Embedding-0.6B",
+      "is_placeholder": false
+    },
+    {
+      "id": "user-bge-m3",
+      "name": "USER-bge-m3",
+      "source": "huggingface",
+      "provider": "deepvk",
+      "model_id": "deepvk/USER-bge-m3",
+      "image_url": "https://cdn-thumbnails.huggingface.co/social-thumbnails/models/deepvk/USER-bge-m3.png",
+      "description_ru": "BGE-M3, дообученная для русского: точнее находит близкие по смыслу заявки, РИД и проекты.",
+      "tags": [
+        "эмбеддинги",
+        "русский язык",
+        "дедупликация"
+      ],
+      "access_url": "https://huggingface.co/deepvk/USER-bge-m3",
+      "is_placeholder": false
+    },
+    {
+      "id": "multilingual-e5-large",
+      "name": "multilingual-e5-large",
+      "source": "huggingface",
+      "provider": "intfloat",
+      "model_id": "intfloat/multilingual-e5-large",
+      "image_url": "https://cdn-thumbnails.huggingface.co/social-thumbnails/models/intfloat/multilingual-e5-large.png",
+      "description_ru": "Эмбеддинги для поиска и кластеризации: группировка РИД по направлениям, подбор экспертов к заявкам.",
+      "tags": [
+        "эмбеддинги",
+        "кластеризация"
+      ],
+      "access_url": "https://huggingface.co/intfloat/multilingual-e5-large",
+      "is_placeholder": false
+    },
+    {
+      "id": "minilm-multilingual",
+      "name": "paraphrase-multilingual-MiniLM-L12-v2",
+      "source": "huggingface",
+      "provider": "sentence-transformers",
+      "model_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+      "image_url": "https://cdn-thumbnails.huggingface.co/social-thumbnails/models/sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2.png",
+      "description_ru": "Лёгкий sentence-transformer для CPU: быстрый семантический поиск и нарезка текстов на ноутбуке.",
+      "tags": [
+        "эмбеддинги",
+        "CPU",
+        "sentence-transformers"
+      ],
+      "access_url": "https://huggingface.co/sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+      "is_placeholder": false
+    },
+    {
+      "id": "bge-reranker-v2-m3",
+      "name": "bge-reranker-v2-m3",
+      "source": "huggingface",
+      "provider": "BAAI",
+      "model_id": "BAAI/bge-reranker-v2-m3",
+      "image_url": "https://cdn-thumbnails.huggingface.co/social-thumbnails/models/BAAI/bge-reranker-v2-m3.png",
+      "description_ru": "Реранкер для второго этапа RAG: переупорядочивает найденные фрагменты, повышая точность ответов.",
+      "tags": [
+        "реранкер",
+        "RAG"
+      ],
+      "access_url": "https://huggingface.co/BAAI/bge-reranker-v2-m3",
+      "is_placeholder": false
+    },
+    {
+      "id": "patentsberta",
+      "name": "PatentSBERTa",
+      "source": "huggingface",
+      "provider": "AI Growth Lab",
+      "model_id": "AI-Growth-Lab/PatentSBERTa",
+      "image_url": "https://cdn-thumbnails.huggingface.co/social-thumbnails/models/AI-Growth-Lab/PatentSBERTa.png",
+      "description_ru": "Эмбеддинги патентных текстов: поиск аналогов, близость РИД вуза к патентам компаний, подбор лицензиатов.",
+      "tags": [
+        "патенты",
+        "РИД",
+        "трансфер технологий"
+      ],
+      "access_url": "https://huggingface.co/AI-Growth-Lab/PatentSBERTa",
+      "is_placeholder": false
+    },
+    {
+      "id": "specter2",
+      "name": "SPECTER2",
+      "source": "huggingface",
+      "provider": "Allen AI",
+      "model_id": "allenai/specter2_base",
+      "image_url": "https://cdn-thumbnails.huggingface.co/social-thumbnails/models/allenai/specter2_base.png",
+      "description_ru": "Эмбеддинги научных статей: карта компетенций вуза, поиск исследователей под запрос индустрии.",
+      "tags": [
+        "наука",
+        "публикации",
+        "компетенции"
+      ],
+      "access_url": "https://huggingface.co/allenai/specter2_base",
+      "is_placeholder": false
+    },
+    {
+      "id": "rubert-tiny2",
+      "name": "rubert-tiny2",
+      "source": "huggingface",
+      "provider": "cointegrated",
+      "model_id": "cointegrated/rubert-tiny2",
+      "image_url": "https://cdn-thumbnails.huggingface.co/social-thumbnails/models/cointegrated/rubert-tiny2.png",
+      "description_ru": "Маленький BERT для русского: классификация заявок и обращений, быстрые эмбеддинги на CPU.",
+      "tags": [
+        "классификация",
+        "русский язык",
+        "CPU"
+      ],
+      "access_url": "https://huggingface.co/cointegrated/rubert-tiny2",
+      "is_placeholder": false
+    },
+    {
+      "id": "mdeberta-xnli",
+      "name": "mDeBERTa-v3-base-mnli-xnli",
+      "source": "huggingface",
+      "provider": "MoritzLaurer",
+      "model_id": "MoritzLaurer/mDeBERTa-v3-base-mnli-xnli",
+      "image_url": "https://cdn-thumbnails.huggingface.co/social-thumbnails/models/MoritzLaurer/mDeBERTa-v3-base-mnli-xnli.png",
+      "description_ru": "Классификация без обучения (zero-shot): разметка заявок по технологическим направлениям и мерам поддержки.",
+      "tags": [
+        "zero-shot",
+        "классификация"
+      ],
+      "access_url": "https://huggingface.co/MoritzLaurer/mDeBERTa-v3-base-mnli-xnli",
+      "is_placeholder": false
+    },
+    {
+      "id": "chronos-bolt",
+      "name": "Chronos-Bolt Base",
+      "source": "huggingface",
+      "provider": "Amazon",
+      "model_id": "amazon/chronos-bolt-base",
+      "image_url": "https://cdn-thumbnails.huggingface.co/social-thumbnails/models/amazon/chronos-bolt-base.png",
+      "description_ru": "Прогноз временных рядов без обучения: доходы от лицензий, внебюджет, число заявок по месяцам.",
+      "tags": [
+        "прогноз",
+        "временные ряды",
+        "KPI"
+      ],
+      "access_url": "https://huggingface.co/amazon/chronos-bolt-base",
+      "is_placeholder": false
+    },
+    {
+      "id": "timesfm",
+      "name": "TimesFM 1.0",
+      "source": "huggingface",
+      "provider": "Google",
+      "model_id": "google/timesfm-1.0-200m",
+      "image_url": "https://cdn-thumbnails.huggingface.co/social-thumbnails/models/google/timesfm-1.0-200m.png",
+      "description_ru": "Фундаментальная модель прогнозирования рядов: сценарии KPI офиса проректора на 1–3 года.",
+      "tags": [
+        "прогноз",
+        "временные ряды"
+      ],
+      "access_url": "https://huggingface.co/google/timesfm-1.0-200m",
+      "is_placeholder": false
+    },
+    {
+      "id": "mbart-ru-sum",
+      "name": "mBART ru summarization",
+      "source": "huggingface",
+      "provider": "IlyaGusev",
+      "model_id": "IlyaGusev/mbart_ru_sum_gazeta",
+      "image_url": "https://cdn-thumbnails.huggingface.co/social-thumbnails/models/IlyaGusev/mbart_ru_sum_gazeta.png",
+      "description_ru": "Суммаризация русских текстов: краткие выжимки отчётов стартапов и заявок для экспертного совета.",
+      "tags": [
+        "суммаризация",
+        "русский язык"
+      ],
+      "access_url": "https://huggingface.co/IlyaGusev/mbart_ru_sum_gazeta",
+      "is_placeholder": false
+    },
+    {
+      "id": "whisper-large-v3-turbo",
+      "name": "Whisper large-v3 turbo",
+      "source": "huggingface",
+      "provider": "OpenAI",
+      "model_id": "openai/whisper-large-v3-turbo",
+      "image_url": "https://cdn-thumbnails.huggingface.co/social-thumbnails/models/openai/whisper-large-v3-turbo.png",
+      "description_ru": "Распознавание речи: протоколы экспертных советов, демо-дней и интервью CustDev из аудиозаписей.",
+      "tags": [
+        "речь",
+        "протоколы",
+        "CustDev"
+      ],
+      "access_url": "https://huggingface.co/openai/whisper-large-v3-turbo",
       "is_placeholder": false
     }
   ]

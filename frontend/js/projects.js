@@ -47,10 +47,25 @@
 
   /* ---------- карточка в сетке ---------- */
 
+  /* два типа проектов платформы проректора (api/runtime/projects.PROJECT_TYPES) */
+  var TYPE_TITLES = {
+    startup: 'Технологический проект / стартап',
+    initiative: 'Управленческая инициатива'
+  };
+
   var FIELD_TITLES = {
     /* название не дублируем — оно уже в заголовке модалки */
+    project_type: 'Тип проекта',
     goal: 'Цель',
     description: 'Описание',
+    technology: 'Технология и РИД',
+    trl: 'Уровень готовности (УГТ)',
+    market: 'Рынок и клиент',
+    funding_stage: 'Стадия финансирования',
+    commercialization: 'Путь на рынок',
+    kpi: 'Целевые показатели (KPI)',
+    milestones: 'Этапы и контрольные точки',
+    risks: 'Риски',
     team_size: 'Участников',
     participants: 'Состав команды (ФИО)',
     departments: 'Подразделения',
@@ -58,6 +73,8 @@
     groundwork: 'Задел',
     presentation: 'Презентация'
   };
+
+  var TYPED_FIELDS = ['technology', 'trl', 'market', 'funding_stage', 'commercialization', 'kpi', 'milestones', 'risks'];
 
   var LIST_TITLES = {
     groundwork_links: 'Ссылки задела',
@@ -135,6 +152,8 @@
     if (!p.is_own && p.my_level && LEVEL_LABELS[p.my_level]) {
       bits.push('ваш доступ: ' + LEVEL_LABELS[p.my_level].toLowerCase());
     }
+    if (TYPE_TITLES[p.project_type]) bits.push(TYPE_TITLES[p.project_type].toLowerCase());
+    if (p.trl) bits.push('УГТ ' + p.trl);
     if (p.goal) bits.push(p.goal.length > 60 ? p.goal.slice(0, 60) + '…' : p.goal);
     if (p.team_size) bits.push('участников: ' + p.team_size);
     if (p.budget) bits.push('бюджет: ' + p.budget);
@@ -590,12 +609,16 @@
         fields.appendChild(ownerRow);
       }
       var value = p[key];
+      /* поля одного из типов проекта не показываем пустыми у другого */
+      if (TYPED_FIELDS.indexOf(key) >= 0 && !String(value || '').trim()) return;
       var row = document.createElement('div');
       row.className = 'skill-meta-row';
       var dt = document.createElement('dt');
       dt.textContent = FIELD_TITLES[key];
       var dd = document.createElement('dd');
-      if (key === 'presentation') {
+      if (key === 'project_type') {
+        dd.textContent = TYPE_TITLES[value] || '—';
+      } else if (key === 'presentation') {
         dd.textContent = value ? 'есть' : 'нет';
       } else {
         dd.textContent = String(value || '').trim() || '—';
@@ -654,8 +677,17 @@
 
   var EDIT_FIELDS = [
     ['title', 'Название', 'input'],
+    ['project_type', 'Тип проекта', 'select'],
     ['goal', 'Цель (SMART)', 'textarea'],
     ['description', 'Описание', 'textarea'],
+    ['technology', 'Технология и РИД (стартап)', 'textarea'],
+    ['trl', 'УГТ 1–9 (стартап)', 'input'],
+    ['market', 'Рынок, клиент, подтверждение спроса (стартап)', 'textarea'],
+    ['funding_stage', 'Стадия финансирования (стартап)', 'input'],
+    ['commercialization', 'Путь на рынок: лицензия, МТК, стартап (стартап)', 'input'],
+    ['kpi', 'Целевые показатели (инициатива)', 'textarea'],
+    ['milestones', 'Этапы и контрольные точки', 'textarea'],
+    ['risks', 'Риски', 'textarea'],
     ['team_size', 'Количество участников', 'input'],
     ['participants', 'ФИО участников', 'textarea'],
     ['departments', 'Структурные подразделения', 'input'],
@@ -684,7 +716,11 @@
       html += '    <label><span>' + f[1] + '</span>' +
         (f[2] === 'textarea'
           ? '<textarea rows="3" name="' + f[0] + '"></textarea>'
-          : '<input type="text" name="' + f[0] + '">') +
+          : f[2] === 'select'
+            ? '<select name="' + f[0] + '"><option value="">— не выбран —</option>' +
+              Object.keys(TYPE_TITLES).map(function (k) { return '<option value="' + k + '">' + TYPE_TITLES[k] + '</option>'; }).join('') +
+              '</select>'
+            : '<input type="text" name="' + f[0] + '">') +
         '</label>';
     });
     EDIT_FILE_FIELDS.forEach(function (f) {

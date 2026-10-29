@@ -447,9 +447,10 @@
     /* ПИШ: ссылка — администраторам, остальным — «в разработке» */
     if (menuPish) menuPish.hidden = !isAdmin;
     if (menuPishLock) menuPishLock.hidden = isAdmin;
-    /* «Модели»: пункт меню и плитка на главной — только администраторам */
-    if (menuModels) menuModels.hidden = !isAdmin;
-    if (tileModels) tileModels.hidden = !isAdmin;
+    /* «Модели»: каталог открытых моделей и модели офиса проректора открыты
+       всем; модели проектов на самой странице — только администраторам */
+    if (menuModels) menuModels.hidden = false;
+    if (tileModels) tileModels.hidden = false;
     /* «Настройки» и «Сменить пароль» — любому вошедшему */
     if (changePassBtn) changePassBtn.hidden = !session;
     if (btnSettings) btnSettings.hidden = !session;

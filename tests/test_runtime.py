@@ -171,7 +171,7 @@ def test_onboarding_skill_body_fits_limit():
     assert skill, "навык project-onboarding должен быть в data/skills.json"
     body = datarepo.skill_body(skill, limit=SKILL_BODY_LIMIT)
     assert "aios-choices" in body
-    assert "Шаг 7" in body
+    assert "Шаг 10" in body  # последний шаг (подтверждение и сохранение) не усечён
     assert "усечён" not in body
 
     prompt = build_system_prompt(skill_ids=["project-onboarding"])

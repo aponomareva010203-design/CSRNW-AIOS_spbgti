@@ -654,6 +654,9 @@ def _builtin_tools(root: Path) -> list:
                 "ok": False,
                 "error": "Это тестовая RAG-база (admin_only): поиск по ней доступен только администраторам.",
             }
+        if card is None:
+            # опубликованные демо-базы платформы живут только в каталоге
+            card = next((c for c in datarepo.rag_bases() if c.get("id") == rag_id), None)
         try:
             result = await indexer.search(
                 rag_id,
@@ -677,6 +680,8 @@ def _builtin_tools(root: Path) -> list:
                 "поясняют терминологию, но не заменяют содержимое найденных "
                 "фрагментов."
             )
+        if result.get("search_mode") == "text":
+            note += " " + result.get("note", "")
         return {
             "ok": True,
             "rag_id": rag_id,
@@ -684,6 +689,7 @@ def _builtin_tools(root: Path) -> list:
             "count": len(hits),
             "results": hits,
             "ontology_context": ontology_context,
+            "search_mode": result.get("search_mode", "vector"),
             "note": note,
         }
 
@@ -963,6 +969,49 @@ def _builtin_tools(root: Path) -> list:
         parts.append("</svg>")
         return "".join(parts)
 
+    async def run_polygon(args: dict, ctx: dict | None) -> dict:
+        """Прогон полигона (сценарная модель портфеля по УГТ) — проверка гипотезы."""
+        from . import polygons
+
+        polygon_id = str(args.get("polygon_id") or "").strip()
+        base: dict = {}
+        if polygon_id:
+            found = polygons.get_store().get(polygon_id, _rag_user(ctx))
+            if found is None:
+                return {"ok": False, "error": f"Полигон не найден: {polygon_id}"}
+            base = found
+        params = {**(base.get("params") or {}), **(args.get("params") or {})}
+        scenarios = args.get("scenarios") if isinstance(args.get("scenarios"), list) else base.get("scenarios") or []
+        hypothesis = args.get("hypothesis") if isinstance(args.get("hypothesis"), dict) else base.get("hypothesis") or {}
+        try:
+            sim = polygons.simulate(params, scenarios, hypothesis)
+        except polygons.PolygonError as exc:
+            return {"ok": False, "error": str(exc)}
+        rows = []
+        for r in sim["results"]:
+            f = r["final"]
+            rows.append({
+                "сценарий": r["name"],
+                "стартапы": f["startups"]["mean"],
+                "лицензии": f["licenses"]["mean"],
+                "застрявшие проекты": f["stale"]["mean"],
+                "затраты, тыс. ₽": f["cost"]["mean"],
+                "отдача на 1 ₽": f["roi"]["mean"],
+                "гипотеза подтверждается, % прогонов": (
+                    round(r["hypothesis_probability"] * 100) if r["hypothesis_probability"] is not None else None
+                ),
+            })
+        return {
+            "ok": True,
+            "polygon_id": polygon_id or None,
+            "hypothesis": sim["hypothesis"],
+            "horizon_years": sim["params"]["horizon_years"],
+            "runs": sim["params"]["runs"],
+            "results": rows,
+            "page_url": f"/polygons.html?id={polygon_id}" if polygon_id else "/polygons.html",
+            "note": "Средние по прогонам Монте-Карло; ≥70 % прогонов — гипотеза устойчива, 40–70 % — зависит от удачи, <40 % — не подтверждается. Покажите таблицу через format_table и дайте ссылку на полигон.",
+        }
+
     async def chart_generate(args: dict, ctx: dict | None) -> dict:
         """Строит line/bar график по числовым данным — SVG без внешних библиотек."""
         style = str(args.get("style") or "line").strip().lower()
@@ -1159,7 +1208,7 @@ def _builtin_tools(root: Path) -> list:
                 "properties": {
                     "card": {
                         "type": "object",
-                        "description": "Карточка: {project_id?, title?, description?, goal?, team_size?, participants?, departments?, budget?, groundwork?, groundwork_links?, groundwork_files?, presentation_files?, presentation?, artifacts?, status?}. artifacts — статусы и гипотезы артефактов пилота {rag?, models?, agents?, polygon?, social?}: значение — {status: 0..3, hypothesis?} или строка-гипотеза (тогда статус = 1 «гипотеза сформулирована»). Статусы: 0 не начато, 1 гипотеза сформулирована, 2 в процессе создания, 3 завершено.",
+                        "description": "Карточка: {project_id?, project_type?: startup|initiative, title?, description?, goal?, team_size?, participants?, departments?, budget?, groundwork?, technology?, trl?, market?, funding_stage?, commercialization?, kpi?, milestones?, risks?, groundwork_links?, groundwork_files?, presentation_files?, presentation?, artifacts?, status?}. artifacts — статусы и гипотезы артефактов пилота {rag?, models?, agents?, polygon?, social?}: значение — {status: 0..3, hypothesis?} или строка-гипотеза (тогда статус = 1 «гипотеза сформулирована»). Статусы: 0 не начато, 1 гипотеза сформулирована, 2 в процессе создания, 3 завершено.",
                     },
                 },
                 "required": ["card"],
@@ -1359,6 +1408,20 @@ def _builtin_tools(root: Path) -> list:
                 "required": ["columns", "rows"],
             },
             handler=format_table,
+        ),
+        Tool(
+            name="run_polygon",
+            description="Проверяет гипотезу офиса проректора на полигоне — сценарной модели портфеля проектов по УГТ (Монте-Карло, без LLM): сравнивает базовый сценарий с управленческими решениями (стартап-студия, гранты, контрольные точки) и считает, в какой доле прогонов гипотеза подтверждается. Передайте polygon_id примера (pg-1a0e5c0201 — стартап-студия, pg-1a0e5c0202 — ревизия портфеля) или своего полигона; params/scenarios/hypothesis — необязательные правки поверх него.",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "polygon_id": {"type": "string", "description": "id полигона (pg-…)"},
+                    "params": {"type": "object", "description": "правки параметров: horizon_years, intake_per_year, entry_level, exit_level, annual_budget (тыс. ₽), fixed_cost, p_license, license_income, investment_per_startup, initial {УГТ: число}, levels {УГТ: {p_up, p_drop, cost}}"},
+                    "scenarios": {"type": "array", "items": {"type": "object"}, "description": "сценарии: {id, name, valley_boost %, up_boost %, drop_change %, p_license_change п.п., intake_per_year, annual_budget, fixed_cost}"},
+                    "hypothesis": {"type": "object", "description": "{statement, metric: startups|licenses|exits|income|investments|cost|roi|stale|active, op: >=|<=, value, scenario_id}"},
+                },
+            },
+            handler=run_polygon,
         ),
         Tool(
             name="chart_generate",

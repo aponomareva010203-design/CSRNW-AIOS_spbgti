@@ -52,7 +52,7 @@ from qdrant_client.http import models as qmodels
 
 from fastapi import APIRouter, BackgroundTasks, Body, Depends, File, HTTPException, UploadFile
 
-from ..runtime import indexer, ontologies, projects, rag, team
+from ..runtime import indexer, ontologies, projects, rag, team, text_search
 from ..runtime.rag import RagError
 from ..runtime.users import ROLE_ADMIN
 from .auth import get_current_user, require_admin
@@ -371,7 +371,8 @@ def delete_document(rag_id: str, doc_id: str, user: dict = Depends(get_current_u
     if card is None:
         raise HTTPException(status_code=404, detail="RAG-база не найдена")
     documents = list(card.get("documents") or [])
-    if not any(isinstance(d, dict) and d.get("doc_id") == doc_id for d in documents):
+    doc = next((d for d in documents if isinstance(d, dict) and d.get("doc_id") == doc_id), None)
+    if doc is None:
         raise HTTPException(status_code=404, detail="Документ не найден")
     collection_name = card.get("collection_name") or rag_id
     try:
@@ -384,7 +385,10 @@ def delete_document(rag_id: str, doc_id: str, user: dict = Depends(get_current_u
                 ])),
             )
     except Exception as exc:
-        raise HTTPException(status_code=502, detail=f"Не удалось удалить фрагменты из хранилища: {exc}"[:300])
+        # документ, проиндексированный только для текстового поиска, в Qdrant не попадал
+        if doc.get("search_mode") != "text":
+            raise HTTPException(status_code=502, detail=f"Не удалось удалить фрагменты из хранилища: {exc}"[:300])
+    text_search.delete_text(rag_id, doc_id)
     rest = [d for d in documents if not (isinstance(d, dict) and d.get("doc_id") == doc_id)]
     try:
         store.save(owner_id, {**card, "documents": rest})

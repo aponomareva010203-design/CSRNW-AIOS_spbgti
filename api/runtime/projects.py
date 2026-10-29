@@ -46,6 +46,18 @@ DEPARTMENTS_MAX_CHARS = 500
 BUDGET_MAX_CHARS = 200
 GROUNDWORK_MAX_CHARS = 4_000
 
+# Тип проекта платформы проректора по инновациям:
+#   startup    — технологический проект или стартап из портфеля вуза
+#                (технология/РИД, УГТ, рынок и клиент, стадия финансирования);
+#   initiative — управленческая инициатива офиса проректора (запуск
+#                стартап-студии, программа трансфера технологий, рост МТК):
+#                KPI, этапы, риски.
+PROJECT_TYPES = ("startup", "initiative")
+PROJECT_TYPE_TITLES = {
+    "startup": "Технологический проект / стартап",
+    "initiative": "Управленческая инициатива",
+}
+
 # строковые поля карточки → лимит символов
 TEXT_FIELDS = {
     "title": TITLE_MAX_CHARS,
@@ -56,6 +68,16 @@ TEXT_FIELDS = {
     "departments": DEPARTMENTS_MAX_CHARS,
     "budget": BUDGET_MAX_CHARS,
     "groundwork": GROUNDWORK_MAX_CHARS,
+    # технологический проект / стартап
+    "technology": 1_500,       # технология и РИД (патенты, ПО, ноу-хау)
+    "trl": 40,                 # текущий УГТ 1–9 (и с какого времени)
+    "market": 1_500,           # проблема, сегмент клиентов, подтверждение спроса
+    "funding_stage": 300,      # стадия: внутренний грант, ФСИ, студия, венчур
+    "commercialization": 600,  # путь на рынок: лицензия, МТК, стартап, НИОКР с партнёром
+    # управленческая инициатива
+    "kpi": 1_500,              # целевые показатели и их значения
+    "milestones": 2_000,       # этапы и сроки, контрольные точки
+    "risks": 1_500,
 }
 
 # списковые поля (ссылки/файлы) → (макс. элементов, лимит символов на элемент)
@@ -346,6 +368,11 @@ class ProjectStore:
         for field, limit in TEXT_FIELDS.items():
             if field in raw:
                 data[field] = _clean_text(raw.get(field), limit)
+        if "project_type" in raw:
+            ptype = _clean_text(raw.get("project_type"), 20)
+            if ptype and ptype not in PROJECT_TYPES:
+                raise ProjectError("Тип проекта: startup (технологический проект / стартап) или initiative (управленческая инициатива)")
+            data["project_type"] = ptype
         for field, (max_items, item_limit) in LIST_FIELD_LIMITS.items():
             if field in raw:
                 data[field] = _clean_list(raw.get(field), max_items, item_limit)

@@ -31,6 +31,7 @@ upsert с заменой списка документов и мягкой ва�
 """
 
 import json
+import os
 import re
 import secrets
 import time
@@ -63,7 +64,9 @@ DOC_STATUSES = (DOC_STATUS_QUEUED, DOC_STATUS_PROCESSING, DOC_STATUS_READY, DOC_
 
 # фиксированный стек первой версии (см. решение по архитектуре RAG)
 VECTOR_DB = "Qdrant"
-EMBEDDING_MODEL = "text-embedding-3-small"  # через ProxyAPI.ru, тот же ключ, что и LLM
+# через ProxyAPI.ru (тот же ключ, что и LLM); другая модель — AIOS_EMBEDDING_MODEL
+# (например, Qwen3-Embedding у OpenAI-совместимого прокси)
+EMBEDDING_MODEL = os.getenv("AIOS_EMBEDDING_MODEL") or "text-embedding-3-small"
 
 # лимиты карточки
 MAX_TAGS = 10
